@@ -1,0 +1,144 @@
+.job-card {
+  display: flex;
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.job-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.job-card-left {
+  width: 80px;
+  margin-right: 1.5rem;
+}
+
+.company-logo {
+  width: 60px;
+  height: 60px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+}
+
+.job-card-content {
+  flex: 1;
+}
+
+.job-title {
+  font-size: 1.2rem;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.job-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.job-status span {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Status colors based on application status */
+.job-status span:first-child[data-status="Application is open"] {
+  color: #43a047; /* Green color for open applications */
+}
+
+.job-status span:first-child[data-status="Application is opening soon"] {
+  color: #e53935; /* Red color for opening soon applications */
+}
+
+.applied-tag {
+  background-color: #e8f5e9;
+  color: #43a047; /* Green color for applied tag */
+  padding: 0.25rem 0.75rem;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.job-details {
+  display: flex;
+  gap: 2rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.job-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+}
+
+.star-button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  color: #ccc;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.star-button:hover {
+  color: #ffd700;
+  background-color: rgba(255, 215, 0, 0.1);
+}
+
+.star-button.active {
+  color: #ffd700;
+  background-color: rgba(255, 215, 0, 0.1);
+}
+
+.star-button svg {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s ease;
+}
+
+.star-button:hover svg {
+  transform: scale(1.1);
+}
+
+.visit-link {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: color 0.2s ease;
+}
+
+.visit-link:hover {
+  color: #0056b3;
+} 
