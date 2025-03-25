@@ -1,6 +1,9 @@
 .header {
-  background-color: white;
+  background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .header-content {
@@ -15,72 +18,65 @@
 .logo-section {
   display: flex;
   align-items: center;
-  gap: 1rem;
   text-decoration: none;
-  color: inherit;
+  color: #333;
 }
 
 .logo {
-  width: 80px;
-  height: 80px;
-  background-color: #333;
-  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin-right: 0.8rem;
 }
 
 .logo img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
+  object-fit: contain;
+}
+
+.logo-section h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  font-weight: 600;
 }
 
 .nav-tabs {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
+  align-items: center;
 }
 
 .nav-tab {
-  padding: 0.5rem 1rem;
   text-decoration: none;
   color: #666;
-  transition: all 0.3s ease;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
 .nav-tab:hover {
-  color: #333;
+  color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
 }
 
 .nav-tab.active {
-  color: #333;
-  font-weight: 600;
-}
-
-.nav-tab.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background-color: #333;
+  color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
 }
 
 .shortlist-count {
-  background-color: #ffc107;
-  color: #333;
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #dc3545;
+  color: white;
   font-size: 0.75rem;
-  font-weight: 600;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
-  min-width: 1.5rem;
+  min-width: 20px;
   text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .header-profile-section {
@@ -88,62 +84,219 @@
 }
 
 .profile-button {
-  width: 40px;
-  height: 40px;
-  border: none;
   background: none;
+  border: none;
+  padding: 0.5rem;
   cursor: pointer;
-  padding: 0px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-}
-
-.profile-button:hover,
-.profile-button.active {
-  background-color: #fd5454;
+  position: relative;
 }
 
 .profile-icon {
-  width: 100%;
-  height: 100%;
-  background-color: #ed5b5b;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
+  background-color: #007bff;
+  position: relative;
+}
+
+.profile-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px;
+  height: 20px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
 }
 
 .profile-menu {
   position: absolute;
-  top: calc(100% + 0.5rem);
+  top: 100%;
   right: 0;
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   min-width: 200px;
-  padding: 0.5rem;
+  margin-top: 0.5rem;
   z-index: 1000;
 }
 
 .profile-menu-item {
   display: block;
-  padding: 0.75rem 1rem;
-  color: #333;
-  text-decoration: none;
-  font-size: 0.875rem;
-  border-radius: 4px;
-  transition: background-color 0.3s ease;
-  text-align: left;
   width: 100%;
+  padding: 0.8rem 1rem;
+  text-align: left;
   border: none;
   background: none;
+  color: #333;
+  font-size: 1rem;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .profile-menu-item:hover {
-  background-color: #f5f5f5;
+  background-color: #f8f9fa;
 }
 
 .profile-menu-item.logout {
   color: #dc3545;
-  border-top: 1px solid #eee;
-  margin-top: 0.5rem;
-  padding-top: 0.75rem;
+}
+
+.mobile-menu-button {
+  display: none;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  position: relative;
+  z-index: 1001;
+}
+
+.hamburger {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: #333;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.hamburger::before,
+.hamburger::after {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 2px;
+  background-color: #333;
+  transition: all 0.3s ease;
+}
+
+.hamburger::before {
+  top: -8px;
+}
+
+.hamburger::after {
+  bottom: -8px;
+}
+
+.hamburger.active {
+  background-color: transparent;
+}
+
+.hamburger.active::before {
+  transform: rotate(45deg);
+  top: 0;
+}
+
+.hamburger.active::after {
+  transform: rotate(-45deg);
+  bottom: 0;
+}
+
+.mobile-menu {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: white;
+  padding: 5rem 1rem 1rem;
+  z-index: 1000;
+  overflow-y: auto;
+}
+
+.mobile-menu-item {
+  display: block;
+  padding: 1rem;
+  text-decoration: none;
+  color: #333;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #eee;
+  position: relative;
+}
+
+.mobile-menu-item.active {
+  color: #007bff;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+.mobile-menu-item.logout {
+  color: #dc3545;
+  width: 100%;
+  text-align: left;
+  border: none;
+  background: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1024px) {
+  .header-content {
+    padding: 0.8rem;
+  }
+
+  .nav-tabs {
+    gap: 1rem;
+  }
+
+  .nav-tab {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .logo-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .nav-tabs {
+    display: none;
+  }
+
+  .header-content {
+    padding: 0.6rem;
+  }
+
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .mobile-menu {
+    display: block;
+  }
+
+  .profile-button {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logo-section h2 {
+    font-size: 1rem;
+  }
+
+  .profile-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .profile-menu {
+    min-width: 180px;
+  }
+
+  .mobile-menu-item {
+    padding: 0.8rem;
+    font-size: 1rem;
+  }
 } 

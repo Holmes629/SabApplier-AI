@@ -5,14 +5,25 @@ import './Header.css';
 function Header({ shortlistedCount, onLogout }) {
   const location = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const handleProfileClick = () => {
     setShowProfileMenu(!showProfileMenu);
   };
 
+  const handleMobileMenuClick = () => {
+    setShowMobileMenu(!showMobileMenu);
+  };
+
   const handleLogout = () => {
     onLogout();
     setShowProfileMenu(false);
+    setShowMobileMenu(false);
+  };
+
+  const closeMenus = () => {
+    setShowProfileMenu(false);
+    setShowMobileMenu(false);
   };
 
   return (
@@ -28,12 +39,14 @@ function Header({ shortlistedCount, onLogout }) {
           <Link 
             to="/" 
             className={`nav-tab ${location.pathname === '/' ? 'active' : ''}`}
+            onClick={closeMenus}
           >
             Home
           </Link>
           <Link 
             to="/shortlisted" 
             className={`nav-tab ${location.pathname === '/shortlisted' ? 'active' : ''}`}
+            onClick={closeMenus}
           >
             Shortlisted Applications
             {shortlistedCount > 0 && (
@@ -43,6 +56,7 @@ function Header({ shortlistedCount, onLogout }) {
           <Link 
             to="/track" 
             className={`nav-tab ${location.pathname === '/track' ? 'active' : ''}`}
+            onClick={closeMenus}
           >
             Track My Applications
           </Link>
@@ -56,7 +70,7 @@ function Header({ shortlistedCount, onLogout }) {
           </button>
           {showProfileMenu && (
             <div className="profile-menu">
-              <Link to="/profile" className="profile-menu-item">
+              <Link to="/profile" className="profile-menu-item" onClick={closeMenus}>
                 My Profile
               </Link>
               <button onClick={handleLogout} className="profile-menu-item logout">
@@ -65,7 +79,48 @@ function Header({ shortlistedCount, onLogout }) {
             </div>
           )}
         </div>
+        <button className="mobile-menu-button" onClick={handleMobileMenuClick}>
+          <span className={`hamburger ${showMobileMenu ? 'active' : ''}`}></span>
+        </button>
       </div>
+      {showMobileMenu && (
+        <div className="mobile-menu">
+          <Link 
+            to="/" 
+            className={`mobile-menu-item ${location.pathname === '/' ? 'active' : ''}`}
+            onClick={closeMenus}
+          >
+            Home
+          </Link>
+          <Link 
+            to="/shortlisted" 
+            className={`mobile-menu-item ${location.pathname === '/shortlisted' ? 'active' : ''}`}
+            onClick={closeMenus}
+          >
+            Shortlisted Applications
+            {shortlistedCount > 0 && (
+              <span className="shortlist-count">{shortlistedCount}</span>
+            )}
+          </Link>
+          <Link 
+            to="/track" 
+            className={`mobile-menu-item ${location.pathname === '/track' ? 'active' : ''}`}
+            onClick={closeMenus}
+          >
+            Track My Applications
+          </Link>
+          <Link 
+            to="/profile" 
+            className={`mobile-menu-item ${location.pathname === '/profile' ? 'active' : ''}`}
+            onClick={closeMenus}
+          >
+            My Profile
+          </Link>
+          <button onClick={handleLogout} className="mobile-menu-item logout">
+            Sign Out
+          </button>
+        </div>
+      )}
     </header>
   );
 }

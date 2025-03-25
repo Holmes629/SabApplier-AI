@@ -102,23 +102,15 @@
   border: none;
   padding: 0.5rem;
   cursor: pointer;
-  color: #ccc;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   width: 40px;
   height: 40px;
   border-radius: 50%;
+  transition: all 0.3s ease;
 }
 
-.star-button:hover {
-  color: #ffd700;
-  background-color: rgba(255, 215, 0, 0.1);
-}
-
+.star-button:hover,
 .star-button.active {
-  color: #ffd700;
   background-color: rgba(255, 215, 0, 0.1);
 }
 
@@ -141,4 +133,60 @@
 
 .visit-link:hover {
   color: #0056b3;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 768px) {
+  .job-card {
+    padding: 1.25rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .job-card-left {
+    width: 60px;
+    margin-right: 1rem;
+  }
+
+  .company-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .job-title {
+    font-size: 1.1rem;
+  }
+
+  .job-details {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .job-card {
+    padding: 1rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .job-card-left {
+    width: 50px;
+    margin-right: 0.8rem;
+  }
+
+  .company-logo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .job-title {
+    font-size: 1rem;
+  }
+
+  .job-details {
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .detail-item {
+    flex: 1 1 100%;
+  }
 } 

@@ -18,6 +18,18 @@
   margin-top: 2rem;
 }
 
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+  .home-container {
+    padding: 1.5rem;
+  }
+
+  .applications-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 768px) {
   .home-container {
     padding: 1rem;
@@ -25,10 +37,28 @@
 
   .page-title {
     font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .applications-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-container {
+    padding: 0.8rem;
+  }
+
+  .page-title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
   }
 
   .applications-grid {
     grid-template-columns: 1fr;
+    gap: 0.8rem;
   }
 }
 

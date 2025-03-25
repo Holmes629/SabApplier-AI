@@ -16,9 +16,10 @@ body {
 }
 
 .main-content {
+  flex: 1;
+  padding: 2rem;
   max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  margin: 0 auto;
   width: 100%;
 }
 
@@ -53,4 +54,23 @@ body {
 .empty-state-subtitle {
   color: #666;
   font-size: 1rem;
+}
+
+/* Responsive breakpoints */
+@media (max-width: 1200px) {
+  .main-content {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .main-content {
+    padding: 0.8rem;
+  }
 } 
