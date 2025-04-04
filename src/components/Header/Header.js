@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Header.css';
 
-function Header({ shortlistedCount, onLogout }) {
+function Header({ cartCount, onLogout }) {
   const location = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -31,7 +31,7 @@ function Header({ shortlistedCount, onLogout }) {
       <div className="header-content">
         <Link to="/" className="logo-section">
           <div className="logo">
-            <img src="logo.png" alt="SabApplier AI" />
+            <img src="logo.jpeg" alt="SabApplier AI" />
           </div>
           <h2>SabApplier AI</h2>
         </Link>
@@ -44,13 +44,13 @@ function Header({ shortlistedCount, onLogout }) {
             Home
           </Link>
           <Link 
-            to="/shortlisted" 
-            className={`nav-tab ${location.pathname === '/shortlisted' ? 'active' : ''}`}
+            to="/cart" 
+            className={`nav-tab ${location.pathname === '/cart' ? 'active' : ''}`}
             onClick={closeMenus}
           >
-            Shortlisted Applications
-            {shortlistedCount > 0 && (
-              <span className="shortlist-count">{shortlistedCount}</span>
+            Cart
+            {cartCount > 0 && (
+              <span className="cart-count">{cartCount}</span>
             )}
           </Link>
           <Link 
@@ -93,13 +93,13 @@ function Header({ shortlistedCount, onLogout }) {
             Home
           </Link>
           <Link 
-            to="/shortlisted" 
-            className={`mobile-menu-item ${location.pathname === '/shortlisted' ? 'active' : ''}`}
+            to="/cart" 
+            className={`mobile-menu-item ${location.pathname === '/cart' ? 'active' : ''}`}
             onClick={closeMenus}
           >
-            Shortlisted Applications
-            {shortlistedCount > 0 && (
-              <span className="shortlist-count">{shortlistedCount}</span>
+            Cart
+            {cartCount > 0 && (
+              <span className="cart-count">{cartCount}</span>
             )}
           </Link>
           <Link 

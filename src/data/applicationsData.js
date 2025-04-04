@@ -6,7 +6,7 @@ export const defaultApplications = [
     applicationFees: "NA",
     deadline: "dd/mm/yyyy",
     isApplied: false,
-    isShortlisted: false,
+    isCart: false,
     officialLink: "https://jeemain.nta.nic.in/"
   },
   {
@@ -16,7 +16,7 @@ export const defaultApplications = [
     applicationFees: "NA",
     deadline: "dd/mm/yyyy",
     isApplied: true,
-    isShortlisted: false,
+    isCart: false,
     officialLink: "https://jeeadv.ac.in/"
   },
   {
@@ -26,7 +26,7 @@ export const defaultApplications = [
     applicationFees: "NA",
     deadline: "dd/mm/yyyy",
     isApplied: false,
-    isShortlisted: false,
+    isCart: false,
     officialLink: "https://neet.nta.nic.in/"
   },
   {
@@ -36,7 +36,7 @@ export const defaultApplications = [
     applicationFees: "NA",
     deadline: "dd/mm/yyyy",
     isApplied: false,
-    isShortlisted: false
+    isCart: false
   },
   {
     id: 5,
@@ -45,7 +45,7 @@ export const defaultApplications = [
     applicationFees: "NA",
     deadline: "dd/mm/yyyy",
     isApplied: false,
-    isShortlisted: false,
+    isCart: false,
     officialLink: "https://ssc.nic.in/cgl2025"
   },
   {
@@ -55,7 +55,7 @@ export const defaultApplications = [
     applicationFees: "NA",
     deadline: "dd/mm/yyyy",
     isApplied: false,
-    isShortlisted: false,
+    isCart: false,
     officialLink: "https://ssc.nic.in/chsl2025"
   }
 ];

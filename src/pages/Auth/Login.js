@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Login.css';
+import './Auth.css';
 
-function Login({ onLogin }) {
+const Login = ({ onLogin }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,25 +20,37 @@ function Login({ onLogin }) {
     setError('');
   };
 
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setError('All fields are required');
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
     setError('');
 
     try {
-      const success = await onLogin(formData);
-      if (success) {
+      const result = await onLogin(formData);
+
+      if (result.success) {
         navigate('/');
       } else {
-        setError('Invalid email or password');
+        setError(result.message || 'Login failed. Please try again.');
       }
     } catch (err) {
       setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const handleGoogleSignIn = () => {
-    // TODO: Implement Google sign-in
-    console.log('Google sign-in attempted');
   };
 
   return (
@@ -80,21 +93,8 @@ function Login({ onLogin }) {
 
           {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" className="submit-button">
-            Sign In
-          </button>
-
-          <div className="divider">
-            <span>OR</span>
-          </div>
-
-          <button 
-            type="button" 
-            className="google-button"
-            onClick={handleGoogleSignIn}
-          >
-            <img src="/google-icon.png" alt="Google" className="google-icon" />
-            Sign in with Google
+          <button type="submit" className="submit-button" disabled={loading}>
+            {loading ? 'Logging in...' : 'Sign In'}
           </button>
         </form>
 
@@ -104,6 +104,6 @@ function Login({ onLogin }) {
       </div>
     </div>
   );
-}
+};
 
 export default Login; 

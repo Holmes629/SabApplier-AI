@@ -3,7 +3,7 @@ import SearchBar from '../../components/SearchBar/SearchBar';
 import JobCard from '../../components/JobCard/JobCard';
 import './Home.css';
 
-const Home = ({ applications, onToggleShortlist }) => {
+const Home = ({ applications, onToggleCart }) => {
   const [filteredApplications, setFilteredApplications] = useState(applications);
 
   useEffect(() => {
@@ -28,14 +28,15 @@ const Home = ({ applications, onToggleShortlist }) => {
 
   return (
     <main className="main-content">
-      <h1 className="page-title">Welcome to SabApplier AI</h1>
+      <h1 className="page-title-home">Welcome to SabApplier AI</h1>
+      <p className="page-subtitle-home">Apply faster & easier</p>
       <SearchBar onSearch={handleSearch} />
       <div className="job-cards-container">
         {filteredApplications.map(app => (
           <JobCard 
             key={app.id} 
             application={app} 
-            onShortlist={() => onToggleShortlist(app.id)}
+            onCart={() => onToggleCart(app.id)}
           />
         ))}
       </div>

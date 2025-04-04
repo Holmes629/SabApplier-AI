@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import './Profile.css';
+import { api } from '../../services/api';
 
 function Profile({ applications }) {
   const [userData, setUserData] = useState(null);
+  const [profileData, setProfileData] = useState(null);
   const [stats, setStats] = useState({
     total: 0,
     shortlisted: 0,
@@ -11,7 +13,7 @@ function Profile({ applications }) {
 
   useEffect(() => {
     // Load user data from localStorage
-    const savedUser = localStorage.getItem('currentUser');
+    const savedUser = localStorage.getItem("currentUser");
     if (savedUser) {
       setUserData(JSON.parse(savedUser));
     }
@@ -29,6 +31,28 @@ function Profile({ applications }) {
     }
   }, [applications]);
 
+  const getProfile = async () => {
+    try {
+      const response = await api.getProfile();
+      setUserData(response.user_data);
+
+      // Display message to user
+      const messageElement = document.createElement('div');
+      messageElement.textContent = response.message;
+      messageElement.style.cssText = 'position: fixed; top: 50px; right: 45%; padding: 10px; background:rgb(56, 250, 63); color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
+
+    } catch (error) {
+      console.error('Profile fetch erro:', error);
+    }
+  };
+
+  // Call getProfile when component mounts
+  useEffect(() => {
+    getProfile();
+  }, []); // Empty dependency array means this runs once on mount
+
   if (!userData) {
     return <div className="main-content">Loading profile...</div>;
   }
@@ -38,7 +62,7 @@ function Profile({ applications }) {
       <div className="profile-container">
         <div className="profile-header">
           <div className="profile-avatar">
-            <div className="avatar-placeholder"></div>
+            <img src={userData.profile_photo} alt="Profile" />
           </div>
           <h2 className="page-title">My Profile</h2>
         </div>
@@ -48,7 +72,7 @@ function Profile({ applications }) {
           <div className="profile-info">
             <div className="info-item">
               <label>Name</label>
-              <p>{userData.name || 'Not provided'}</p>
+              <p>{userData.username || 'Not provided'}</p>
             </div>
             <div className="info-item">
               <label>Email</label>
@@ -56,11 +80,23 @@ function Profile({ applications }) {
             </div>
             <div className="info-item">
               <label>Phone</label>
-              <p>{userData.phone || 'Not provided'}</p>
+              <p>{userData.phone_number || 'Not provided'}</p>
             </div>
             <div className="info-item">
               <label>Location</label>
-              <p>{userData.location || 'Not provided'}</p>
+              <p>{userData.city || 'Not provided'}</p>
+            </div>
+            <div className="info-item">
+              <label>State</label>
+              <p>{userData.state || 'Not provided'}</p>
+            </div>
+            <div className="info-item">
+              <label>Country</label>
+              <p>{userData.country || 'Not provided'}</p>
+            </div>
+            <div className="info-item">
+              <label>Pincode</label>
+              <p>{userData.pincode || 'Not provided'}</p>
             </div>
           </div>
         </div>

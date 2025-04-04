@@ -3,13 +3,14 @@ import { HashRouter as Router, Route, Routes, Navigate } from 'react-router-dom'
 import './App.css';
 import Header from './components/Header/Header';
 import Home from './pages/Home/Home';
-import ShortlistedApplications from './pages/ShortlistedApplications/ShortlistedApplications';
+import Cart from './pages/Cart/Cart';
 import TrackApplications from './pages/TrackApplications/TrackApplications';
 import Profile from './pages/Profile/Profile';
 import Login from './pages/Auth/Login';
 import SignUp from './pages/Auth/SignUp';
 import ExamDetails from './pages/ExamDetails/ExamDetails';
 import { getApplicationsFromStorage, saveApplicationsToStorage } from './data/applicationsData';
+import { api } from './services/api';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -47,56 +48,74 @@ function App() {
     }
   }, [currentUser]);
 
-  const toggleShortlist = (id) => {
+  const toggleCart = (id) => {
     setApplications(applications.map(app => {
       if (app.id === id) {
-        return { ...app, isShortlisted: !app.isShortlisted };
+        return { ...app, isCart: !app.isCart };
       }
       return app;
     }));
   };
 
-  const handleLogin = (userData) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(u => u.email === userData.email && u.password === userData.password);
-    
-    if (user) {
-      setCurrentUser(user);
+  const handleLogin = async (userData) => {
+    try {
+      const response = await api.login(userData);
+      setCurrentUser(userData);
       setIsAuthenticated(true);
-      return true;
+      localStorage.setItem("currentUser", JSON.stringify(userData));
+      localStorage.setItem("isAuthenticated", "true");
+
+       // Display message to user
+       const messageElement = document.createElement('div');
+       messageElement.textContent = 'User Logged in successfully';
+       messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+       document.body.appendChild(messageElement);
+       setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, message: error.message };
     }
-    return false;
   };
 
-  const handleSignUp = (userData) => {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    
-    // Check if email already exists
-    if (users.some(user => user.email === userData.email)) {
-      return { success: false, message: 'Email already exists' };
+  const handleSignUp = async (userData) => {
+    try {
+      const response = await api.signup(userData);
+      setCurrentUser(userData);
+      setIsAuthenticated(true);
+      localStorage.setItem("currentUser", JSON.stringify(userData));
+      localStorage.setItem("isAuthenticated", "true");
+
+       // Display message to user
+       const messageElement = document.createElement('div');
+       messageElement.textContent = 'User Signed up successfully';
+       messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+       document.body.appendChild(messageElement);
+       setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
+      
+       return { success: true };
+    } catch (error) {
+      return { success: false, message: error.message };
     }
-
-    // Create new user
-    const newUser = {
-      id: Date.now(),
-      ...userData,
-      createdAt: new Date().toISOString()
-    };
-
-    // Add to users array
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-
-    // Log in the new user
-    setCurrentUser(newUser);
-    setIsAuthenticated(true);
-    return { success: true };
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setCurrentUser(null);
-    localStorage.removeItem('currentUser');
+  const handleLogout = async () => {
+    try {
+      await api.logout(localStorage.getItem("currentUser"));
+      setIsAuthenticated(false);
+      setCurrentUser(null);
+      localStorage.setItem("currentUser", null);
+      localStorage.setItem("isAuthenticated", false);
+      // Display message to user
+      const messageElement = document.createElement('div');
+      messageElement.textContent = 'You have been logged out';
+      messageElement.style.cssText = 'position: fixed; top: 50px; right: 45%; padding: 10px; background:rgb(249, 30, 63); color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
+
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const ProtectedRoute = ({ children }) => {
@@ -106,12 +125,12 @@ function App() {
     return children;
   };
 
-  const shortlistedCount = applications.filter(app => app.isShortlisted).length;
-
+  const cartCount = applications.filter(app => app.isCart).length;
+  
   return (
     <Router>
       <div className="app">
-        {isAuthenticated && <Header shortlistedCount={shortlistedCount} onLogout={handleLogout} currentUser={currentUser} />}
+        {isAuthenticated && <Header cartCount={cartCount} onLogout={handleLogout} currentUser={currentUser} />}
         <Routes>
           <Route 
             path="/login" 
@@ -125,15 +144,15 @@ function App() {
             path="/" 
             element={
               <ProtectedRoute>
-                <Home applications={applications} onToggleShortlist={toggleShortlist} />
+                <Home applications={applications} onToggleCart={toggleCart} />
               </ProtectedRoute>
             } 
           />
           <Route 
-            path="/shortlisted" 
+            path="/cart" 
             element={
               <ProtectedRoute>
-                <ShortlistedApplications applications={applications} onToggleShortlist={toggleShortlist} />
+                <Cart applications={applications} onToggleCart={toggleCart} />
               </ProtectedRoute>
             } 
           />
@@ -157,7 +176,7 @@ function App() {
             path="/exam/:id" 
             element={
               <ProtectedRoute>
-                <ExamDetails applications={applications} onToggleShortlist={toggleShortlist} />
+                <ExamDetails applications={applications} onToggleCart={toggleCart} />
               </ProtectedRoute>
             } 
           />

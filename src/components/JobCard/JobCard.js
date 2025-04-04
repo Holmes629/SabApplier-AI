@@ -2,10 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import './JobCard.css';
 
-function JobCard({ application, onShortlist }) {
+function JobCard({ application, onCart }) {
   const handleClick = (e) => {
-    // Prevent navigation if clicking on star button or official link
-    if (e.target.closest('.star-button') || e.target.closest('.visit-link')) {
+    // Prevent navigation if clicking on cart button or official link
+    if (e.target.closest('.cart-button') || e.target.closest('.visit-link')) {
       e.preventDefault();
     }
   };
@@ -37,18 +37,6 @@ function JobCard({ application, onShortlist }) {
         </div>
       </div>
       <div className="job-card-right">
-        <button 
-          className={`star-button ${application.isShortlisted ? 'active' : ''}`}
-          onClick={(e) => {
-            e.preventDefault();
-            onShortlist();
-          }}
-          aria-label={application.isShortlisted ? "Remove from shortlist" : "Add to shortlist"}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={application.isShortlisted ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-        </button>
         <a 
           href={application.officialLink} 
           target="_blank" 
@@ -58,6 +46,20 @@ function JobCard({ application, onShortlist }) {
         >
           Visit official site →
         </a>
+        <button 
+          className={`cart-button ${application.isCart ? 'active' : ''}`}
+          onClick={(e) => {
+            e.preventDefault();
+            onCart();
+          }}
+          aria-label={application.isCart ? "Remove from cart" : "Add to cart"}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={application.isCart ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+        </button>
       </div>
     </Link>
   );
