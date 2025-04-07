@@ -1,7 +1,8 @@
 import { UNSAFE_createClientRoutesWithHMRRevalidationOptOut } from "react-router-dom";
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+// const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'https://sabapplier-ai-backend.onrender.com/api';
 
 // Helper function to get auth token
 const getAuthToken = () => localStorage.getItem('token');
@@ -46,13 +47,11 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
+};
 
 export const api = {
     signup: async (userData) => {
         try {
-            console.log('im inside api js');
-            console.log(userData);
             const formData = new FormData();
             
             // Add text fields
@@ -71,16 +70,16 @@ export const api = {
             formData.append('aadhaar_card', userData.aadhaar_card);
             formData.append('pan_card', userData.pan_card);
 
-            console.log('im pushing it')
             const response = await axios.post(`${API_BASE_URL}/users/register/`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
             });
+            
             return response.data;
         } catch (error) {
             console.error('Signup error:', error.response?.data || error.message);
-            throw new Error(error.response?.data?.message || 'Signup failed');
+            throw new Error('Signup failed: user already exists or invalid data');
         }
     },
 
@@ -123,7 +122,6 @@ export const api = {
                     'Content-Type': 'application/json',
                 },
             });
-
             if (!response.ok) {
                 throw new Error('Failed to get profile');
             }
@@ -136,5 +134,22 @@ export const api = {
 
     isAuthenticated() {
         return !!localStorage.getItem('token');
+    },
+
+    autoFill: async (data) => {
+        console.log('data', data);
+        const response = await fetch(`${API_BASE_URL}/exams/auto-fill/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: 'some random text for test..',
+        });
+
+        if (!response.ok) {
+            throw new Error('Auto-fill failed');
+        }
+
+        return response.json();
     }
 }; 

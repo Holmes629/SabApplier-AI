@@ -125,6 +125,7 @@
 }
 
 .profile-menu-item {
+  text-decoration: none;
   display: block;
   width: 100%;
   padding: 0.8rem 1rem;

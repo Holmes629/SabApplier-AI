@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Auth.css';
+import './Login.css';
+import logo from '../../logo.jpeg';
 
 const Login = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -58,7 +59,7 @@ const Login = ({ onLogin }) => {
       <div className="auth-card">
         <div className="auth-header">
           <div className="auth-logo">
-            <img src="/logo.png" alt="SabApplier AI" />
+            <img src={logo} alt="SabApplier AI" />
           </div>
           <h1>Welcome Back</h1>
           <p>Sign in to continue to SabApplier AI</p>
@@ -93,7 +94,7 @@ const Login = ({ onLogin }) => {
 
           {error && <div className="error-message">{error}</div>}
 
-          <button type="submit" className="submit-button" disabled={loading}>
+          <button type="submit" className="submit-button-login" disabled={loading}>
             {loading ? 'Logging in...' : 'Sign In'}
           </button>
         </form>

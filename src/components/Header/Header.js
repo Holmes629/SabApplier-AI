@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Header.css';
+import logo from '../../logo.jpeg';
 
 function Header({ cartCount, onLogout }) {
   const location = useLocation();
@@ -31,7 +32,7 @@ function Header({ cartCount, onLogout }) {
       <div className="header-content">
         <Link to="/" className="logo-section">
           <div className="logo">
-            <img src="logo.jpeg" alt="SabApplier AI" />
+            <img src={logo} alt="SabApplier AI" />
           </div>
           <h2>SabApplier AI</h2>
         </Link>
@@ -39,33 +40,27 @@ function Header({ cartCount, onLogout }) {
           <Link 
             to="/" 
             className={`nav-tab ${location.pathname === '/' ? 'active' : ''}`}
-            onClick={closeMenus}
-          >
+            onClick={closeMenus}>
             Home
           </Link>
           <Link 
             to="/cart" 
             className={`nav-tab ${location.pathname === '/cart' ? 'active' : ''}`}
-            onClick={closeMenus}
-          >
+            onClick={closeMenus}>
             Cart
-            {cartCount > 0 && (
-              <span className="cart-count">{cartCount}</span>
-            )}
+            {cartCount > 0 && (<span className="cart-count">{cartCount}</span>)}
           </Link>
           <Link 
             to="/track" 
             className={`nav-tab ${location.pathname === '/track' ? 'active' : ''}`}
-            onClick={closeMenus}
-          >
+            onClick={closeMenus}>
             Track My Applications
           </Link>
         </nav>
         <div className="header-profile-section">
           <button 
             className={`profile-button ${showProfileMenu ? 'active' : ''}`}
-            onClick={handleProfileClick}
-          >
+            onClick={handleProfileClick}>
             <div className="profile-icon"></div>
           </button>
           {showProfileMenu && (
@@ -88,32 +83,26 @@ function Header({ cartCount, onLogout }) {
           <Link 
             to="/" 
             className={`mobile-menu-item ${location.pathname === '/' ? 'active' : ''}`}
-            onClick={closeMenus}
-          >
+            onClick={closeMenus}>
             Home
           </Link>
           <Link 
             to="/cart" 
             className={`mobile-menu-item ${location.pathname === '/cart' ? 'active' : ''}`}
-            onClick={closeMenus}
-          >
+            onClick={closeMenus}>
             Cart
-            {cartCount > 0 && (
-              <span className="cart-count">{cartCount}</span>
-            )}
+            {cartCount > 0 && (<span className="cart-count">{cartCount}</span>)}
           </Link>
           <Link 
             to="/track" 
             className={`mobile-menu-item ${location.pathname === '/track' ? 'active' : ''}`}
-            onClick={closeMenus}
-          >
+            onClick={closeMenus}>
             Track My Applications
           </Link>
           <Link 
             to="/profile" 
             className={`mobile-menu-item ${location.pathname === '/profile' ? 'active' : ''}`}
-            onClick={closeMenus}
-          >
+            onClick={closeMenus}>
             My Profile
           </Link>
           <button onClick={handleLogout} className="mobile-menu-item logout">

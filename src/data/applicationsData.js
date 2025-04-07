@@ -7,7 +7,7 @@ export const defaultApplications = [
     deadline: "dd/mm/yyyy",
     isApplied: false,
     isCart: false,
-    officialLink: "https://jeemain.nta.nic.in/"
+    officialLink: "https://forms.gle/Cgt4Pzv27M9EtmZY9"
   },
   {
     id: 2,
