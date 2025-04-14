@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react';
+import ReactDOMServer from 'react-dom/server';
 import { Link } from 'react-router-dom';
 import './JobCard.css';
 import { api } from '../../services/api';
 
 function JobCard({ application, onCart }) {
+  const [htmlContent, setHtmlContent] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [isAutoFilling, setIsAutoFilling] = useState(false);
   const iframeRef = useRef(null);
@@ -27,16 +29,71 @@ function JobCard({ application, onCart }) {
   const handleAutoFill = async () => {
     setIsAutoFilling(true);
     try {
-      // Get the iframe content
-      const iframe = iframeRef.current;
-      if (!iframe) {
-        throw new Error('Iframe not found');
-      }
-      const textiframe = String(iframe);
-      console.log('textiframe', typeof textiframe);
-      const response = await api.autoFill(textiframe);
+      console.log(application.officialLink);
+      const response = await api.autoFill(application.officialLink);
       
-      console.log('Auto-fill response:', response);
+      // console.log(response);
+      // Now auto fill the form using the response from backend
+      const autofillData = {
+          ".whsOnd": [
+            "test name3",
+            "testemail3@gmail.com",
+            "9987654321"
+          ],
+          ".KHxj8b": [
+            "some random appartment, random street, random block, city3, state3, country3 - 50048",
+            "No comments"
+          ]
+        };
+
+        // const code = `
+        // const autofillData = {
+        //   ".whsOnd": [
+        //     "test name3",
+        //     "testemail3@gmail.com",
+        //     "9987654321"
+        //   ],
+        //   ".KHxj8b": [
+        //     "some random appartment, random street, random block, city3, state3, country3 - 50048",
+        //     "No comments"
+        //   ]
+        // };
+    
+        // Object.entries(autofillData).forEach(([selector, values]) => {
+        //   const inputs = document.querySelectorAll(selector);
+
+        //   inputs.forEach((input, index) => {
+        //     if (values[index] !== undefined) {
+        //       input.value = values[index];
+        //       input.dispatchEvent(new Event('input', { bubbles: true }));
+
+        //       console.log(✅ Filled ${selector} input #${index + 1} with "${values[index]}");
+        //     } else {
+        //       console.warn(⚠️ No value provided for ${selector} input #${index + 1});
+        //     }
+        //   });
+        // });`;
+    
+      // eval(code);
+      // const iframe = iframeRef.current // Change to your iframe ID
+      // console.log(iframe);
+      // const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+      // Object.entries(autofillData).forEach(([selector, values]) => {
+      //   const inputs = iframeDoc.querySelectorAll(selector);
+
+      //   inputs.forEach((input, index) => {
+      //     if (values[index] !== undefined) {
+      //       input.value = values[index];
+      //       input.dispatchEvent(new Event('input', { bubbles: true }));
+
+      //       console.log(`✅ Filled ${selector} input #${index + 1} with "${values[index]}"`);
+      //     }
+      //   });
+      // });
+      console.log('job done');
+
+      
     } catch (error) {
       console.error('Error during auto-fill:', error);
     } finally {

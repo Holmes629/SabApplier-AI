@@ -1,8 +1,8 @@
 import { UNSAFE_createClientRoutesWithHMRRevalidationOptOut } from "react-router-dom";
 import axios from 'axios';
 
-// const API_BASE_URL = 'http://localhost:8000/api';
-const API_BASE_URL = 'https://sabapplier-ai-backend.onrender.com/api';
+const API_BASE_URL = 'http://127.0.0.1:8000/api';
+// const API_BASE_URL = 'https://sabapplier-ai-backend.onrender.com/api';
 
 // Helper function to get auth token
 const getAuthToken = () => localStorage.getItem('token');
@@ -137,19 +137,17 @@ export const api = {
     },
 
     autoFill: async (data) => {
-        console.log('data', data);
-        const response = await fetch(`${API_BASE_URL}/exams/auto-fill/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: 'some random text for test..',
-        });
-
-        if (!response.ok) {
-            throw new Error('Auto-fill failed');
+        try {
+            console.log('data', data, JSON.parse(localStorage.getItem("currentUser")).email);
+            const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+            const userData = await api.getProfile();
+            const response = await axios.post(`${API_BASE_URL}/users/auto-fill/`, {
+                link: data,
+                user_data: userData
+            });
+            return response.data.autofill_data;
+        } catch (error) {
+            throw error;
         }
-
-        return response.json();
     }
 }; 
