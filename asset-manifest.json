@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/SabApplier-AI/static/css/main.d1d0954c.css",
-    "main.js": "/SabApplier-AI/static/js/main.36e748b0.js",
+    "main.css": "/SabApplier-AI/static/css/main.fa8d0d5f.css",
+    "main.js": "/SabApplier-AI/static/js/main.4b6864af.js",
     "static/js/453.f403f8fc.chunk.js": "/SabApplier-AI/static/js/453.f403f8fc.chunk.js",
     "static/media/logo.jpeg": "/SabApplier-AI/static/media/logo.fb1a6d9168a84438a23f.jpeg",
     "index.html": "/SabApplier-AI/index.html",
-    "main.d1d0954c.css.map": "/SabApplier-AI/static/css/main.d1d0954c.css.map",
-    "main.36e748b0.js.map": "/SabApplier-AI/static/js/main.36e748b0.js.map",
+    "main.fa8d0d5f.css.map": "/SabApplier-AI/static/css/main.fa8d0d5f.css.map",
+    "main.4b6864af.js.map": "/SabApplier-AI/static/js/main.4b6864af.js.map",
     "453.f403f8fc.chunk.js.map": "/SabApplier-AI/static/js/453.f403f8fc.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.d1d0954c.css",
-    "static/js/main.36e748b0.js"
+    "static/css/main.fa8d0d5f.css",
+    "static/js/main.4b6864af.js"
   ]
 }
