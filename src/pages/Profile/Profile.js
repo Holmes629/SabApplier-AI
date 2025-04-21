@@ -57,8 +57,9 @@ function Profile({ applications }) {
 
     // Check if the URL is a base64 string or a regular URL
     const isBase64 = documentUrl.startsWith('data:');
-    const isPdf = documentUrl.toLowerCase().endsWith('.pdf') || documentUrl.toLowerCase().includes('application/pdf');
-    documentUrl = "https://drive.google.com/file/d/1r9oOPrn-fKok9pieYVL4HkiP0IU-Oq2C/view?usp=drive_link"
+    // const isPdf = documentUrl.toLowerCase().endsWith('.pdf') || documentUrl.toLowerCase().includes('application/pdf');
+    const isPdf = true;
+    documentUrl = "https://drive.google.com/file/d/1KECg2mhDi6FOZ9N9-3wkqhR9qatWwrpy/view"
     // isPdf = true; 
     console.log('Opening document:', {
       type: documentType,
@@ -72,7 +73,7 @@ function Profile({ applications }) {
         url: documentUrl,
         type: documentType,
         isPdf: true,
-        html: `<iframe src="${documentUrl}" style="width: 100%; height: 100%; border: none;"></iframe>`
+        html: `<a href="${documentUrl}" target="_blank"></a>`
       });
     } else {
       setSelectedDocument({
@@ -157,17 +158,6 @@ function Profile({ applications }) {
     <main className="main-content">
       <div className="profile-container">
         <div className="profile-header">
-          <div className="profile-avatar" onClick={() => handleDocumentClick(userData.profile_photo, 'Profile Photo')}>
-            <img src={userData.profile_photo} alt="Profile" />
-            {isEditing && (
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleFileChange(e, 'profile_photo')}
-                className="file-input"
-              />
-            )}
-          </div>
           <h2 className="page-title">My Profile</h2>
           <button 
             className="edit-button"
@@ -274,9 +264,25 @@ function Profile({ applications }) {
           <div className="profile-section">
             <h3>Documents</h3>
             <div className="documents-grid">
-              <div className="document-card" onClick={() => handleDocumentClick(userData.aadhaar_card, 'Aadhaar Card')}>
-                <div className="document-icon">A</div>
-                <span>Aadhaar Card</span>
+              <div className="document-card">
+                <a href={userData.profile_photo} target="_blank" rel="noopener noreferrer">   
+                  <div className="document-icon">Pro</div>
+                  <span>Profile Photo</span>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange(e, 'profile_photo')}
+                    className="file-input"
+                  />
+                )}
+              </div>
+              <div className="document-card">
+                <a href={userData.aadhaar_card} target="_blank" rel="noopener noreferrer">   
+                  <div className="document-icon">Aad</div>
+                  <span>Aadhaar Card</span>
+                </a>
                 {isEditing && (
                   <input
                     type="file"
@@ -286,9 +292,11 @@ function Profile({ applications }) {
                   />
                 )}
               </div>
-              <div className="document-card" onClick={() => handleDocumentClick(userData.pan_card, 'PAN Card')}>
-                <div className="document-icon">P</div>
-                <span>PAN Card</span>
+              <div className="document-card">
+                <a href={userData.pan_card} target="_blank" rel="noopener noreferrer">
+                  <div className="document-icon">Pan</div>
+                  <span>PAN Card</span>
+                </a>
                 {isEditing && (
                   <input
                     type="file"
@@ -309,24 +317,6 @@ function Profile({ applications }) {
             </div>
           )}
         </form>
-
-        <div className="profile-section">
-          <h3>Application Statistics</h3>
-          <div className="stats-grid">
-            <div className="stat-card">
-              <span className="stat-number">{stats.total}</span>
-              <span className="stat-label">Total Applications</span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-number">{stats.shortlisted}</span>
-              <span className="stat-label">Shortlisted</span>
-            </div>
-            <div className="stat-card">
-              <span className="stat-number">{stats.applied}</span>
-              <span className="stat-label">Applied</span>
-            </div>
-          </div>
-        </div>
       </div>
 
       {showModal && selectedDocument && (
