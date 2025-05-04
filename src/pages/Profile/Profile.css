@@ -12,8 +12,14 @@ a{
   display: flex;
   align-items: center;
   gap: 2rem;
-  margin-bottom: 3rem;
+  margin-bottom: 20px;
   position: relative;
+}
+
+.profile-header h2 {
+  font-size: 2rem;
+  color: #333;
+  margin: 10px 0px 40px 0px;
 }
 
 .profile-avatar {
@@ -172,18 +178,11 @@ a{
 }
 
 .document-card {
-  position: relative;
-  background-color: #f8f9fa;
-  padding: 1.5rem;
-  border-radius: 8px;
+  flex: 1;
+  border: 1px solid #ccc;
+  padding: 15px;
+  border-radius: 12px;
   text-align: center;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  min-height: 150px;
 }
 
 .document-card:hover {
@@ -201,17 +200,10 @@ a{
   cursor: pointer;
 }
 
-.document-icon {
-  width: 60px;
-  height: 60px;
-  background-color: #2196f3;
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  font-weight: bold;
+.document-name{
+  font-size: 18px;
+  color: #333;
+  font-weight: 450;
 }
 
 /* Modal Styles */

@@ -172,22 +172,36 @@ function Profile({ applications }) {
             <h3>Personal Information</h3>
             <div className="profile-info">
               <div className="info-item">
-                <label>Name</label>
+                <label>Full Name</label>
                 {isEditing ? (
                   <input
                     type="text"
                     name="username"
-                    value={formData.username || ''}
+                    value={formData.fullname || ''}
                     onChange={handleInputChange}
                     className="edit-input"
                   />
                 ) : (
-                  <p>{userData.username || 'Not provided'}</p>
+                  <p>{userData.fullname || 'Not provided'}</p>
                 )}
               </div>
               <div className="info-item">
                 <label>Email</label>
                 <p>{userData.email}</p>
+              </div>
+              <div className="info-item">
+                <label>Date of Birth</label>
+                {isEditing ? (
+                  <input
+                    type="Date"
+                    name="dateofbirth"
+                    value={formData.dateofbirth || ''}
+                    onChange={handleInputChange}
+                    className="edit-input"
+                  />
+                ) : (
+                  <p>{userData.dateofbirth || 'Not provided'}</p>
+                )}
               </div>
               <div className="info-item">
                 <label>Phone</label>
@@ -204,7 +218,21 @@ function Profile({ applications }) {
                 )}
               </div>
               <div className="info-item">
-                <label>Location</label>
+                <label>Address</label>
+                {isEditing ? (
+                  <input
+                    type="tel"
+                    name="address"
+                    value={formData.address || ''}
+                    onChange={handleInputChange}
+                    className="edit-input"
+                  />
+                ) : (
+                  <p>{userData.address || 'Not provided'}</p>
+                )}
+              </div>
+              <div className="info-item">
+                <label>City</label>
                 {isEditing ? (
                   <input
                     type="text"
@@ -261,41 +289,122 @@ function Profile({ applications }) {
             </div>
           </div>
 
+        <div className="profile-header">
+          <h2 className="page-title">Documents</h2>
+        </div>
+
           <div className="profile-section">
-            <h3>Documents</h3>
+            <h3>My Documents</h3>
             <div className="documents-grid">
               <div className="document-card">
-                <a href={userData.profile_photo} target="_blank" rel="noopener noreferrer">   
-                  <div className="document-icon">Pro</div>
-                  <span>Profile Photo</span>
+                <a href={userData.passport_size_photo_file_url} target="_blank" rel="noopener noreferrer">   
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>Passport Size Photo</div>
                 </a>
                 {isEditing && (
                   <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => handleFileChange(e, 'profile_photo')}
+                    onChange={(e) => handleFileChange(e, 'passport_size_photo_file_url')}
                     className="file-input"
                   />
                 )}
               </div>
               <div className="document-card">
-                <a href={userData.aadhaar_card} target="_blank" rel="noopener noreferrer">   
-                  <div className="document-icon">Aad</div>
-                  <span>Aadhaar Card</span>
+                <a href={userData.aadhaar_card_file_url} target="_blank" rel="noopener noreferrer">   
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>Aadhaar Card</div>
                 </a>
                 {isEditing && (
                   <input
                     type="file"
                     accept=".pdf,image/*"
-                    onChange={(e) => handleFileChange(e, 'aadhaar_card')}
+                    onChange={(e) => handleFileChange(e, 'aadhaar_card_file_url')}
                     className="file-input"
                   />
                 )}
               </div>
               <div className="document-card">
-                <a href={userData.pan_card} target="_blank" rel="noopener noreferrer">
-                  <div className="document-icon">Pan</div>
-                  <span>PAN Card</span>
+                <a href={userData.pan_card_file_url} target="_blank" rel="noopener noreferrer">
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>PAN Card</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => handleFileChange(e, 'pan_card_file_url')}
+                    className="file-input"
+                  />
+                )}
+              </div>
+              <div className="document-card">
+                <a href={userData.signature_file_url} target="_blank" rel="noopener noreferrer">
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>Signature</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => handleFileChange(e, 'signature_file_url')}
+                    className="file-input"
+                  />
+                )}
+              </div>
+              <div className="document-card">
+                <a href={userData._10th_certificate_file_url} target="_blank" rel="noopener noreferrer">
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>10th Certificate</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => handleFileChange(e, '_10th_certificate_file_url')}
+                    className="file-input"
+                  />
+                )}
+              </div>
+              <div className="document-card">
+                <a href={userData._12th_certificate_file_url} target="_blank" rel="noopener noreferrer">
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>12th Certificate</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => handleFileChange(e, '_12th_certificate_file_url')}
+                    className="file-input"
+                  />
+                )}
+              </div>
+              <div className="document-card">
+                <a href={userData.pan_card_file_url} target="_blank" rel="noopener noreferrer">
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>PAN Card</div>
                 </a>
                 {isEditing && (
                   <input

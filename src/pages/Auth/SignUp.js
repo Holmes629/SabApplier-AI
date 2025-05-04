@@ -5,8 +5,9 @@ import './SignUp.css';
 const SignUp = ({ onSignUp }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    username: '',
+    fullname: '',
     email: '',
+    dateofbirth: '',
     password: '',
     confirmPassword: '',
     phone: '',
@@ -17,9 +18,13 @@ const SignUp = ({ onSignUp }) => {
     pincode: ''
   });
   const [files, setFiles] = useState({
-    profilePhoto: null,
+    passportSizePhoto: null,
     aadhaar: null,
-    pan: null
+    pan: null,
+    signature: null,
+    _10thCertificate: null,
+    _12thCertificate: null,
+    graduationCertificate: null,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -43,7 +48,7 @@ const SignUp = ({ onSignUp }) => {
   };
 
   const validateForm = () => {
-    if (!formData.username || !formData.email || !formData.password || !formData.confirmPassword) {
+    if (!formData.fullname || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('All fields are required');
       return false;
     }
@@ -55,7 +60,7 @@ const SignUp = ({ onSignUp }) => {
       setError('Password must be at least 8 characters long');
       return false;
     }
-    if (!files.profilePhoto || !files.aadhaar || !files.pan) {
+    if (!files.passportSizePhoto || !files.aadhaar || !files.pan || !files.signature || !files._10thCertificate || !files._12thCertificate || !files.graduationCertificate) {
       setError('Please upload all required documents');
       return false;
     }
@@ -74,13 +79,18 @@ const SignUp = ({ onSignUp }) => {
 
     try {
       const result = await onSignUp({
-        username: formData.username,
+        fullname: formData.fullname,
         email: formData.email,
+        dateofbirth: formData.dateofbirth,
         password: formData.password,
         phone_number: formData.phone,
-        profile_photo: files.profilePhoto,
+        passport_size_photo: files.passportSizePhoto,
         aadhaar_card: files.aadhaar,
         pan_card: files.pan,
+        signature: files.signature,
+        _10th_certificate: files._10thCertificate,
+        _12th_certificate: files._12thCertificate,
+        graduation_certificate: files.graduationCertificate,
         address: formData.address,
         city: formData.city,
         state: formData.state,
@@ -107,14 +117,14 @@ const SignUp = ({ onSignUp }) => {
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Full Name</label>
             <input
               type="text"
-              id="username"
-              name="username"
+              id="fullname"
+              name="fullname"
               value={formData.username}
               onChange={handleChange}
-              placeholder="Enter your username"
+              placeholder="Enter your fullname (as per Aadhaar)"
               required
             />
           </div>
@@ -127,6 +137,18 @@ const SignUp = ({ onSignUp }) => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="dateofbirth">Date of Birth</label>
+            <input
+              type="date"
+              id="dateofbirth"
+              name="dateofbirth"
+              value={formData.dateofbirth}
+              onChange={handleChange}
+              placeholder="Enter your Date of Birth"
               required
             />
           </div>
@@ -169,11 +191,11 @@ const SignUp = ({ onSignUp }) => {
             />
           </div>
           <div className="form-group">
-            <label htmlFor="profilePhoto">Profile Photo</label>
+            <label htmlFor="passportSizePhoto">Passport Size Photo</label>
             <input
               type="file"
-              id="profilePhoto"
-              name="profilePhoto"
+              id="passportSizePhoto"
+              name="passportSizePhoto"
               onChange={handleFileChange}
               accept="image/*,.pdf"
               required
@@ -196,6 +218,50 @@ const SignUp = ({ onSignUp }) => {
               type="file"
               id="pan"
               name="pan"
+              onChange={handleFileChange}
+              accept="image/*,.pdf"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="signature">Signature</label>
+            <input
+              type="file"
+              id="signature"
+              name="signature"
+              onChange={handleFileChange}
+              accept="image/*,.pdf"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="_10thCertificate">10th Certificate</label>
+            <input
+              type="file"
+              id="_10thCertificate"
+              name="_10thCertificate"
+              onChange={handleFileChange}
+              accept="image/*,.pdf"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="_12thCertificate">12th Certificate</label>
+            <input
+              type="file"
+              id="_12thCertificate"
+              name="_12thCertificate"
+              onChange={handleFileChange}
+              accept="image/*,.pdf"
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="graduationCertificate">Graduation Certificate</label>
+            <input
+              type="file"
+              id="graduationCertificate"
+              name="graduationCertificate"
               onChange={handleFileChange}
               accept="image/*,.pdf"
               required

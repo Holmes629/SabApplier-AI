@@ -1,8 +1,8 @@
 import { UNSAFE_createClientRoutesWithHMRRevalidationOptOut } from "react-router-dom";
 import axios from "axios";
 
-// const API_BASE_URL = "http://127.0.0.1:8000/api";
-const API_BASE_URL = 'https://sabapplier-ai-backend.onrender.com/api';
+const API_BASE_URL = "http://127.0.0.1:8000/api";
+// const API_BASE_URL = 'https://sabapplier-ai-backend.onrender.com/api';
 
 // Helper function to get auth token
 const getAuthToken = () => localStorage.getItem("token");
@@ -55,20 +55,22 @@ export const api = {
       const formData = new FormData();
 
       // Add text fields
-      formData.append("username", userData.username);
+      formData.append("fullname", userData.fullname);
       formData.append("email", userData.email);
+      formData.append("dateofbirth", userData.dateofbirth);
       formData.append("password", userData.password);
-      formData.append("first_name", userData.first_name);
-      formData.append("last_name", userData.last_name);
       formData.append("phone_number", userData.phone_number);
+      formData.append("passport_size_photo_file_url", userData.passport_size_photo);
+      formData.append("aadhaar_card_file_url", userData.aadhaar_card);
+      formData.append("pan_card_file_url", userData.pan_card);
+      formData.append("_10th_certificate_file_url", userData._10th_certificate);
+      formData.append("_12th_certificate_file_url", userData._12th_certificate);
+      formData.append("graduation_certificate_file_url", userData.graduation_certificate);
       formData.append("address", userData.address);
       formData.append("city", userData.city);
       formData.append("state", userData.state);
       formData.append("country", userData.country);
       formData.append("pincode", userData.pincode);
-      formData.append("profile_photo", userData.profile_photo);
-      formData.append("aadhaar_card", userData.aadhaar_card);
-      formData.append("pan_card", userData.pan_card);
 
       const response = await axios.post(
         `${API_BASE_URL}/users/register/`,
@@ -148,24 +150,5 @@ export const api = {
 
   isAuthenticated() {
     return !!localStorage.getItem("token");
-  },
-
-  autoFill: async (data) => {
-    try {
-      console.log(
-        "data",
-        data,
-        JSON.parse(localStorage.getItem("currentUser")).email
-      );
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      const userData = await api.getProfile();
-      const response = await axios.post(`${API_BASE_URL}/users/auto-fill/`, {
-        link: data,
-        user_data: userData,
-      });
-      return response.data.autofill_data;
-    } catch (error) {
-      throw error;
-    }
   },
 };

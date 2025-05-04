@@ -66,7 +66,7 @@ function Header({ cartCount, onLogout }) {
           {showProfileMenu && (
             <div className="profile-menu">
               <Link to="/profile" className="profile-menu-item" onClick={closeMenus}>
-                My Profile
+                My Details
               </Link>
               <button onClick={handleLogout} className="profile-menu-item logout">
                 Sign Out
@@ -103,7 +103,7 @@ function Header({ cartCount, onLogout }) {
             to="/profile" 
             className={`mobile-menu-item ${location.pathname === '/profile' ? 'active' : ''}`}
             onClick={closeMenus}>
-            My Profile
+            My Details
           </Link>
           <button onClick={handleLogout} className="mobile-menu-item logout">
             Sign Out
