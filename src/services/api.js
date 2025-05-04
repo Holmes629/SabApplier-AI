@@ -1,8 +1,8 @@
 import { UNSAFE_createClientRoutesWithHMRRevalidationOptOut } from "react-router-dom";
 import axios from "axios";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
-// const API_BASE_URL = 'https://sabapplier-ai-backend.onrender.com/api';
+// const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = 'https://sabapplier-ai-backend.onrender.com/api';
 
 // Helper function to get auth token
 const getAuthToken = () => localStorage.getItem("token");
