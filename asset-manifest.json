@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/SabApplier-AI/static/css/main.46333b20.css",
-    "main.js": "/SabApplier-AI/static/js/main.9e54e3fb.js",
+    "main.js": "/SabApplier-AI/static/js/main.9a80d8cf.js",
     "static/js/453.f403f8fc.chunk.js": "/SabApplier-AI/static/js/453.f403f8fc.chunk.js",
     "static/media/logo.jpeg": "/SabApplier-AI/static/media/logo.fb1a6d9168a84438a23f.jpeg",
     "index.html": "/SabApplier-AI/index.html",
     "main.46333b20.css.map": "/SabApplier-AI/static/css/main.46333b20.css.map",
-    "main.9e54e3fb.js.map": "/SabApplier-AI/static/js/main.9e54e3fb.js.map",
+    "main.9a80d8cf.js.map": "/SabApplier-AI/static/js/main.9a80d8cf.js.map",
     "453.f403f8fc.chunk.js.map": "/SabApplier-AI/static/js/453.f403f8fc.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.46333b20.css",
-    "static/js/main.9e54e3fb.js"
+    "static/js/main.9a80d8cf.js"
   ]
 }
