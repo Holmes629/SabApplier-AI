@@ -2,7 +2,7 @@ import { UNSAFE_createClientRoutesWithHMRRevalidationOptOut } from "react-router
 import axios from "axios";
 
 // const API_BASE_URL = "http://127.0.0.1:8000/api";
-const API_BASE_URL = 'https://sabapplier-ai-backend.onrender.com/api';
+const API_BASE_URL = 'http://13.50.236.189:8000/api';
 
 // Helper function to get auth token
 const getAuthToken = () => localStorage.getItem("token");
@@ -60,12 +60,18 @@ export const api = {
       formData.append("dateofbirth", userData.dateofbirth);
       formData.append("password", userData.password);
       formData.append("phone_number", userData.phone_number);
-      formData.append("passport_size_photo_file_url", userData.passport_size_photo);
+      formData.append(
+        "passport_size_photo_file_url",
+        userData.passport_size_photo
+      );
       formData.append("aadhaar_card_file_url", userData.aadhaar_card);
       formData.append("pan_card_file_url", userData.pan_card);
       formData.append("_10th_certificate_file_url", userData._10th_certificate);
       formData.append("_12th_certificate_file_url", userData._12th_certificate);
-      formData.append("graduation_certificate_file_url", userData.graduation_certificate);
+      formData.append(
+        "graduation_certificate_file_url",
+        userData.graduation_certificate
+      );
       formData.append("address", userData.address);
       formData.append("city", userData.city);
       formData.append("state", userData.state);
