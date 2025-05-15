@@ -170,42 +170,6 @@ a{
   color: #666;
 }
 
-/* Documents Section */
-.documents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1.5rem;
-}
-
-.document-card {
-  flex: 1;
-  border: 1px solid #ccc;
-  padding: 15px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.document-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.document-card .file-input {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.document-name{
-  font-size: 18px;
-  color: #333;
-  font-weight: 450;
-}
-
 /* Modal Styles */
 .modal-overlay {
   position: fixed;

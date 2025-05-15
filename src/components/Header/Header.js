@@ -68,6 +68,9 @@ function Header({ cartCount, onLogout }) {
               <Link to="/profile" className="profile-menu-item" onClick={closeMenus}>
                 My Details
               </Link>
+              <Link to="/docs" className="profile-menu-item" onClick={closeMenus}>
+                My Docs
+              </Link>
               <button onClick={handleLogout} className="profile-menu-item logout">
                 Sign Out
               </button>
@@ -104,6 +107,12 @@ function Header({ cartCount, onLogout }) {
             className={`mobile-menu-item ${location.pathname === '/profile' ? 'active' : ''}`}
             onClick={closeMenus}>
             My Details
+          </Link>
+          <Link 
+            to="/docs" 
+            className={`mobile-menu-item ${location.pathname === '/docs' ? 'active' : ''}`}
+            onClick={closeMenus}>
+            My Docs
           </Link>
           <button onClick={handleLogout} className="mobile-menu-item logout">
             Sign Out

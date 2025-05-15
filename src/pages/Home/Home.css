@@ -25,7 +25,13 @@
   align-items: start;
   margin-top: 2rem;
 }
-
+.main-content .privacy-policy{
+  padding: 40px 20px 20px 20px;
+  margin: auto;
+  color: #000fff;
+  text-align: center;
+  font-size: 16px;
+}
 /* Responsive breakpoints */
 @media (max-width: 1200px) {
   .home-container {

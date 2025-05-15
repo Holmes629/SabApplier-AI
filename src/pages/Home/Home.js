@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import SearchBar from '../../components/SearchBar/SearchBar';
 import JobCard from '../../components/JobCard/JobCard';
 import './Home.css';
@@ -39,6 +40,9 @@ const Home = ({ applications, onToggleCart }) => {
             onCart={() => onToggleCart(app.id)}
           />
         ))}
+      </div>
+      <div className='privacy-policy'>
+        <Link to="/privacy_policy"> Our Privacy Policy </Link>
       </div>
     </main>
   );

@@ -11,10 +11,16 @@ import SignUp from './pages/Auth/SignUp';
 import ExamDetails from './pages/ExamDetails/ExamDetails';
 import { getApplicationsFromStorage, saveApplicationsToStorage } from './data/applicationsData';
 import { api } from './services/api';
+import Docs from './pages/Profile/Docs';
+import SignUpStep2 from './pages/Auth/SignUpStep2';
+import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return localStorage.getItem('isAuthenticated') === 'true';
+  });
+  const [isSignUp2, setIsSignUp2] = useState(() => {
+    return localStorage.getItem('isSignUp2') === 'true';
   });
 
   const [currentUser, setCurrentUser] = useState(() => {
@@ -39,6 +45,9 @@ function App() {
   useEffect(() => {
     localStorage.setItem('isAuthenticated', isAuthenticated);
   }, [isAuthenticated]);
+  useEffect(() => {
+    localStorage.setItem('isSignUp2', isSignUp2);
+  }, [isSignUp2]);
 
   useEffect(() => {
     if (currentUser) {
@@ -88,8 +97,28 @@ function App() {
 
        // Display message to user
        const messageElement = document.createElement('div');
+       messageElement.textContent = 'User Created successfully, please complete you profile data...';
+       messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+       document.body.appendChild(messageElement);
+       setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
+      
+       return { success: true };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  };
+
+  const handleSignUp2 = async (userData) => {
+    try {
+      const response = await api.update(userData);
+      
+      setIsSignUp2(true);
+      localStorage.setItem("isSignUp2", "true");
+
+       // Display message to user
+       const messageElement = document.createElement('div');
        messageElement.textContent = 'User Signed up successfully';
-       messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+       messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
        document.body.appendChild(messageElement);
        setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
       
@@ -103,8 +132,10 @@ function App() {
     try {
       await api.logout(localStorage.getItem("currentUser"));
       setIsAuthenticated(false);
+      setIsSignUp2(false);
       setCurrentUser(null);
       localStorage.setItem("currentUser", null);
+      localStorage.setItem("isSignUp2", false);
       localStorage.setItem("isAuthenticated", false);
       // Display message to user
       const messageElement = document.createElement('div');
@@ -130,7 +161,7 @@ function App() {
   return (
     <Router>
       <div className="app">
-        {isAuthenticated && <Header cartCount={cartCount} onLogout={handleLogout} currentUser={currentUser} />}
+        {isSignUp2 && <Header cartCount={cartCount} onLogout={handleLogout} currentUser={currentUser} />}
         <Routes>
           <Route 
             path="/login" 
@@ -138,7 +169,11 @@ function App() {
           />
           <Route 
             path="/signup" 
-            element={isAuthenticated ? <Navigate to="/" replace /> : <SignUp onSignUp={handleSignUp} />} 
+            element={isAuthenticated ? <Navigate to="/signup-page2" replace /> : <SignUp onSignUp={handleSignUp} />} 
+          />
+          <Route 
+            path="/signup-page2" 
+            element={isSignUp2 ? <Navigate to="/" replace /> : <SignUpStep2 onSignUp2={ handleSignUp2 } />} 
           />
           <Route 
             path="/" 
@@ -173,6 +208,14 @@ function App() {
             } 
           />
           <Route 
+            path="/docs" 
+            element={
+              <ProtectedRoute>
+                <Docs docUpload={handleSignUp2} />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
             path="/exam/:id" 
             element={
               <ProtectedRoute>
@@ -181,6 +224,14 @@ function App() {
             } 
           />
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route 
+            path="/privacy_policy" 
+            element={
+              <ProtectedRoute>
+                <PrivacyPolicy/>
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </div>
     </Router>

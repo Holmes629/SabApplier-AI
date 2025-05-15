@@ -1,7 +1,7 @@
 import { UNSAFE_createClientRoutesWithHMRRevalidationOptOut } from "react-router-dom";
 import axios from "axios";
 
-// const API_BASE_URL = "http://127.0.0.1:8000/api";
+// const API_BASE_URL = "http://127.0.0.1:8000/api"
 const API_BASE_URL = 'https://api.sabapplier.com/api';
 
 // Helper function to get auth token
@@ -52,42 +52,49 @@ function getCookie(name) {
 export const api = {
   signup: async (userData) => {
     try {
-      const formData = new FormData();
-
-      // Add text fields
-      formData.append("fullname", userData.fullname);
-      formData.append("email", userData.email);
-      formData.append("dateofbirth", userData.dateofbirth);
-      formData.append("password", userData.password);
-      formData.append("phone_number", userData.phone_number);
-      formData.append(
-        "passport_size_photo_file_url",
-        userData.passport_size_photo
-      );
-      formData.append("aadhaar_card_file_url", userData.aadhaar_card);
-      formData.append("pan_card_file_url", userData.pan_card);
-      formData.append("_10th_certificate_file_url", userData._10th_certificate);
-      formData.append("_12th_certificate_file_url", userData._12th_certificate);
-      formData.append(
-        "graduation_certificate_file_url",
-        userData.graduation_certificate
-      );
-      formData.append("address", userData.address);
-      formData.append("city", userData.city);
-      formData.append("state", userData.state);
-      formData.append("country", userData.country);
-      formData.append("pincode", userData.pincode);
-
+      // Only send the required fields as JSON
+      const payload = {
+        email: userData.email,
+        password: userData.password,
+      };
+      if (userData.confirmPassword) {
+        payload.confirmPassword = userData.confirmPassword;
+      }
       const response = await axios.post(
         `${API_BASE_URL}/users/register/`,
-        formData,
+        payload,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Signup error:", error.response?.data || error.message);
+      throw new Error("Signup failed: user already exists or invalid data");
+    }
+  },
+
+  update: async (userData) => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      const payload =  {
+        email: currentUser.email,
+        ...userData
+      };
+      if (userData.confirmPassword) {
+        payload.confirmPassword = userData.confirmPassword;
+      }
+      const response = await axios.post(
+        `${API_BASE_URL}/users/update/`,
+        payload,
         {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         }
       );
-
       return response.data;
     } catch (error) {
       console.error("Signup error:", error.response?.data || error.message);
@@ -156,5 +163,52 @@ export const api = {
 
   isAuthenticated() {
     return !!localStorage.getItem("token");
+  },
+
+  updateProfile: async (formData) => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/users/update/`,
+        formData,
+        {
+          headers: {
+            ...getHeaders(true),
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Profile update error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || "Profile update failed");
+    }
+  },
+
+  deleteDocument: async (docType) => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/users/delete-document/`,
+        { document_type: docType },
+        {
+          headers: getHeaders(true),
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Document deletion error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || "Document deletion failed");
+    }
   },
 };
