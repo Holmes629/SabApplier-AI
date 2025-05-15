@@ -73,6 +73,8 @@ function App() {
       setIsAuthenticated(true);
       localStorage.setItem("currentUser", JSON.stringify(userData));
       localStorage.setItem("isAuthenticated", "true");
+      setIsSignUp2(true);
+      localStorage.setItem("isSignUp2", "true");
 
        // Display message to user
        const messageElement = document.createElement('div');
