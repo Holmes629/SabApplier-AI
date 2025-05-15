@@ -1,10 +1,19 @@
-.auth-container {
+/* Add responsive styles */
+.body {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.auth-container {
+  min-height: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f5f5f5;
   padding: 20px;
+  margin: auto;
+  width: 85%;
 }
 
 .auth-card {
@@ -163,4 +172,357 @@
   padding: 8px;
   background-color: rgba(220, 53, 69, 0.1);
   border-radius: 4px;
-} 
+}
+
+.carousel-container {
+  position: relative;
+  width: 100%;
+  max-width: 85%;
+  margin: 10px auto;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 0.5px solid #736cf0;
+  box-shadow: 0 4px 8px rgba(106, 103, 251, 0.1);
+  height: auto;
+}
+
+.carousel-images {
+  display: flex;
+  transition: transform 1s ease-in-out;
+  height: 700px;
+}
+
+.carousel-image {
+  min-width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+}
+
+.carousel-image.active {
+  opacity: 1;
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+  z-index: 2;
+}
+
+.carousel-arrow:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.carousel-arrow.left {
+  left: 10px;
+}
+
+.carousel-arrow.right {
+  right: 10px;
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 2;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.dot.active {
+  background: white;
+}
+
+.dot:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* middle intro */
+.middle-intro{
+  margin: auto;
+  padding: 80px 20px;
+  background-color: #000;
+}
+.middle-intro h1{
+  width: 70%;
+  color: #fff;
+  margin: auto;
+  text-align: center;
+}
+
+/* Update intro styles to accommodate carousel */
+.intro {
+  text-align: center;
+  padding: 10px;
+  margin-bottom: 30px;
+  width: 100%;
+}
+
+.intro h1 {
+  color: #333;
+  font-size: 36px;
+  padding: 30px 10px;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.side-intro{
+  padding: 30px 60px;
+}
+.side-intro h1{
+  font-size: 32px;
+  padding: 20px;
+}
+.side-intro p{
+  font-size: 18px;
+  padding: 20px;
+}
+.side-intro a{
+  text-decoration: underline #0056b3;
+}
+
+/* Footer section */
+.footer {
+  background-color: #2c3e50;
+  color: #fff;
+  padding: 40px 0 20px;
+  margin-top: auto;
+  width: 100%;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  padding: 0 20px;
+}
+
+.footer-section h3 {
+  color: #fff;
+  font-size: 18px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  padding: 10px 0px;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-section ul li {
+  margin-bottom: 10px;
+}
+
+.footer-section ul li a {
+  color: #ecf0f1;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+}
+
+.footer-section ul li a:hover {
+  color: #3498db;
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+}
+
+.social-links a {
+  color: #fff;
+  font-size: 20px;
+  transition: color 0.3s ease;
+}
+
+.social-links a:hover {
+  color: #3498db;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.footer-bottom p {
+  color: #bdc3c7;
+  font-size: 14px;
+}
+
+.footer-section img{
+  width: 80px;
+  height:80px;
+  margin: 10px;
+}
+.footer-section p{
+  font-size: 18px;
+  padding: 10px 0px;
+}
+/* Tablet Styles */
+@media screen and (max-width: 1024px) {
+  .body {
+    flex-direction: column;
+  }
+
+  .intro h1 {
+    font-size: 32px;
+    padding: 40px 10px;
+  }
+
+  .carousel-container {
+    max-width: 90%;
+  }
+
+  .carousel-images {
+    height: 500px;
+  }
+
+  .auth-card {
+    max-width: 450px;
+    padding: 30px;
+  }
+}
+
+/* Mobile Styles */
+@media screen and (max-width: 768px) {
+  .auth-container{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .intro h1 {
+    font-size: 24px;
+    padding: 40px 10px;
+    margin-bottom: 10px;
+  }
+
+  .carousel-container {
+    max-width: 95%;
+    margin: 5px auto;
+  }
+
+  .carousel-images {
+    height: 300px;
+  }
+
+  .carousel-arrow {
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+
+  .auth-container {
+    padding: 10px;
+  }
+
+  .auth-card {
+    padding: 20px;
+    margin: 10px;
+    max-width: 100%;
+  }
+
+  .auth-logo {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1rem;
+  }
+
+  .auth-header h1 {
+    font-size: 20px;
+  }
+
+  .auth-header p {
+    font-size: 14px;
+  }
+
+  .form-group input {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .submit-button-login {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .auth-footer {
+    font-size: 14px;
+  }
+
+  .side-intro {
+    padding: 30px;
+  }
+}
+
+/* Update responsive styles for footer */
+@media screen and (max-width: 1024px) {
+  .footer-content {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .footer {
+    padding: 30px 0 15px;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 25px;
+    text-align: center;
+  }
+
+  .social-links {
+    justify-content: center;
+  }
+
+  .social-links a {
+    font-size: 18px;
+  }
+
+  .footer-bottom {
+    margin-top: 30px;
+    padding-top: 15px;
+  }
+
+  .footer-bottom p {
+    font-size: 12px;
+  }
+}

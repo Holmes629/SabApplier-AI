@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
+import Footer from '../../components/Footer/Footer';
 import './Docs.css';
 
 const Docs = ({ docUpload }) => {
@@ -87,165 +88,168 @@ const Docs = ({ docUpload }) => {
   }
 
   return (
-    <div className="docs-container">
-      <div className="docs-header">
-        <h2>My Documents</h2>
-        <div className="upload-section">
-          <select 
-            className="doc-type-select"
-            value={formData.docType || ''}
-            onChange={(e) => setFormData({...formData, docType: e.target.value})}
-          >
-            <option value="">Select Document Type</option>
-            <option value="passport_size_photo">Passport Size Photo</option>
-            <option value="aadhaar_card">Aadhaar Card</option>
-            <option value="pan_card">PAN Card</option>
-            <option value="signature">Signature</option>
-            <option value="_10th_certificate">10th Marksheet</option>
-            <option value="_12th_certificate">12th Marksheet</option>
-            <option value="graduation_certificate">Graduation Marksheet</option>
-          </select>
-          
-          <label className="bulk-upload-button">
-            Upload Document
-            <input
-              type="file"
-              id="file"
-              name="file"
-              accept={'.pdf,image/*'}
-              onChange={(e) => {
-                const file = e.target.files[0];
-                const field = `${formData.docType}_file_url`;
-                if (file && field) {
-                  handleFileUpload(field, file);
-                }
-              }}
-              disabled={!formData.docType}
-              style={{ display: 'none' }}
-            />
-          </label>
+    <div className="body">
+      <div className="docs-container">
+        <div className="docs-header">
+          <h2>My Documents</h2>
+          <div className="upload-section">
+            <select 
+              className="doc-type-select"
+              value={formData.docType || ''}
+              onChange={(e) => setFormData({...formData, docType: e.target.value})}
+            >
+              <option value="">Select Document Type</option>
+              <option value="passport_size_photo">Passport Size Photo</option>
+              <option value="aadhaar_card">Aadhaar Card</option>
+              <option value="pan_card">PAN Card</option>
+              <option value="signature">Signature</option>
+              <option value="_10th_certificate">10th Marksheet</option>
+              <option value="_12th_certificate">12th Marksheet</option>
+              <option value="graduation_certificate">Graduation Marksheet</option>
+            </select>
+            
+            <label className="bulk-upload-button">
+              Upload Document
+              <input
+                type="file"
+                id="file"
+                name="file"
+                accept={'.pdf,image/*'}
+                onChange={(e) => {
+                  const file = e.target.files[0];
+                  const field = `${formData.docType}_file_url`;
+                  if (file && field) {
+                    handleFileUpload(field, file);
+                  }
+                }}
+                disabled={!formData.docType}
+                style={{ display: 'none' }}
+              />
+            </label>
+          </div>
         </div>
-      </div>
 
-      <div className="profile-section">
-        <h3>My Documents</h3>
-        <div className="documents-grid">
-          {userData.passport_size_photo_file_url && (
-            <div className="document-card">
-              <a href={userData.passport_size_photo_file_url} target="_blank" rel="noopener noreferrer">   
-                <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
-                  <path d="M6 2h9l5 5v15H6z"/>
-                  <path d="M14 2v6h6"/>
-                </svg>
-                <div className='document-name'>Passport Size Photo</div>
-              </a>
-              {isEditing && (
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileChange}
-                  className="file-input"
-                />
-              )}
-            </div>
-          )}
-          {userData.aadhaar_card_file_url && (
-            <div className="document-card">
-              <a href={userData.aadhaar_card_file_url} target="_blank" rel="noopener noreferrer">   
-                <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
-                  <path d="M6 2h9l5 5v15H6z"/>
-                  <path d="M14 2v6h6"/>
-                </svg>
-                <div className='document-name'>Aadhaar Card</div>
-              </a>
-              {isEditing && (
-                <input
-                  type="file"
-                  accept=".pdf,image/*"
-                  onChange={(e) => handleFileChange}
-                  className="file-input"
-                />
-              )}
-            </div>
-          )}
-          {userData.pan_card_file_url && (
-            <div className="document-card">
-              <a href={userData.pan_card_file_url} target="_blank" rel="noopener noreferrer">
-                <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
-                  <path d="M6 2h9l5 5v15H6z"/>
-                  <path d="M14 2v6h6"/>
-                </svg>
-                <div className='document-name'>PAN Card</div>
-              </a>
-              {isEditing && (
-                <input
-                  type="file"
-                  accept=".pdf,image/*"
-                  onChange={(e) => handleFileChange}
-                  className="file-input"
-                />
-              )}
-            </div>
-          )}
-          {userData.signature_file_url && (
-            <div className="document-card">
-              <a href={userData.signature_file_url} target="_blank" rel="noopener noreferrer">
-                <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
-                  <path d="M6 2h9l5 5v15H6z"/>
-                  <path d="M14 2v6h6"/>
-                </svg>
-                <div className='document-name'>Signature</div>
-              </a>
-              {isEditing && (
-                <input
-                  type="file"
-                  accept=".pdf,image/*"
-                  onChange={(e) => handleFileChange}
-                  className="file-input"
-                />
-              )}
-            </div>
-          )}
-          {userData._10th_certificate_file_url && (
-            <div className="document-card">
-              <a href={userData._10th_certificate_file_url} target="_blank" rel="noopener noreferrer">
-                <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
-                  <path d="M6 2h9l5 5v15H6z"/>
-                  <path d="M14 2v6h6"/>
-                </svg>
-                <div className='document-name'>10th Certificate</div>
-              </a>
-              {isEditing && (
-                <input
-                  type="file"
-                  accept=".pdf,image/*"
-                  onChange={(e) => handleFileChange}
-                  className="file-input"
-                />
-              )}
-            </div>
-          )}
-          {userData._12th_certificate_file_url && (
-            <div className="document-card">
-              <a href={userData._12th_certificate_file_url} target="_blank" rel="noopener noreferrer">
-                <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
-                  <path d="M6 2h9l5 5v15H6z"/>
-                  <path d="M14 2v6h6"/>
-                </svg>
-                <div className='document-name'>12th Certificate</div>
-              </a>
-              {isEditing && (
-                <input
-                  type="file"
-                  accept=".pdf,image/*"
-                  onChange={(e) => handleFileChange}
-                  className="file-input"
-                />
-              )}
-            </div>
-          )}
+        <div className="profile-section">
+          <h3>My Documents</h3>
+          <div className="documents-grid">
+            {userData.passport_size_photo_file_url && (
+              <div className="document-card">
+                <a href={userData.passport_size_photo_file_url} target="_blank" rel="noopener noreferrer">   
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>Passport Size Photo</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileChange}
+                    className="file-input"
+                  />
+                )}
+              </div>
+            )}
+            {userData.aadhaar_card_file_url && (
+              <div className="document-card">
+                <a href={userData.aadhaar_card_file_url} target="_blank" rel="noopener noreferrer">   
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>Aadhaar Card</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => handleFileChange}
+                    className="file-input"
+                  />
+                )}
+              </div>
+            )}
+            {userData.pan_card_file_url && (
+              <div className="document-card">
+                <a href={userData.pan_card_file_url} target="_blank" rel="noopener noreferrer">
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>PAN Card</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => handleFileChange}
+                    className="file-input"
+                  />
+                )}
+              </div>
+            )}
+            {userData.signature_file_url && (
+              <div className="document-card">
+                <a href={userData.signature_file_url} target="_blank" rel="noopener noreferrer">
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>Signature</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => handleFileChange}
+                    className="file-input"
+                  />
+                )}
+              </div>
+            )}
+            {userData._10th_certificate_file_url && (
+              <div className="document-card">
+                <a href={userData._10th_certificate_file_url} target="_blank" rel="noopener noreferrer">
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>10th Certificate</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => handleFileChange}
+                    className="file-input"
+                  />
+                )}
+              </div>
+            )}
+            {userData._12th_certificate_file_url && (
+              <div className="document-card">
+                <a href={userData._12th_certificate_file_url} target="_blank" rel="noopener noreferrer">
+                  <svg xmlns="https://www.w3.org/2000/svg" height="90" width="90" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="0.7">
+                    <path d="M6 2h9l5 5v15H6z"/>
+                    <path d="M14 2v6h6"/>
+                  </svg>
+                  <div className='document-name'>12th Certificate</div>
+                </a>
+                {isEditing && (
+                  <input
+                    type="file"
+                    accept=".pdf,image/*"
+                    onChange={(e) => handleFileChange}
+                    className="file-input"
+                  />
+                )}
+              </div>
+            )}
+          </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

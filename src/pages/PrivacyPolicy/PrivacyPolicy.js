@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import Footer from '../../components/Footer/Footer';
 import './PrivacyPolicy.css';
 
 const Home = ({ applications, onToggleCart }) => {
 
   return (
-    <main className="privacy-policy-content">
+    <div className="body">
+      <main className="privacy-policy-content">
         <h1>Privacy Policy for Sabapplier AI</h1>
         <h3>Effective Date: [May 12, 2025]</h3>
         <p>
@@ -95,7 +97,7 @@ const Home = ({ applications, onToggleCart }) => {
         <h2>9. Marketing and Communication</h2>
         <p>By signing up, you agree to receive service-related emails and reminders. You may also receive promotional emails and updates. You can opt out anytime via the unsubscribe link or by contacting us.</p>
         <hr></hr>
-        <h2>10. Children’s Privacy</h2>
+        <h2>10. Children's Privacy</h2>
         <p>Our services are not directed to children under 13 (or under 16 in certain jurisdictions). We do not knowingly collect data from minors without parental consent.</p>
         <hr></hr>
         <h2>11. Changes to This Privacy Policy</h2>
@@ -108,7 +110,9 @@ const Home = ({ applications, onToggleCart }) => {
             Email: [sabapplierai100m@gmail.com]  
             Website: [https://sabapplier.com]
         </p>
-    </main>
+      </main>
+      <Footer />
+    </div>
   );
 };
 

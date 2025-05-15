@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import Footer from '../../components/Footer/Footer';
 import './Profile.css';
 import { api } from '../../services/api';
 
@@ -96,95 +97,98 @@ function Profile() {
   }
 
   return (
-    <main className="main-content">
-      <div className="profile-container">
-        <div className="profile-header">
-          <h2 className="page-title">My Profile</h2>
-          <button 
-            className="edit-button"
-            onClick={() => setIsEditing(!isEditing)}
-          >
-            {isEditing ? 'Cancel' : 'Edit Profile'}
-          </button>
-        </div>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="profile-section">
-            <h3>Personal Information</h3>
-            <div className="profile-info">
-              <div className="info-item">
-                <label>Full Name</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    name="username"
-                    value={formData.fullname || ''}
-                    onChange={handleInputChange}
-                    className="edit-input"
-                  />
-                ) : (
-                  <p>{userData.fullname || 'Not provided'}</p>
-                )}
-              </div>
-              <div className="info-item">
-                <label>Email</label>
-                <p>{userData.email}</p>
-              </div>
-              <div className="info-item">
-                <label>Date of Birth</label>
-                {isEditing ? (
-                  <input
-                    type="Date"
-                    name="dateofbirth"
-                    value={formData.dateofbirth || ''}
-                    onChange={handleInputChange}
-                    className="edit-input"
-                  />
-                ) : (
-                  <p>{userData.dateofbirth || 'Not provided'}</p>
-                )}
-              </div>
-              <div className="info-item">
-                <label>Phone</label>
-                {isEditing ? (
-                  <input
-                    type="tel"
-                    name="phone_number"
-                    value={formData.phone_number || ''}
-                    onChange={handleInputChange}
-                    className="edit-input"
-                  />
-                ) : (
-                  <p>{userData.phone_number || 'Not provided'}</p>
-                )}
-              </div>
-              <div className="info-item">
-                <label>Address</label>
-                {isEditing ? (
-                  <input
-                    type="tel"
-                    name="address"
-                    value={formData.address || ''}
-                    onChange={handleInputChange}
-                    className="edit-input"
-                  />
-                ) : (
-                  <p>{userData.address || 'Not provided'}</p>
-                )}
-              </div>
-            </div>
+    <div className="body">
+      <main className="main-content">
+        <div className="profile-container">
+          <div className="profile-header">
+            <h2 className="page-title">My Profile</h2>
+            <button 
+              className="edit-button"
+              onClick={() => setIsEditing(!isEditing)}
+            >
+              {isEditing ? 'Cancel' : 'Edit Profile'}
+            </button>
           </div>
-
-          {isEditing && (
+          
+          <form onSubmit={handleSubmit}>
             <div className="profile-section">
-              <button type="submit" className="submit-button">
-                Save Changes
-              </button>
+              <h3>Personal Information</h3>
+              <div className="profile-info">
+                <div className="info-item">
+                  <label>Full Name</label>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      name="username"
+                      value={formData.fullname || ''}
+                      onChange={handleInputChange}
+                      className="edit-input"
+                    />
+                  ) : (
+                    <p>{userData.fullname || 'Not provided'}</p>
+                  )}
+                </div>
+                <div className="info-item">
+                  <label>Email</label>
+                  <p>{userData.email}</p>
+                </div>
+                <div className="info-item">
+                  <label>Date of Birth</label>
+                  {isEditing ? (
+                    <input
+                      type="Date"
+                      name="dateofbirth"
+                      value={formData.dateofbirth || ''}
+                      onChange={handleInputChange}
+                      className="edit-input"
+                    />
+                  ) : (
+                    <p>{userData.dateofbirth || 'Not provided'}</p>
+                  )}
+                </div>
+                <div className="info-item">
+                  <label>Phone</label>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      name="phone_number"
+                      value={formData.phone_number || ''}
+                      onChange={handleInputChange}
+                      className="edit-input"
+                    />
+                  ) : (
+                    <p>{userData.phone_number || 'Not provided'}</p>
+                  )}
+                </div>
+                <div className="info-item">
+                  <label>Address</label>
+                  {isEditing ? (
+                    <input
+                      type="tel"
+                      name="address"
+                      value={formData.address || ''}
+                      onChange={handleInputChange}
+                      className="edit-input"
+                    />
+                  ) : (
+                    <p>{userData.address || 'Not provided'}</p>
+                  )}
+                </div>
+              </div>
             </div>
-          )}
-        </form>
-      </div>
-    </main>
+
+            {isEditing && (
+              <div className="profile-section">
+                <button type="submit" className="submit-button">
+                  Save Changes
+                </button>
+              </div>
+            )}
+          </form>
+        </div>
+      </main>
+      <Footer />
+    </div>
   );
 }
 
