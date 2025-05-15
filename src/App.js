@@ -167,7 +167,7 @@ function App() {
         <Routes>
           <Route 
             path="/privacy_policy" 
-            element={ isAuthenticated ? <Navigate to="/privacy_policy" replace /> : <PrivacyPolicy/>} 
+            element={ isAuthenticated ? <Navigate to="/privacy-policy" replace /> : <PrivacyPolicy/>} 
           />
           <Route 
             path="/login" 
@@ -228,6 +228,10 @@ function App() {
                 <ExamDetails applications={applications} onToggleCart={toggleCart} />
               </ProtectedRoute>
             } 
+          />
+          <Route 
+            path="/privacy-policy" 
+            element={<PrivacyPolicy/>} 
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
