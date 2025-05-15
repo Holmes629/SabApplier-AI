@@ -164,6 +164,10 @@ function App() {
         {isSignUp2 && <Header cartCount={cartCount} onLogout={handleLogout} currentUser={currentUser} />}
         <Routes>
           <Route 
+            path="/privacy_policy" 
+            element={ isAuthenticated ? <Navigate to="/privacy_policy" replace /> : <PrivacyPolicy/>} 
+          />
+          <Route 
             path="/login" 
             element={isAuthenticated ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />} 
           />
@@ -224,14 +228,6 @@ function App() {
             } 
           />
           <Route path="*" element={<Navigate to="/" replace />} />
-          <Route 
-            path="/privacy_policy" 
-            element={
-              <ProtectedRoute>
-                <PrivacyPolicy/>
-              </ProtectedRoute>
-            } 
-          />
         </Routes>
       </div>
     </Router>

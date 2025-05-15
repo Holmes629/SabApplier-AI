@@ -101,6 +101,9 @@ const Login = ({ onLogin }) => {
 
         <div className="auth-footer">
           <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
+          <div className='privacy-policy'>
+            <Link to="/privacy_policy"> Our Privacy Policy </Link>
+          </div>
         </div>
       </div>
     </div>

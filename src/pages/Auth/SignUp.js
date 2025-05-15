@@ -113,6 +113,9 @@ const SignUp = ({ onSignUp }) => {
         </form>
         <p className="auth-link">
           Already have an account? <Link to="/login">Log in</Link>
+          <div className='privacy-policy'>
+            <Link to="/privacy_policy"> Our Privacy Policy </Link>
+          </div>
         </p>
       </div>
     </div>
