@@ -5,14 +5,15 @@ import './App.css';
 import Header from './components/Header/Header';
 import Home from './pages/Home/Home';
 import Cart from './pages/Cart/Cart';
-import TrackApplications from './pages/TrackApplications/TrackApplications';
 import Profile from './pages/Profile/Profile';
-import Login from './pages/Auth/Login';
+import Login from './pages/Auth/Login'
+import Intro from './pages/Intro/Intro';
 import SignUp from './pages/Auth/SignUp';
 import ExamDetails from './pages/ExamDetails/ExamDetails';
 import { getApplicationsFromStorage, saveApplicationsToStorage } from './data/applicationsData';
 import { api } from './services/api';
 import Docs from './pages/Profile/Docs';
+import AutoFillData from './pages/AutoFillData/AutoFillData';
 import SignUpStep2 from './pages/Auth/SignUpStep2';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 
@@ -154,7 +155,7 @@ function App() {
 
   const ProtectedRoute = ({ children }) => {
     if (!isAuthenticated) {
-      return <Navigate to="/login" replace />;
+      return <Navigate to="/intro" replace />;
     }
     return children;
   };
@@ -169,6 +170,10 @@ function App() {
           <Route 
             path="/privacy_policy" 
             element={ isAuthenticated ? <Navigate to="/privacy-policy" replace /> : <PrivacyPolicy/>} 
+          />
+          <Route 
+            path="/intro" 
+            element={isAuthenticated ? <Navigate to="/" replace /> : <Intro onLogin={handleLogin} />} 
           />
           <Route 
             path="/login" 
@@ -199,14 +204,6 @@ function App() {
             } 
           />
           <Route 
-            path="/track" 
-            element={
-              <ProtectedRoute>
-                <TrackApplications applications={applications} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
             path="/profile" 
             element={
               <ProtectedRoute>
@@ -219,6 +216,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Docs docUpload={handleSignUp2} />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/auto-fill-data" 
+            element={
+              <ProtectedRoute>
+                <AutoFillData docUpload={handleSignUp2} />
               </ProtectedRoute>
             } 
           />

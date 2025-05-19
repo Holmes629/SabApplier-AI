@@ -115,8 +115,8 @@ function JobCard({ application, onCart }) {
           </div>
           <div className="job-details">
             <div className="detail-item">
-              <span className="detail-label">Application Fees</span>
-              <span className="detail-value">{application.applicationFees}</span>
+              <span className="detail-label">Notification Date</span>
+              <span className="detail-value">{application.notificationDate}</span>
             </div>
             <div className="detail-item">
               <span className="detail-label">Deadline</span>

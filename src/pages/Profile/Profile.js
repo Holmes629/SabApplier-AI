@@ -8,45 +8,41 @@ function Profile() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
+  const [isProfileFetched, setIsProfileFetched] = useState(
+    localStorage.getItem("isProfileFetched") === "true"
+  );
+
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("currentUser");
-    if (savedUser) {
-      const user = JSON.parse(savedUser);
-      setUserData(user);
-      setFormData(user);
+    if (!isProfileFetched) {
+      getProfile();
+    } else {
+      const savedUser = localStorage.getItem("currentUser");
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        setUserData(user);
+        setFormData(user);
+      }
     }
   }, []);
+
 
   const getProfile = async () => {
     try {
       const response = await api.getProfile();
       setUserData(response.user_data);
       setFormData(response.user_data);
+
+      // Set flipper state
+      setIsProfileFetched(true);
+      localStorage.setItem("isProfileFetched", "true");
+      // Also update localStorage with new data
+      localStorage.setItem("currentUser", JSON.stringify(response.user_data));
     } catch (error) {
       console.error('Profile fetch error:', error);
     }
   };
 
-  useEffect(() => {
-    getProfile();
-  }, []);
-
-
-  const handleFileChange = (e, field) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedFile({ file, field });
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({
-          ...prev,
-          [field]: reader.result
-        }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

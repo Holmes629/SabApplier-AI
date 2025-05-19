@@ -82,35 +82,21 @@ function ExamDetails({ applications, onToggleShortlist }) {
             <h2>Exam Details</h2>
             <div className="details-grid">
               <div className="detail-item">
-                <span className="detail-label">Application Fees</span>
-                <span className="detail-value">{exam.applicationFees}</span>
+                <span className="detail-label">Notification Date</span>
+                <span className="detail-value">{exam.notificationDate || 'Not Announced' }</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Deadline</span>
-                <span className="detail-value">{exam.deadline}</span>
-              </div>
-              <div className="detail-item">
-                <span className="detail-label">Conducting Body</span>
-                <span className="detail-value">{exam.conductingBody || 'Not specified'}</span>
+                <span className="detail-value">{ exam.deadline || 'Not Announced' }</span>
               </div>
               <div className="detail-item">
                 <span className="detail-label">Exam Date</span>
-                <span className="detail-value">{exam.examDate || 'Not announced'}</span>
+                <span className="detail-value">{ exam.examDate || 'Not Announced' }</span>
               </div>
-            </div>
-          </div>
-
-          <div className="exam-section">
-            <h2>Eligibility Criteria</h2>
-            <div className="eligibility-list">
-              {exam.eligibilityCriteria?.map((criteria, index) => (
-                <div key={index} className="criteria-item">
-                  <span className="criteria-label">{criteria.label}</span>
-                  <span className="criteria-value">{criteria.value}</span>
-                </div>
-              )) || (
-                <p className="no-data">Eligibility criteria not specified</p>
-              )}
+              <div className="detail-item">
+                <span className="detail-label">Eligibity</span>
+                <span className="detail-value">{ exam.eligibility || 'Not Announced' }</span>
+              </div>
             </div>
           </div>
 

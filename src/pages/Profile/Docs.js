@@ -10,13 +10,20 @@ const Docs = ({ docUpload }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [files, setFiles] = useState({});
   const [error, setError] = useState('');
+  const [isProfileFetched, setIsProfileFetched] = useState(
+    localStorage.getItem("isProfileFetched") === "true"
+  );
 
   useEffect(() => {
-    const savedUser = localStorage.getItem("currentUser");
-    if (savedUser) {
-      const user = JSON.parse(savedUser);
-      setUserData(user);
-      setFormData(user);
+    if (!isProfileFetched) {
+      getProfile();
+    } else {
+      const savedUser = localStorage.getItem("currentUser");
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        setUserData(user);
+        setFormData(user);
+      }
     }
   }, []);
 
@@ -29,6 +36,13 @@ const Docs = ({ docUpload }) => {
       const response = await api.getProfile();
       setUserData(response.user_data);
       setFormData(response.user_data);
+
+      // Set flipper state
+      setIsProfileFetched(true);
+      localStorage.setItem("isProfileFetched", "true");
+      // Also update localStorage with new data
+      localStorage.setItem("currentUser", JSON.stringify(response.user_data));
+      
       document.body.removeChild(loader);
     } catch (error) {
       console.log(error);
@@ -41,10 +55,6 @@ const Docs = ({ docUpload }) => {
       return { success: false, message: error.message };
     }
   };
-
-  useEffect(() => {
-    getProfile();
-  }, []);
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;

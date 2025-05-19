@@ -51,10 +51,16 @@ function Header({ cartCount, onLogout }) {
             {cartCount > 0 && (<span className="cart-count">{cartCount}</span>)}
           </Link>
           <Link 
-            to="/track" 
-            className={`nav-tab ${location.pathname === '/track' ? 'active' : ''}`}
+            to="/docs" 
+            className={`nav-tab ${location.pathname === '/docs' ? 'active' : ''}`}
             onClick={closeMenus}>
-            Track My Applications
+            My Documents
+          </Link>
+          <Link 
+            to="/auto-fill-data" 
+            className={`nav-tab ${location.pathname === '/auto-fill-data' ? 'active' : ''}`}
+            onClick={closeMenus}>
+            Auto Fill Data
           </Link>
         </nav>
         <div className="header-profile-section">
@@ -67,9 +73,6 @@ function Header({ cartCount, onLogout }) {
             <div className="profile-menu">
               <Link to="/profile" className="profile-menu-item" onClick={closeMenus}>
                 My Details
-              </Link>
-              <Link to="/docs" className="profile-menu-item" onClick={closeMenus}>
-                My Docs
               </Link>
               <button onClick={handleLogout} className="profile-menu-item logout">
                 Sign Out
@@ -97,22 +100,22 @@ function Header({ cartCount, onLogout }) {
             {cartCount > 0 && (<span className="cart-count">{cartCount}</span>)}
           </Link>
           <Link 
-            to="/track" 
-            className={`mobile-menu-item ${location.pathname === '/track' ? 'active' : ''}`}
+            to="/docs" 
+            className={`mobile-menu-item ${location.pathname === '/docs' ? 'active' : ''}`}
             onClick={closeMenus}>
-            Track My Applications
+            My Documents
+          </Link>
+          <Link 
+            to="/auto-fill-data" 
+            className={`mobile-menu-item ${location.pathname === '/auto-fill-data' ? 'active' : ''}`}
+            onClick={closeMenus}>
+            Auto Fill Data
           </Link>
           <Link 
             to="/profile" 
             className={`mobile-menu-item ${location.pathname === '/profile' ? 'active' : ''}`}
             onClick={closeMenus}>
             My Details
-          </Link>
-          <Link 
-            to="/docs" 
-            className={`mobile-menu-item ${location.pathname === '/docs' ? 'active' : ''}`}
-            onClick={closeMenus}>
-            My Docs
           </Link>
           <button onClick={handleLogout} className="mobile-menu-item logout">
             Sign Out
