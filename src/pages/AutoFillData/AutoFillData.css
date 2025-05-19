@@ -1,30 +1,135 @@
-.page-title {
-  margin: 40px 0px 80px 0px;
-  font-size: 42px;
-  color: #333;
-  text-align: center;
-  font-weight: 600;
-}
+/* AutoFillData.css */
 
-.job-cards-container {
-  margin-top: 2rem;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 3rem;
-  background-color: white;
+.autofill-form {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', sans-serif;
 }
 
-.empty-state p {
-  font-size: 1.25rem;
+h2 {
+  margin-bottom: 20px;
+  text-align: center;
   color: #333;
-  margin-bottom: 0.5rem;
 }
 
-.empty-state-subtitle {
-  color: #666;
-  font-size: 1rem;
-} 
+.progress-bar {
+  position: relative;
+  background-color: #f0f0f0;
+  border-radius: 30px;
+  height: 25px;
+  margin-bottom: 30px;
+  overflow: hidden;
+}
+
+.progress-bar .progress {
+  background-color: #4caf50;
+  height: 100%;
+  transition: width 0.3s ease-in-out;
+}
+
+.progress-bar span {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 0;
+  left: 0;
+  font-size: 14px;
+  color: #000;
+  line-height: 25px;
+}
+
+.form-step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-step label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 500;
+  color: #444;
+}
+
+.form-step input[type="text"],
+.form-step input[type="email"],
+.form-step input[type="tel"],
+.form-step input[type="date"],
+.form-step input[type="number"],
+.form-step input[type="range"],
+.form-step input[type="file"],
+.form-step select {
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.form-step input[type="range"] {
+  padding: 0;
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+legend {
+  font-weight: bold;
+  padding: 0 10px;
+}
+
+.file-preview {
+  margin-top: 8px;
+  max-width: 100px;
+  max-height: 100px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.form-navigation button {
+  padding: 10px 20px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.form-navigation button:hover {
+  background-color: #388e3c;
+}
+
+@media (max-width: 600px) {
+  .autofill-form {
+    padding: 20px;
+  }
+
+  .form-navigation {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-navigation button {
+    width: 100%;
+  }
+
+  fieldset {
+    padding: 12px;
+  }
+}
