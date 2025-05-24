@@ -6,12 +6,11 @@ const steps = [
   'Personal Details',
   'Contact Information',
   'Academic Details',
-  'Exam Info',
   'Upload Documents',
   'Career Goals'
 ];
 
-const stepPercentages = [10, 20, 40, 60, 80, 100];
+const stepPercentages = [10, 40, 60, 80, 100];
 
 const AutoFillDataForm = () => {
   const [step, setStep] = useState(0);
@@ -50,25 +49,47 @@ const AutoFillDataForm = () => {
         return (
           <div className="form-step">
             {/* Personal Details */}
-            <label>Full Name <input name="fullName" onChange={handleChange} value={formData.fullName || ''} required /></label>
-            <label>Father's Name <input name="fathersName" onChange={handleChange} value={formData.fathersName || ''} required /></label>
-            <label>Mother's Name <input name="mothersName" onChange={handleChange} value={formData.mothersName || ''} required /></label>
-            <label>Gender <select name="gender" onChange={handleChange} value={formData.gender || ''}>
-              <option>Male</option><option>Female</option><option>Other</option>
-            </select></label>
+            <label>Full Name (As per Aadhaar) <input name="fullName" onChange={handleChange} value={formData.fullName || ''} required /></label>
+            <label>Father's Name (As per Aadhaar) <input name="fathersName" onChange={handleChange} value={formData.fathersName || ''} required /></label>
+            <label>Mother's Name (As per Aadhaar) <input name="mothersName" onChange={handleChange} value={formData.mothersName || ''} required /></label>
+            <label>Gender 
+              <select name="gender" onChange={handleChange} value={formData.gender || ''}>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+            </label>
             <label>Date of Birth <input type="date" name="dob" onChange={handleChange} value={formData.dob || ''} /></label>
-            <label>Category <select name="category" onChange={handleChange} value={formData.category || ''}>
-              <option>GEN</option><option>OBC</option><option>SC</option><option>ST</option><option>EWS</option>
-            </select></label>
+            <label>Category 
+              <select name="category" onChange={handleChange} value={formData.category || ''}>
+                <option>GEN</option>
+                <option>OBC</option>
+                <option>SC</option>
+                <option>ST</option>
+                <option>EWS</option>
+              </select>
+            </label>
+            <label>Disability Status 
+              <select name="disability" onChange={handleChange} value={formData.disability || ''}>
+                <option>Yes</option>
+                <option>No</option>
+              </select>
+            </label>
             <label>Nationality <input name="nationality" onChange={handleChange} value={formData.nationality || ''} /></label>
             <label>Domicile State <input name="domicile" onChange={handleChange} value={formData.domicile || ''} /></label>
-            <label>Marital Status <select name="maritalStatus" onChange={handleChange} value={formData.maritalStatus || ''}>
-              <option>Single</option><option>Married</option><option>Others</option>
-            </select></label>
+            <label>Marital Status 
+              <select name="maritalStatus" onChange={handleChange} value={formData.maritalStatus || ''}>
+                <option>Single</option>
+                <option>Married</option>
+                <option>Others</option>
+              </select></label>
             <label>Religion <input name="religion" onChange={handleChange} value={formData.religion || ''} /></label>
-            <label>Identification Type <select name="idType" onChange={handleChange} value={formData.idType || ''}>
-              <option>Aadhaar</option><option>PAN</option><option>Passport</option>
-            </select></label>
+            <label>Identification Type 
+              <select name="idType" onChange={handleChange} value={formData.idType || ''}>
+                <option>Aadhaar</option>
+                <option>PAN</option>
+                <option>Passport</option>
+              </select></label>
             <label>Identification Number <input name="idNumber" onChange={handleChange} value={formData.idNumber || ''} /></label>
           </div>
         );
@@ -89,7 +110,7 @@ const AutoFillDataForm = () => {
         return (
           <div className="form-step">
             {/* Academic Details */}
-            {["10th", "12th", "UG", "PG"].map((level) => (
+            {["10th", "12th", "UG"].map((level) => (
               <fieldset key={level}>
                 <legend>{level} Details</legend>
                 <label>Exam Name <input name={`${level}_exam`} onChange={handleChange} value={formData[`${level}_exam`] || ''} /></label>
@@ -97,35 +118,16 @@ const AutoFillDataForm = () => {
                 <label>Year of Passing <input name={`${level}_year`} type="number" onChange={handleChange} value={formData[`${level}_year`] || ''} /></label>
                 <label>Roll Number <input name={`${level}_roll`} onChange={handleChange} value={formData[`${level}_roll`] || ''} /></label>
                 <label>Marks/CGPA <input name={`${level}_marks`} onChange={handleChange} value={formData[`${level}_marks`] || ''} /></label>
-                <label>Result Status <select name={`${level}_status`} onChange={handleChange} value={formData[`${level}_status`] || ''}>
-                  <option>Passed</option><option>Appearing</option>
-                </select></label>
+                <label>Result Status 
+                  <select name={`${level}_status`} onChange={handleChange} value={formData[`${level}_status`] || ''}>
+                    <option>Passed</option>
+                    <option>Appearing</option>
+                  </select></label>
               </fieldset>
             ))}
           </div>
         );
       case 3:
-        return (
-          <div className="form-step">
-            {/* Exam Info */}
-            <label>Exam Applying For <input name="examApplying" onChange={handleChange} value={formData.examApplying || ''} /></label>
-            <label>Preferred Exam Cities <input name="examCities" onChange={handleChange} value={formData.examCities || ''} placeholder="City1, City2..." /></label>
-            <label>Medium of Paper <select name="medium" onChange={handleChange} value={formData.medium || ''}>
-              <option>Hindi</option><option>English</option><option>Other</option>
-            </select></label>
-            <label>Disability Status <select name="disability" onChange={handleChange} value={formData.disability || ''}>
-              <option>Yes</option><option>No</option>
-            </select></label>
-            <label>Requirement of Scribe <select name="scribe" onChange={handleChange} value={formData.scribe || ''}>
-              <option>Yes</option><option>No</option>
-            </select></label>
-            <label>Previous Attempts <input name="attempts" type="number" onChange={handleChange} value={formData.attempts || ''} /></label>
-            <label>Mode of Preparation <select name="prepMode" onChange={handleChange} value={formData.prepMode || ''}>
-              <option>Coaching</option><option>Self-study</option><option>Online</option>
-            </select></label>
-          </div>
-        );
-      case 4:
         return (
           <div className="form-step">
             {/* Upload Documents */}
@@ -139,7 +141,7 @@ const AutoFillDataForm = () => {
             ))}
           </div>
         );
-      case 5:
+      case 4:
         return (
           <div className="form-step">
             {/* Career Goals */}
@@ -159,14 +161,6 @@ const AutoFillDataForm = () => {
             </select></label>
             <label>Preferred Location <input name="locationPref" onChange={handleChange} value={formData.locationPref || ''} /></label>
             <label>Budget (₹10k to ₹5L) <input name="budget" type="range" min="10000" max="500000" step="10000" onChange={handleChange} value={formData.budget || 10000} /></label>
-            <label>Require Hostel <select name="hostel" onChange={handleChange} value={formData.hostel || ''}>
-              <option>Yes</option><option>No</option>
-            </select></label>
-            <label>Require Scholarship <select name="scholarship" onChange={handleChange} value={formData.scholarship || ''}>
-              <option>Yes</option><option>No</option>
-            </select></label>
-            <label>Dream Colleges/Exams <input name="dreams" onChange={handleChange} value={formData.dreams || ''} /></label>
-            <label>Past Exam Attempts <input name="pastAttempts" onChange={handleChange} value={formData.pastAttempts || ''} /></label>
           </div>
         );
       default:
@@ -175,18 +169,21 @@ const AutoFillDataForm = () => {
   };
 
   return (
-    <div className="autofill-form">
-      <div className="progress-bar">
-        <div className="progress" style={{ width: `${stepPercentages[step]}%` }}></div>
-        <span>{stepPercentages[step]}% Completed</span>
+    <div>
+      <div className="autofill-form">
+        <div className="progress-bar">
+          <div className="progress" style={{ width: `${stepPercentages[step]}%` }}></div>
+          <span>{stepPercentages[step]}% Completed</span>
+        </div>
+        <h2>{steps[step]}</h2>
+        {renderStep()}
+        <div className="form-navigation">
+          {step > 0 && <button onClick={handleBack}>Back</button>}
+          {step < steps.length - 1 && <button onClick={handleNext}>Next</button>}
+          {step === steps.length - 1 && <button onClick={() => alert('Form submitted!')}>Submit</button>}
+        </div>
       </div>
-      <h2>{steps[step]}</h2>
-      {renderStep()}
-      <div className="form-navigation">
-        {step > 0 && <button onClick={handleBack}>Back</button>}
-        {step < steps.length - 1 && <button onClick={handleNext}>Next</button>}
-        {step === steps.length - 1 && <button onClick={() => alert('Form submitted!')}>Submit</button>}
-      </div>
+      <Footer />
     </div>
   );
 };

@@ -9,7 +9,7 @@ export const defaultApplications = [
     eligibility: "Graduate",
     isApplied: false,
     isCart: false,
-    officialLink: "https://forms.gle/Cgt4Pzv27M9EtmZY9"
+    officialLink: "https://ssc.gov.in/home"
   },
   {
     id: 2,
@@ -21,7 +21,7 @@ export const defaultApplications = [
     eligibility: "Graduate (Science)",
     isApplied: false,
     isCart: false,
-    officialLink: "https://forms.gle/Cgt4Pzv27M9EtmZY9"
+    officialLink: "https://upsc.gov.in/examinations/Combined%20Geo-Scientist%20%28Preliminary%29%20Examination%2C%202025"
   },
   {
     id: 3,
@@ -33,7 +33,7 @@ export const defaultApplications = [
     eligibility: "Engineering Graduate",
     isApplied: false,
     isCart: false,
-    officialLink: "https://forms.gle/Cgt4Pzv27M9EtmZY9"
+    officialLink: "https://upsc.gov.in/examinations/Engineering%20Services%20%28Preliminary%29%20Examination%2C%202025"
   },
   {
     id: 4,

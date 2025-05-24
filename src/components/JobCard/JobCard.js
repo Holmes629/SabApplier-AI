@@ -22,85 +22,6 @@ function JobCard({ application, onCart }) {
     setShowModal(true);
   };
 
-  const closeModal = () => {
-    setShowModal(false);
-  };
-
-  const handleAutoFill = async () => {
-    setIsAutoFilling(true);
-    try {
-      console.log(application.officialLink);
-      const response = await api.autoFill(application.officialLink);
-      
-      // console.log(response);
-      // Now auto fill the form using the response from backend
-      const autofillData = {
-          ".whsOnd": [
-            "test name3",
-            "testemail3@gmail.com",
-            "9987654321"
-          ],
-          ".KHxj8b": [
-            "some random appartment, random street, random block, city3, state3, country3 - 50048",
-            "No comments"
-          ]
-        };
-
-        // const code = `
-        // const autofillData = {
-        //   ".whsOnd": [
-        //     "test name3",
-        //     "testemail3@gmail.com",
-        //     "9987654321"
-        //   ],
-        //   ".KHxj8b": [
-        //     "some random appartment, random street, random block, city3, state3, country3 - 50048",
-        //     "No comments"
-        //   ]
-        // };
-    
-        // Object.entries(autofillData).forEach(([selector, values]) => {
-        //   const inputs = document.querySelectorAll(selector);
-
-        //   inputs.forEach((input, index) => {
-        //     if (values[index] !== undefined) {
-        //       input.value = values[index];
-        //       input.dispatchEvent(new Event('input', { bubbles: true }));
-
-        //       console.log(✅ Filled ${selector} input #${index + 1} with "${values[index]}");
-        //     } else {
-        //       console.warn(⚠️ No value provided for ${selector} input #${index + 1});
-        //     }
-        //   });
-        // });`;
-    
-      // eval(code);
-      // const iframe = iframeRef.current // Change to your iframe ID
-      // console.log(iframe);
-      // const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-      // Object.entries(autofillData).forEach(([selector, values]) => {
-      //   const inputs = iframeDoc.querySelectorAll(selector);
-
-      //   inputs.forEach((input, index) => {
-      //     if (values[index] !== undefined) {
-      //       input.value = values[index];
-      //       input.dispatchEvent(new Event('input', { bubbles: true }));
-
-      //       console.log(`✅ Filled ${selector} input #${index + 1} with "${values[index]}"`);
-      //     }
-      //   });
-      // });
-      console.log('job done');
-
-      
-    } catch (error) {
-      console.error('Error during auto-fill:', error);
-    } finally {
-      setIsAutoFilling(false);
-    }
-  };
-
   return (
     <>
       <Link to={`/exam/${application.id}`} className="job-card" onClick={handleClick}>
@@ -108,7 +29,7 @@ function JobCard({ application, onCart }) {
           <div className="company-logo"></div>
         </div>
         <div className="job-card-content">
-          <h3 className="job-title">{application.title}</h3>
+          <p className="job-title">{application.title}</p>
           <div className={`job-status ${application.isApplied ? 'applied' : ''}`}>
             <span data-status={application.status}>{application.status}</span>
             {application.isApplied && <span className="applied-tag">Applied</span>}
@@ -125,9 +46,9 @@ function JobCard({ application, onCart }) {
           </div>
         </div>
         <div className="job-card-right">
-          <a href={application.officialLink} target="_blank" rel="noopener noreferrer" className="visit-link" onClick={handleVisitClick}>
+          {/* <a href={application.officialLink} target="_blank" className="visit-link">
             Visit official site →
-          </a>
+          </a> */}
           <button 
             className={`cart-button ${application.isCart ? 'active' : ''}`}
             onClick={(e) => {
@@ -144,30 +65,6 @@ function JobCard({ application, onCart }) {
           </button>
         </div>
       </Link>
-
-      {showModal && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <button className="close-button" onClick={closeModal}>×</button>
-            <iframe 
-              ref={iframeRef}
-              src={application.officialLink} 
-              title="Official Website"
-              frameBorder="0"
-              allowFullScreen
-            />
-            <div className="modal-actions">
-              <button 
-                className="auto-fill-button"
-                onClick={handleAutoFill}
-                disabled={isAutoFilling}
-              >
-                {isAutoFilling ? 'Auto-filling...' : 'Auto-fill Form'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }

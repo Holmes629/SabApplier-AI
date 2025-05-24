@@ -38,6 +38,10 @@
   padding-right: 40px; /* Space for cart button */
 }
 
+.job-status, .job-details{
+  padding-left: 20px;
+}
+
 .job-title {
   font-size: 1.1rem;
   color: #333;
@@ -46,6 +50,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 10px 0px;
 }
 
 .job-status {

@@ -124,9 +124,7 @@ function ExamDetails({ applications, onToggleShortlist }) {
             <a 
               href={exam.officialLink} 
               target="_blank" 
-              rel="noopener noreferrer" 
               className="official-link-button"
-              onClick={handleVisitClick}
             >
               Visit Official Website
             </a>

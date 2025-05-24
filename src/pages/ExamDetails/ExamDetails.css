@@ -13,13 +13,15 @@
   background: none;
   border: none;
   color: #666;
-  font-size: 1rem;
+  font-size: 22px;
   cursor: pointer;
   padding: 0.5rem 0;
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-weight: 600;
+  transform: translateX(-50px);
 }
 
 .back-button:hover {
