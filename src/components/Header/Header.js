@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './Header.css';
 import logo from '../../logo.jpeg';
 
 function Header({ cartCount, onLogout }) {
   const location = useLocation();
+  const profileRef = useRef(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -26,6 +27,23 @@ function Header({ cartCount, onLogout }) {
     setShowProfileMenu(false);
     setShowMobileMenu(false);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const clickedOutsideProfile = profileRef.current && !profileRef.current.contains(event.target);
+
+      if (
+        (showProfileMenu && clickedOutsideProfile) 
+      ) {
+        closeMenus();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showProfileMenu, showMobileMenu]);
 
   return (
     <header className="header">
@@ -63,7 +81,7 @@ function Header({ cartCount, onLogout }) {
             Auto Fill Data
           </Link>
         </nav>
-        <div className="header-profile-section">
+        <div className="header-profile-section" ref={profileRef}>
           <button 
             className={`profile-button ${showProfileMenu ? 'active' : ''}`}
             onClick={handleProfileClick}>
@@ -126,4 +144,4 @@ function Header({ cartCount, onLogout }) {
   );
 }
 
-export default Header; 
+export default Header;

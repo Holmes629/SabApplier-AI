@@ -5,12 +5,10 @@ import './AutoFillData.css';
 const steps = [
   'Personal Details',
   'Contact Information',
-  'Academic Details',
-  'Upload Documents',
-  'Career Goals'
+  'Academic Details'
 ];
 
-const stepPercentages = [10, 40, 60, 80, 100];
+const stepPercentages = [30, 60, 100];
 
 const AutoFillDataForm = () => {
   const [step, setStep] = useState(0);
@@ -99,8 +97,7 @@ const AutoFillDataForm = () => {
             {/* Contact Information */}
             <label>Permanent Address <input name="permanentAddress" onChange={handleChange} value={formData.permanentAddress || ''} /></label>
             <label>Correspondence Address <input name="correspondenceAddress" onChange={handleChange} value={formData.correspondenceAddress || ''} /></label>
-            <label>State of Residence <input name="stateResidence" onChange={handleChange} value={formData.stateResidence || ''} /></label>
-            <label>District of Residence <input name="districtResidence" onChange={handleChange} value={formData.districtResidence || ''} /></label>
+            <label>State & District of Residence <input name="stateResidence" onChange={handleChange} value={formData.stateResidence || ''} /></label>
             <label>Email ID <input name="email" type="email" onChange={handleChange} value={formData.email || ''} /></label>
             <label>Mobile Number <input name="mobile" type="tel" onChange={handleChange} value={formData.mobile || ''} /></label>
             <label>Alternate Mobile Number <input name="altMobile" type="tel" onChange={handleChange} value={formData.altMobile || ''} /></label>
@@ -113,7 +110,6 @@ const AutoFillDataForm = () => {
             {["10th", "12th", "UG"].map((level) => (
               <fieldset key={level}>
                 <legend>{level} Details</legend>
-                <label>Exam Name <input name={`${level}_exam`} onChange={handleChange} value={formData[`${level}_exam`] || ''} /></label>
                 <label>Board/University <input name={`${level}_board`} onChange={handleChange} value={formData[`${level}_board`] || ''} /></label>
                 <label>Year of Passing <input name={`${level}_year`} type="number" onChange={handleChange} value={formData[`${level}_year`] || ''} /></label>
                 <label>Roll Number <input name={`${level}_roll`} onChange={handleChange} value={formData[`${level}_roll`] || ''} /></label>
@@ -125,42 +121,6 @@ const AutoFillDataForm = () => {
                   </select></label>
               </fieldset>
             ))}
-          </div>
-        );
-      case 3:
-        return (
-          <div className="form-step">
-            {/* Upload Documents */}
-            {['photo', 'signature', 'thumb', 'idProof', 'categoryCert', 'pwdCert', 'domicileCert', 'eduCerts'].map(field => (
-              <div key={field}>
-                <label>{field.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase())}
-                  <input type="file" name={field} accept="image/*,.pdf" onChange={handleFileChange} />
-                </label>
-                {filePreviews[field] && <img src={filePreviews[field]} alt={`${field} preview`} className="file-preview" />}
-              </div>
-            ))}
-          </div>
-        );
-      case 4:
-        return (
-          <div className="form-step">
-            {/* Career Goals */}
-            <label>Goal Type <select name="goalType" onChange={handleChange} value={formData.goalType || ''}>
-              <option>College Admission</option><option>Govt Job</option><option>Private Job</option>
-            </select></label>
-            <label>Field of Interest <input name="fieldInterest" onChange={handleChange} value={formData.fieldInterest || ''} /></label>
-            <label>Preferred Degree Type <select name="degreeType" onChange={handleChange} value={formData.degreeType || ''}>
-              <option>UG</option><option>Diploma</option><option>PG</option>
-            </select></label>
-            <label>Exam Level Preference <select name="examLevel" onChange={handleChange} value={formData.examLevel || ''}>
-              <option>State</option><option>Central</option><option>Both</option>
-            </select></label>
-            <label>Language Preference <input name="langPref" onChange={handleChange} value={formData.langPref || ''} /></label>
-            <label>Study Mode <select name="studyMode" onChange={handleChange} value={formData.studyMode || ''}>
-              <option>Online</option><option>Offline</option><option>Hybrid</option>
-            </select></label>
-            <label>Preferred Location <input name="locationPref" onChange={handleChange} value={formData.locationPref || ''} /></label>
-            <label>Budget (₹10k to ₹5L) <input name="budget" type="range" min="10000" max="500000" step="10000" onChange={handleChange} value={formData.budget || 10000} /></label>
           </div>
         );
       default:
