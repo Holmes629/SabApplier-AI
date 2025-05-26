@@ -13,7 +13,8 @@
     justify-content: center;
     padding: 20px;
     margin: auto;
-    width: 85%;
+    width: 100%;
+    background: linear-gradient(180deg, #5998f6, rgb(166, 86, 246));
   }
   
   .auth-card {
@@ -77,7 +78,7 @@
   .form-group input {
     padding: 12px;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 5px 0px 0px 5px;
     font-size: 16px;
     transition: border-color 0.3s ease;
   }
@@ -85,6 +86,15 @@
   .form-group input:focus {
     outline: none;
     border-color: #007bff;
+  }
+
+  .show-hide-button{
+    padding: 0;
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 0px 5px 5px 0px;
+    font-size: 16px;
   }
   
   .submit-button-login {
@@ -109,13 +119,13 @@
     color: #666;
   }
   
-  .auth-footer a {
+  a {
     color: #007bff;
     text-decoration: none;
     font-weight: 500;
   }
   
-  .auth-footer a:hover {
+  a:hover {
     text-decoration: underline;
   }
   

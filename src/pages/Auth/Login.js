@@ -10,6 +10,11 @@ const Login = ({ onLogin }) => {
     email: '',
     password: ''
   });
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
   
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -84,15 +89,25 @@ const Login = ({ onLogin }) => {
 
             <div className="form-group">
               <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                required
-                placeholder="Enter your password"
-              />
+              <div style={{display:"flex"}}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                  placeholder="Enter your password"
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className='show-hide-button'
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+              <Link to="/forgot-password" style={{right:10}}>Forgot Password?</Link>
             </div>
 
             {error && <div className="error-message">{error}</div>}

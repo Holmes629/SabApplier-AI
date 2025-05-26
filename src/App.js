@@ -8,6 +8,7 @@ import Profile from './pages/Profile/Profile';
 import Login from './pages/Auth/Login'
 import Intro from './pages/Intro/Intro';
 import SignUp from './pages/Auth/SignUp';
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
 import ExamDetails from './pages/ExamDetails/ExamDetails';
 import { getApplicationsFromStorage, saveApplicationsToStorage } from './data/applicationsData';
 import { api } from './services/api';
@@ -69,6 +70,7 @@ function App() {
 
   const handleLogin = async (userData) => {
     try {
+      localStorage.clear();
       const response = await api.login(userData);
       setCurrentUser(userData);
       setIsAuthenticated(true);
@@ -131,6 +133,23 @@ function App() {
     }
   };
 
+  const handleForgotPassword = async (userData) => {
+    try {
+      const response = await api.update(userData);
+
+       // Display message to user
+       const messageElement = document.createElement('div');
+       messageElement.textContent = 'Password Updated successfully';
+       messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+       document.body.appendChild(messageElement);
+       setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
+      
+       return { success: true };
+    } catch (error) {
+      return { success: false, message: error.message };
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await api.logout(localStorage.getItem("currentUser"));
@@ -140,6 +159,7 @@ function App() {
       localStorage.setItem("currentUser", null);
       localStorage.setItem("isSignUp2", false);
       localStorage.setItem("isAuthenticated", false);
+      localStorage.clear();
       // Display message to user
       const messageElement = document.createElement('div');
       messageElement.textContent = 'You have been logged out';
@@ -185,6 +205,10 @@ function App() {
           <Route 
             path="/signup-page2" 
             element={isSignUp2 ? <Navigate to="/" replace /> : <SignUpStep2 onSignUp2={ handleSignUp2 } />} 
+          />
+          <Route 
+            path="/forgot-password" 
+            element={isAuthenticated ? <Navigate to="/login" replace /> : <ForgotPassword onForgotPassword={ handleForgotPassword } />} 
           />
           <Route 
             path="/" 

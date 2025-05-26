@@ -33,6 +33,16 @@ const Home = ({ applications, onToggleCart }) => {
       <main className="main-content">
         <h1 className="page-title-home">Welcome to SabApplier AI</h1>
         <p className="page-subtitle-home">Apply faster & easier</p>
+        {/* Extension Button */}
+        <section className="extension-download">
+          <a
+            href="https://chromewebstore.google.com/detail/pbokcepmfdenanohfjfgkilcpgceohhl?utm_source=item-share-cb"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <button className="download-extension">Get Our Extension</button>
+          </a>
+        </section>
         <SearchBar onSearch={handleSearch} />
         <div className="job-cards-container">
           {filteredApplications.map(app => (

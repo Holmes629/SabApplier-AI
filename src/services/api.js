@@ -79,8 +79,11 @@ export const api = {
   update: async (userData) => {
     try {
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      console.log(userData.email);
+      if (!('email' in userData) || !userData.email){
+        userData.email = currentUser.email
+      }
       const payload =  {
-        email: currentUser.email,
         ...userData
       };
       if (userData.confirmPassword) {
@@ -88,6 +91,32 @@ export const api = {
       }
       const response = await axios.post(
         `${API_BASE_URL}/users/update/`,
+        payload,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Signup error:", error.response?.data || error.message);
+      throw new Error("Signup failed: user already exists or invalid data");
+    }
+  },
+
+  delete: async (userData) => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      console.log(userData.email);
+      if (!('email' in userData) || !userData.email){
+        userData.email = currentUser.email
+      }
+      const payload =  {
+        ...userData
+      };
+      const response = await axios.post(
+        `${API_BASE_URL}/users/delete/`,
         payload,
         {
           headers: {

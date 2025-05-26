@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Footer from '../../components/Footer/Footer';
 import logo from '../../logo.jpeg';
-import './SignUp.css';
+import './ForgotPassword.css';
 
-const SignUp = ({ onSignUp }) => {
+const ForgotPassword = ({ onForgotPassword }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -52,16 +52,18 @@ const SignUp = ({ onSignUp }) => {
     setLoading(true);
     setError('');
     try {
-      const result = await onSignUp({
+      const result = await onForgotPassword({
         email: formData.email,
         password: formData.password,
       });
+      console.log(result);
       if (result.success) {
-        navigate('/signup-page2');
+        navigate('/login');
       } else {
         setError(result.message || 'Sign up failed. Please try again.');
       }
     } catch (err) {
+      console.log(err);
       setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -75,11 +77,7 @@ const SignUp = ({ onSignUp }) => {
           <div className="auth-logo">
             <img src={logo} alt="SabApplier AI" />
             </div>
-          <h2>Create Account</h2>
-          {/* Status bar (progress bar) for step 1 of 3 */}
-          <div style={{ marginBottom: '1rem', height: '4px', background: '#eee', borderRadius: '2px' }}>
-            <div style={{ width: '33%', height: '100%', background: '#4CAF50', borderRadius: '2px' }} />
-          </div>
+          <h2>Forgot Password? Change it here...!</h2>
           {error && <div className="error-message">{error}</div>}
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -95,7 +93,7 @@ const SignUp = ({ onSignUp }) => {
               />
             </div>
             <div className="form-group">
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">New Password</label>
               <div style={{display:"flex"}}>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -137,11 +135,11 @@ const SignUp = ({ onSignUp }) => {
               </div>
             </div>
             <button type="submit" className="auth-button" disabled={loading}>
-              {loading ? 'Creating Account...' : 'Sign Up'}
+              {loading ? 'Updating Password...' : 'Change Password'}
             </button>
           </form>
           <p className="auth-link">
-            Already have an account? <Link to="/login">Log in</Link>
+            <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
             <div className='privacy-policy'>
               <Link to="/privacy_policy"> Our Privacy Policy </Link>
             </div>
@@ -153,4 +151,4 @@ const SignUp = ({ onSignUp }) => {
   );
 };
 
-export default SignUp; 
+export default ForgotPassword; 

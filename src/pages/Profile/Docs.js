@@ -89,6 +89,40 @@ const Docs = ({ docUpload }) => {
     }
   };
 
+  const handleDeleteDoc = async (field) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this document?");
+    if (!confirmDelete) return;
+
+    try {
+      const loader = document.createElement('div');
+      loader.textContent = 'Deleting...';
+      loader.style.cssText =
+        'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: #2196F3; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(loader);
+
+      const response = await api.delete({ field });
+      document.body.removeChild(loader);
+
+      if (response.success) {
+        const message = document.createElement('div');
+        message.textContent = 'File deleted successfully!';
+        message.style.cssText =
+          'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+        document.body.appendChild(message);
+        setTimeout(() => {
+         // Set the deleted field to null in userData and formData
+          setUserData((prev) => ({ ...prev, [field]: null }));
+          setFormData((prev) => ({ ...prev, [field]: null }));
+          document.body.removeChild(message);
+        }, 1000);
+      }
+    } catch (err) {
+      console.error("Failed to delete document:", err);
+      alert("Something went wrong while deleting the document, try again...");
+    }
+  };
+  
+
   if (!userData) return <div className="docs-container">Loading documents...</div>;
 
   return (
@@ -183,6 +217,12 @@ const Docs = ({ docUpload }) => {
                     </svg>
                     <div className="document-name">{label}</div>
                   </a>
+                  <button
+                    className="delete-doc-button"
+                    onClick={() => handleDeleteDoc(field)}
+                  >
+                    Delete
+                  </button>
                 </div>
               ) : null
             )}
