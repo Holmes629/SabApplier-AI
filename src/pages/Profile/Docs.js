@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import Footer from '../../components/Footer/Footer';
+import { Download, Trash2 } from 'lucide-react'; 
 import './Docs.css';
 
 const DOCUMENT_FIELDS = {
@@ -63,6 +64,12 @@ const Docs = ({ docUpload }) => {
       }, 1500);
     }
   };
+
+  const getDropboxDownloadLink = (url) => {
+    if (!url) return '';
+    return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('&dl=0', '&dl=1'); 
+  };
+  
 
   const handleFileUpload = async (fileFieldName, file) => {
     const loader = document.createElement('div');
@@ -217,11 +224,18 @@ const Docs = ({ docUpload }) => {
                     </svg>
                     <div className="document-name">{label}</div>
                   </a>
-                  <button
-                    className="delete-doc-button"
-                    onClick={() => handleDeleteDoc(field)}
+                  <a
+                    href={getDropboxDownloadLink(userData[field])}
+                    // href="https://dl.dropboxusercontent.com/scl/fi/3pxqni3wvh7dc58s8uzf0/demoemail_signature.jpg?rlkey=ttal9t2e1xye7g3hz5bn95s2w&dl=1"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    Delete
+                    <button className="download-doc-button">
+                      <Download/>
+                    </button>
+                  </a>
+                  <button className="delete-doc-button" onClick={() => handleDeleteDoc(field)} title="Delete">
+                    <Trash2 color="red" />
                   </button>
                 </div>
               ) : null

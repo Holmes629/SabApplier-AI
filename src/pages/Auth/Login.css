@@ -89,10 +89,10 @@
   }
 
   .show-hide-button{
-    padding: 0;
-    background-color: #007bff;
-    color: #fff;
-    border: 1px solid #ddd;
+    padding: 5px;
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #251a1a;
     border-radius: 0px 5px 5px 0px;
     font-size: 16px;
   }

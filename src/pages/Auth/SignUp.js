@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import Footer from '../../components/Footer/Footer';
 import logo from '../../logo.jpeg';
 import './SignUp.css';
@@ -111,7 +112,7 @@ const SignUp = ({ onSignUp }) => {
                   onClick={togglePasswordVisibility}
                   className='show-hide-button'
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>
@@ -132,7 +133,7 @@ const SignUp = ({ onSignUp }) => {
                   onClick={togglePasswordVisibility}
                   className='show-hide-button'
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>

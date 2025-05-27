@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import './Login.css';
 import logo from '../../logo.jpeg';
 import Footer from '../../components/Footer/Footer';
@@ -102,9 +103,9 @@ const Login = ({ onLogin }) => {
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className='show-hide-button'
+                  className="show-hide-button"
                 >
-                  {showPassword ? "Hide" : "Show"}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               <Link to="/forgot-password" style={{right:10}}>Forgot Password?</Link>
