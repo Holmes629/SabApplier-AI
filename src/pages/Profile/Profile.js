@@ -71,6 +71,7 @@ function Profile() {
 
       const response = await api.updateProfile(formDataToSend);
       setUserData(response.user_data);
+      setFormData(response.user_data);
       setIsEditing(false);
       setSelectedFile(null);
 

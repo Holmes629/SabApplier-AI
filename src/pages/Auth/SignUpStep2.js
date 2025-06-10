@@ -1,27 +1,32 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './SignUp.css';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./SignUp.css";
 
 const SignUpStep2 = ({ onSignUp2 }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullname: '',
-    dateofbirth: '',
-    address: '',
-    phone_number: '',
+    fullname: "",
+    dateofbirth: "",
+    address: "",
+    phone_number: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    setError('');
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setError("");
   };
 
   const validateForm = () => {
-    if (!formData.fullname || !formData.dateofbirth || !formData.address || !formData.phone_number) {
-      setError('All fields are required');
+    if (
+      !formData.fullname ||
+      !formData.dateofbirth ||
+      !formData.address ||
+      !formData.phone_number
+    ) {
+      setError("All fields are required");
       return false;
     }
     return true;
@@ -33,22 +38,35 @@ const SignUpStep2 = ({ onSignUp2 }) => {
       return;
     }
     setLoading(true);
-    setError('');
+    setError("");
     try {
+      // Get email from localStorage
+      const savedUser = localStorage.getItem("currentUser");
+      let email = "";
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        email = user.email;
+      }
+
+      if (!email) {
+        setError("Email not found. Please log in again.");
+        setLoading(false);
+        return;
+      }
+
       const result = await onSignUp2({
-        fullname: formData.fullname,
-        dateofbirth: formData.dateofbirth,
-        address: formData.address,
-        phone_number: formData.phone_number
+        ...formData,
+        email, // include email in payload
       });
+      console.log("Submitting profile update:", { ...formData, email });
       if (result.success) {
-        navigate('/manage-docs');
+        navigate("/manage-docs");
       } else {
-        setError(result.message || 'Profile update failed.');
+        setError(result.message || "Profile update failed.");
       }
     } catch (err) {
       console.log(err);
-      setError('An error occurred. Please try again.');
+      setError("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -59,8 +77,22 @@ const SignUpStep2 = ({ onSignUp2 }) => {
       <div className="auth-card">
         <h2>Complete Your Profile</h2>
         {/* Status bar (progress bar) for step 2 of 3 */}
-        <div style={{ marginBottom: '1rem', height: '4px', background: '#eee', borderRadius: '2px' }}>
-          <div style={{ width: '66%', height: '100%', background: '#4CAF50', borderRadius: '2px' }} />
+        <div
+          style={{
+            marginBottom: "1rem",
+            height: "4px",
+            background: "#eee",
+            borderRadius: "2px",
+          }}
+        >
+          <div
+            style={{
+              width: "66%",
+              height: "100%",
+              background: "#4CAF50",
+              borderRadius: "2px",
+            }}
+          />
         </div>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
@@ -77,7 +109,7 @@ const SignUpStep2 = ({ onSignUp2 }) => {
             />
           </div>
           <div className="form-group">
-          <label htmlFor="dateofbirth">Date of Birth</label>
+            <label htmlFor="dateofbirth">Date of Birth</label>
             <input
               type="date"
               id="dateofbirth"
@@ -113,7 +145,7 @@ const SignUpStep2 = ({ onSignUp2 }) => {
             />
           </div>
           <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? 'Submitting...' : 'Submit Profile'}
+            {loading ? "Submitting..." : "Submit Profile"}
           </button>
         </form>
       </div>
@@ -121,4 +153,4 @@ const SignUpStep2 = ({ onSignUp2 }) => {
   );
 };
 
-export default SignUpStep2; 
+export default SignUpStep2;

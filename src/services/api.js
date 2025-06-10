@@ -1,20 +1,20 @@
-import { UNSAFE_createClientRoutesWithHMRRevalidationOptOut } from "react-router-dom";
+// import { UNSAFE_createClientRoutesWithHMRRevalidationOptOut } from "react-router-dom";
 import axios from "axios";
 
-// const API_BASE_URL = "http://127.0.0.1:8000/api"
-const API_BASE_URL = 'https://api.sabapplier.com/api';
+const API_BASE_URL = "http://127.0.0.1:8000/api"
+// const API_BASE_URL = 'https://api.sabapplier.com/api';
 
 // Helper function to get auth token
 const getAuthToken = () => localStorage.getItem("token");
 
 // Helper function to set auth token
-const setAuthToken = (token) => {
-  if (token) {
-    localStorage.setItem("token", token);
-  } else {
-    localStorage.removeItem("token");
-  }
-};
+// const setAuthToken = (token) => {
+//   if (token) {
+//     localStorage.setItem("token", token);
+//   } else {
+//     localStorage.removeItem("token");
+//   }
+// };
 
 // Helper function to get headers
 const getHeaders = (includeAuth = true) => {
@@ -50,6 +50,44 @@ function getCookie(name) {
 }
 
 export const api = {
+
+
+
+  // OTP: Send OTP to email
+  sendOtp: async (email) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/send-otp/`, {
+        method: "POST",
+        headers: getHeaders(false),
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw data;
+      return data;
+    } catch (error) {
+      throw new Error(error.detail || "Could not send OTP. Please try again.");
+    }
+  },
+
+  // OTP: Verify OTP
+  verifyOtp: async (email, otp) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/users/verify-otp/`, {
+        method: "POST",
+        headers: getHeaders(false),
+        body: JSON.stringify({ email, otp }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw data;
+      return data;
+    } catch (error) {
+      throw new Error(error.detail || "Invalid OTP. Please try again.");
+    }
+  },
+
+
+
+
   signup: async (userData) => {
     try {
       // Only send the required fields as JSON

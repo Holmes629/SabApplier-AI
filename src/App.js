@@ -72,12 +72,16 @@ function App() {
     try {
       localStorage.clear();
       const response = await api.login(userData);
-      setCurrentUser(userData);
-      setIsAuthenticated(true);
-      localStorage.setItem("currentUser", JSON.stringify(userData));
-      localStorage.setItem("isAuthenticated", "true");
-      setIsSignUp2(true);
-      localStorage.setItem("isSignUp2", "true");
+       const user = response.user || userData;
+    if (!user.email) {
+      throw new Error("Login response missing email.");
+    }
+    setCurrentUser(user);
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    setIsAuthenticated(true);
+    setIsSignUp2(true);
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("isSignUp2", "true");
 
        // Display message to user
        const messageElement = document.createElement('div');
@@ -92,26 +96,37 @@ function App() {
     }
   };
 
-  const handleSignUp = async (userData) => {
-    try {
-      const response = await api.signup(userData);
-      setCurrentUser(userData);
-      setIsAuthenticated(true);
-      localStorage.setItem("currentUser", JSON.stringify(userData));
-      localStorage.setItem("isAuthenticated", "true");
-
-       // Display message to user
-       const messageElement = document.createElement('div');
-       messageElement.textContent = 'User Created successfully, please complete you profile data...';
-       messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-       document.body.appendChild(messageElement);
-       setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
-      
-       return { success: true };
-    } catch (error) {
-      return { success: false, message: error.message };
+const handleSignUp = async (userData) => {
+  try {
+    const response = await api.signup(userData);
+    // Always use userData.email if response.user is missing or incomplete
+    let user = response.user && response.user.email ? response.user : userData;
+    // If user.email is still missing, try to get it from userData
+    if (!user.email && userData.email) {
+      user = { ...user, email: userData.email };
     }
-  };
+    if (!user.email) {
+      throw new Error("Signup response missing email.");
+    }
+    setCurrentUser(user);
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    setIsAuthenticated(true);
+    setIsSignUp2(false);
+    localStorage.setItem("isAuthenticated", "true");
+    localStorage.setItem("isSignUp2", "false");
+
+    // Display message to user
+    const messageElement = document.createElement('div');
+    messageElement.textContent = 'User Created successfully, please complete your profile data...';
+    messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+    document.body.appendChild(messageElement);
+    setTimeout(() => document.body.removeChild(messageElement), 1000);
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: error.message };
+  }
+};
 
   const handleSignUp2 = async (userData) => {
     try {
