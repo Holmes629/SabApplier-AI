@@ -4,7 +4,7 @@ import './Profile.css';
 import { api } from '../../services/api';
 
 function Profile() {
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState({});
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [selectedFile, setSelectedFile] = useState(null);
@@ -116,12 +116,12 @@ function Profile() {
                     <input
                       type="text"
                       name="username"
-                      value={formData.fullname || ''}
+                      value={formData.fullName || ''}
                       onChange={handleInputChange}
                       className="edit-input"
                     />
                   ) : (
-                    <p>{userData.fullname || 'Not provided'}</p>
+                    <p>{userData.fullName || 'Not provided'}</p>
                   )}
                 </div>
                 <div className="info-item">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../../services/api';
 import Footer from '../../components/Footer/Footer';
-import { Download, Trash2 } from 'lucide-react'; 
+import { Upload, Download, Trash2 } from 'lucide-react'; 
 import './Docs.css';
 
 const DOCUMENT_FIELDS = {
@@ -19,8 +19,11 @@ const DOCUMENT_FIELDS = {
 };
 
 const Docs = ({ docUpload }) => {
-  const [userData, setUserData] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [userData, setUserData] = useState({});
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem('autoFillData');
+    return saved ? JSON.parse(saved) : {};
+  });
   const [customDocType, setCustomDocType] = useState('');
   const [isProfileFetched, setIsProfileFetched] = useState(
     localStorage.getItem("isProfileFetched") === "true"
@@ -71,7 +74,7 @@ const Docs = ({ docUpload }) => {
   };
   
 
-  const handleFileUpload = async (fileFieldName, file) => {
+  const handleFileUpload = async (file) => {
     const loader = document.createElement('div');
     loader.textContent = 'Uploading...';
     loader.style.cssText =
@@ -79,7 +82,7 @@ const Docs = ({ docUpload }) => {
     document.body.appendChild(loader);
 
     try {
-      await docUpload({ [fileFieldName]: file });
+      await docUpload({ 'file': file });
       document.body.removeChild(loader);
 
       const message = document.createElement('div');
@@ -118,8 +121,8 @@ const Docs = ({ docUpload }) => {
         document.body.appendChild(message);
         setTimeout(() => {
          // Set the deleted field to null in userData and formData
-          setUserData((prev) => ({ ...prev, [field]: null }));
-          setFormData((prev) => ({ ...prev, [field]: null }));
+          setUserData((prev) => ({ ...prev, document_urls: {...prev.document_urls,[field]: null}, document_texts: {...prev.document_texts,[field.replace('_file_url', '_text_data')]: null} }));
+          setFormData((prev) => ({ ...prev, document_urls: {...prev.document_urls,[field]: null}, document_texts: {...prev.document_texts,[field.replace('_file_url', '_text_data')]: null}}));
           document.body.removeChild(message);
         }, 1000);
       }
@@ -138,62 +141,18 @@ const Docs = ({ docUpload }) => {
         <div className="docs-header">
           <h2>My Documents</h2>
           <div className="upload-section">
-            <select
-              className="doc-type-select"
-              value={formData.docType || ''}
-              onChange={(e) =>
-                setFormData({ ...formData, docType: e.target.value })
-              }
-            >
-              <option value="">Select Document Type</option>
-              {Object.entries(DOCUMENT_FIELDS).map(([key, label]) => (
-                <option key={key} value={key.replace('_file_url', '')}>
-                  {label}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              className="custom-doc-input"
-              placeholder="Or enter custom document name"
-              value={customDocType}
-              onChange={(e) => setCustomDocType(e.target.value)}
-              onBlur={() => {
-                if (customDocType.trim()) {
-                  const formattedKey = customDocType
-                    .toLowerCase()
-                    .replace(/\s+/g, '_') + '_file_url';
-
-                  if (!DOCUMENT_FIELDS[formattedKey]) {
-                    const updatedFields = {
-                      ...DOCUMENT_FIELDS,
-                      [formattedKey]: customDocType.trim(),
-                    };
-                    // setDocumentFields(updatedFields);
-                    setFormData({
-                      ...formData,
-                      docType: customDocType.toLowerCase().replace(/\s+/g, '_'),
-                    });
-                  }
-                }
-              }}
-            />
-
             <label className="bulk-upload-button">
-              Upload Document
+              <Upload size={20} /> Upload Document
               <input
                 type="file"
                 accept=".pdf,image/*"
                 style={{ display: 'none' }}
                 onChange={(e) => {
                   const file = e.target.files[0];
-                  const docType = formData.docType;
-                  if (file && docType) {
-                    handleFileUpload(`${docType}_file_url`, file);
+                  if (file) {
+                    handleFileUpload(file);
                   }
                 }}
-                disabled={!formData.docType}
               />
             </label>
           </div>
@@ -202,44 +161,50 @@ const Docs = ({ docUpload }) => {
         <div className="profile-section">
           <h3>Uploaded Documents</h3>
           <div className="documents-grid">
-            {Object.entries(DOCUMENT_FIELDS).map(([field, label]) =>
-              userData[field] ? (
-                <div className="document-card" key={field}>
-                  <a
-                    href={userData[field]}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      height="90"
-                      width="90"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="black"
-                      strokeWidth="0.7"
+            {userData.document_urls &&
+              Object.entries(userData.document_urls).map(([field, url]) =>
+                url ? (
+                  <div className="document-card" key={field}>
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
-                      <path d="M6 2h9l5 5v15H6z" />
-                      <path d="M14 2v6h6" />
-                    </svg>
-                    <div className="document-name">{label}</div>
-                  </a>
-                  <a
-                    href={getDropboxDownloadLink(userData[field])}
-                    // href="https://dl.dropboxusercontent.com/scl/fi/3pxqni3wvh7dc58s8uzf0/demoemail_signature.jpg?rlkey=ttal9t2e1xye7g3hz5bn95s2w&dl=1"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <button className="download-doc-button">
-                      <Download/>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        height="90"
+                        width="90"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="black"
+                        strokeWidth="0.7"
+                      >
+                        <path d="M6 2h9l5 5v15H6z" />
+                        <path d="M14 2v6h6" />
+                      </svg>
+                      <div className="document-name">{field.replace(/_/g, ' ').replace('file url', '')}</div>
+                    </a>
+
+                    <a
+                      href={getDropboxDownloadLink(url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <button className="download-doc-button">
+                        <Download />
+                      </button>
+                    </a>
+
+                    <button
+                      className="delete-doc-button"
+                      onClick={() => handleDeleteDoc(field)}
+                      title="Delete"
+                    >
+                      <Trash2 color="black" />
                     </button>
-                  </a>
-                  <button className="delete-doc-button" onClick={() => handleDeleteDoc(field)} title="Delete">
-                    <Trash2 color="red" />
-                  </button>
-                </div>
-              ) : null
-            )}
+                  </div>
+                ) : null
+              )}
           </div>
         </div>
       </div>

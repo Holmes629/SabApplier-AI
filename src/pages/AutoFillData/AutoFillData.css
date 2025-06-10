@@ -73,6 +73,7 @@ h2 {
 }
 
 .form-step input,
+.form-step textarea,
 .form-step select {
   margin-top: 6px;
   padding: 12px 14px;

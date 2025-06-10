@@ -40,7 +40,6 @@
 }
 
 .bulk-upload-button::before {
-  content: '📁';
   font-size: 1.2rem;
 }
 

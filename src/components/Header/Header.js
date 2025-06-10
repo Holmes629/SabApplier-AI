@@ -62,13 +62,6 @@ function Header({ cartCount, onLogout }) {
             Home
           </Link>
           <Link 
-            to="/cart" 
-            className={`nav-tab ${location.pathname === '/cart' ? 'active' : ''}`}
-            onClick={closeMenus}>
-            Cart
-            {cartCount > 0 && (<span className="cart-count">{cartCount}</span>)}
-          </Link>
-          <Link 
             to="/docs" 
             className={`nav-tab ${location.pathname === '/docs' ? 'active' : ''}`}
             onClick={closeMenus}>
@@ -79,6 +72,13 @@ function Header({ cartCount, onLogout }) {
             className={`nav-tab ${location.pathname === '/auto-fill-data' ? 'active' : ''}`}
             onClick={closeMenus}>
             Auto Fill Data
+          </Link>
+          <Link 
+            to="/cart" 
+            className={`nav-tab ${location.pathname === '/cart' ? 'active' : ''}`}
+            onClick={closeMenus}>
+            Cart
+            {cartCount > 0 && (<span className="cart-count">{cartCount}</span>)}
           </Link>
         </nav>
         <div className="header-profile-section" ref={profileRef}>

@@ -5,7 +5,7 @@ import './SignUp.css';
 const SignUpStep2 = ({ onSignUp2 }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    fullname: '',
+    fullName: '',
     dateofbirth: '',
     address: '',
     phone_number: '',
@@ -20,7 +20,7 @@ const SignUpStep2 = ({ onSignUp2 }) => {
   };
 
   const validateForm = () => {
-    if (!formData.fullname || !formData.dateofbirth || !formData.address || !formData.phone_number) {
+    if (!formData.fullName || !formData.dateofbirth || !formData.address || !formData.phone_number) {
       setError('All fields are required');
       return false;
     }
@@ -36,7 +36,7 @@ const SignUpStep2 = ({ onSignUp2 }) => {
     setError('');
     try {
       const result = await onSignUp2({
-        fullname: formData.fullname,
+        fullName: formData.fullName,
         dateofbirth: formData.dateofbirth,
         address: formData.address,
         phone_number: formData.phone_number
@@ -65,12 +65,12 @@ const SignUpStep2 = ({ onSignUp2 }) => {
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="fullname">Full Name</label>
+            <label htmlFor="fullName">Full Name</label>
             <input
               type="text"
-              id="fullname"
-              name="fullname"
-              value={formData.fullname}
+              id="fullName"
+              name="fullName"
+              value={formData.fullName}
               onChange={handleChange}
               placeholder="Enter your full name"
               required

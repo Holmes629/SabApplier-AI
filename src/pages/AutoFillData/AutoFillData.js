@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../../services/api';
 import Footer from '../../components/Footer/Footer';
 import './AutoFillData.css';
 
@@ -12,32 +13,87 @@ const stepPercentages = [30, 60, 100];
 
 const AutoFillDataForm = () => {
   const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState(() => {
-    const saved = localStorage.getItem('autoFillData');
-    return saved ? JSON.parse(saved) : {};
-  });
-  const [filePreviews, setFilePreviews] = useState({});
+  const [userData, setUserData] = useState({});
+  const [formData, setFormData] = useState({});
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isProfileFetched, setIsProfileFetched] = useState(
+    localStorage.getItem("isProfileFetched") === "true"
+  );
 
   useEffect(() => {
-    localStorage.setItem('autoFillData', JSON.stringify(formData));
-  }, [formData]);
+    if (!isProfileFetched) {
+      getProfile();
+    } else if (!userData || Object.keys(userData).length === 0) {
+      const savedUser = localStorage.getItem("currentUser");
+      const savedFormData = localStorage.getItem("formData");
 
-  const handleNext = () => setStep((prev) => Math.min(prev + 1, steps.length - 1));
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        setUserData(user);
+      }
+
+      if (savedFormData) {
+        setFormData(JSON.parse(savedFormData));
+      } else if (savedUser) {
+        setFormData(JSON.parse(savedUser));
+      }
+    }
+  }, [userData]);
+
+  const getProfile = async () => {
+    const loader = document.createElement('div');
+    loader.textContent = 'Fetching documents...';
+    loader.style.cssText =
+      'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: #2196F3; color: white; border-radius: 4px; z-index: 1000;';
+    document.body.appendChild(loader);
+
+    try {
+      const response = await api.getProfile();
+      setUserData(response.user_data);
+      setFormData(response.user_data);
+
+      setIsProfileFetched(true);
+      localStorage.setItem("isProfileFetched", "true");
+      localStorage.setItem("currentUser", JSON.stringify(response.user_data));
+
+      document.body.removeChild(loader);
+    } catch (error) {
+      loader.textContent = 'Failed to fetch docs.';
+      loader.style.background = 'red';
+      setTimeout(() => {
+        document.body.removeChild(loader);
+      }, 1500);
+    }
+  };
+
+  const handleNext = () => {
+    // Save current formData to localStorage
+    localStorage.setItem("formData", JSON.stringify(formData));
+    setStep((prev) => Math.min(prev + 1, steps.length - 1));
+  };
   const handleBack = () => setStep((prev) => Math.max(prev - 1, 0));
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
-    const { name, files } = e.target;
-    if (files[0]) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFilePreviews((prev) => ({ ...prev, [name]: reader.result }));
-        setFormData((prev) => ({ ...prev, [name]: files[0] }));
-      };
-      reader.readAsDataURL(files[0]);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      const result = await api.update(formData);
+      if (result.success) {
+        // navigate('/manage-docs');
+      } else {
+        setError(result.message || 'Profile update failed.');
+      }
+    } catch (err) {
+      console.log(err);
+      setError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,7 +113,7 @@ const AutoFillDataForm = () => {
                 <option>Other</option>
               </select>
             </label>
-            <label>Date of Birth <input type="date" name="dob" onChange={handleChange} value={formData.dob || ''} /></label>
+            <label>Date of Birth <input type="date" name="dateofbirth" onChange={handleChange} value={formData.dateofbirth || ''} /></label>
             <label>Category 
               <select name="category" onChange={handleChange} value={formData.category || ''}>
                 <option>GEN</option>
@@ -74,33 +130,26 @@ const AutoFillDataForm = () => {
               </select>
             </label>
             <label>Nationality <input name="nationality" onChange={handleChange} value={formData.nationality || ''} /></label>
-            <label>Domicile State <input name="domicile" onChange={handleChange} value={formData.domicile || ''} /></label>
+            <label>Domicile State <input name="domicileState" onChange={handleChange} value={formData.domicileState || ''} /></label>
             <label>Marital Status 
               <select name="maritalStatus" onChange={handleChange} value={formData.maritalStatus || ''}>
                 <option>Single</option>
                 <option>Married</option>
+                <option>Divorced</option>
+                <option>Widowed</option>
                 <option>Others</option>
               </select></label>
             <label>Religion <input name="religion" onChange={handleChange} value={formData.religion || ''} /></label>
-            <label>Identification Type 
-              <select name="idType" onChange={handleChange} value={formData.idType || ''}>
-                <option>Aadhaar</option>
-                <option>PAN</option>
-                <option>Passport</option>
-              </select></label>
-            <label>Identification Number <input name="idNumber" onChange={handleChange} value={formData.idNumber || ''} /></label>
           </div>
         );
       case 1:
         return (
           <div className="form-step">
             {/* Contact Information */}
-            <label>Permanent Address <input name="permanentAddress" onChange={handleChange} value={formData.permanentAddress || ''} /></label>
-            <label>Correspondence Address <input name="correspondenceAddress" onChange={handleChange} value={formData.correspondenceAddress || ''} /></label>
-            <label>State & District of Residence <input name="stateResidence" onChange={handleChange} value={formData.stateResidence || ''} /></label>
-            <label>Email ID <input name="email" type="email" onChange={handleChange} value={formData.email || ''} /></label>
-            <label>Mobile Number <input name="mobile" type="tel" onChange={handleChange} value={formData.mobile || ''} /></label>
-            <label>Alternate Mobile Number <input name="altMobile" type="tel" onChange={handleChange} value={formData.altMobile || ''} /></label>
+            <label>Permanent Address <textarea name="permanentAddress" onChange={handleChange} value={formData.permanentAddress || ''} /></label>
+            <label>Correspondence Address <textarea name="correspondenceAddress" onChange={handleChange} value={formData.correspondenceAddress || ''} /></label>
+            <label>Mobile Number <input name="phone_number" type="tel" onChange={handleChange} value={formData.phone_number || ''} /></label>
+            <label>Alternate Mobile Number <input name="alt_phone_number" type="tel" onChange={handleChange} value={formData.alt_phone_number || ''} /></label>
           </div>
         );
       case 2:
@@ -137,10 +186,11 @@ const AutoFillDataForm = () => {
         </div>
         <h2>{steps[step]}</h2>
         {renderStep()}
+        {loading && <p style={{ color: 'blue' }}>Saving...</p>}
         <div className="form-navigation">
           {step > 0 && <button onClick={handleBack}>Back</button>}
-          {step < steps.length - 1 && <button onClick={handleNext}>Next</button>}
-          {step === steps.length - 1 && <button onClick={() => alert('Form submitted!')}>Submit</button>}
+          {step < steps.length - 1 && <button onClick={handleNext}>Save & Next</button>}
+          {step === steps.length - 1 && <button onClick={handleSubmit}>Submit</button>}
         </div>
       </div>
       <Footer />
