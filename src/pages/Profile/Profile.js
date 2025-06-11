@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Footer from '../../components/Footer/Footer';
 import './Profile.css';
 import { api } from '../../services/api';
 
 function Profile() {
+  const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
@@ -11,38 +13,58 @@ function Profile() {
   const [isProfileFetched, setIsProfileFetched] = useState(
     localStorage.getItem("isProfileFetched") === "true"
   );
-
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!isProfileFetched) {
-      getProfile();
-    } else {
-      const savedUser = localStorage.getItem("currentUser");
-      if (savedUser) {
-        const user = JSON.parse(savedUser);
-        setUserData(user);
-        setFormData(user);
-      }
-    }
-  }, []);
+    const fetchProfile = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
+        const currentUser = localStorage.getItem("currentUser");
+        if (!currentUser) {
+          throw new Error("Please log in to view your profile");
+        }
+
+        const response = await api.getProfile();
+        setUserData(response.user_data);
+        setFormData(response.user_data);
+      } catch (err) {
+        console.error('Profile fetch error:', err);
+        setError(err.message || 'Failed to load profile. Please try again.');
+        
+        if (err.message.includes("log in")) {
+          setTimeout(() => {
+            localStorage.removeItem("currentUser");
+            navigate('/login');
+          }, 2000);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [navigate]);
 
   const getProfile = async () => {
     try {
       const response = await api.getProfile();
+      if (!response || !response.user_data) {
+        throw new Error('Invalid profile data received');
+      }
+      
       setUserData(response.user_data);
       setFormData(response.user_data);
-
-      // Set flipper state
       setIsProfileFetched(true);
       localStorage.setItem("isProfileFetched", "true");
-      // Also update localStorage with new data
       localStorage.setItem("currentUser", JSON.stringify(response.user_data));
     } catch (error) {
       console.error('Profile fetch error:', error);
+      throw error;
     }
   };
-
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -89,8 +111,57 @@ function Profile() {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="main-content">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="main-content">
+        <div className="error-container">
+          <h3>Error Loading Profile</h3>
+          <p>{error}</p>
+          <button 
+            className="retry-button"
+            onClick={() => {
+              setIsProfileFetched(false);
+              window.location.reload();
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   if (!userData) {
-    return <div className="main-content">Loading profile...</div>;
+    return (
+      <div className="main-content">
+        <div className="error-container">
+          <h3>No Profile Data</h3>
+          <p>Unable to load profile data. Please try logging in again.</p>
+          <button 
+            className="retry-button"
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("currentUser");
+              localStorage.removeItem("isProfileFetched");
+              window.location.href = '/login';
+            }}
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

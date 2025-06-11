@@ -48,8 +48,17 @@ const SignUpStep2 = ({ onSignUp2 }) => {
         email = user.email;
       }
 
+      // If email is not in currentUser, try to get it from the signup data
       if (!email) {
-        setError("Email not found. Please log in again.");
+        const signupData = localStorage.getItem("signupData");
+        if (signupData) {
+          const data = JSON.parse(signupData);
+          email = data.email;
+        }
+      }
+
+      if (!email) {
+        setError("Email not found. Please complete the signup process from the beginning.");
         setLoading(false);
         return;
       }
@@ -58,9 +67,13 @@ const SignUpStep2 = ({ onSignUp2 }) => {
         ...formData,
         email, // include email in payload
       });
-      console.log("Submitting profile update:", { ...formData, email });
+      
       if (result.success) {
-        navigate("/manage-docs");
+        console.log("Profile update successful:", { ...formData, email });
+        // Clear the signup data from localStorage
+        localStorage.removeItem("signupData");
+        // Navigate to manage-docs without showing header
+        navigate("/", { replace: true });
       } else {
         setError(result.message || "Profile update failed.");
       }

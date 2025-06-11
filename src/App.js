@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import './App.css';
 import Header from './components/Header/Header';
 import Home from './pages/Home/Home';
@@ -9,13 +9,108 @@ import Login from './pages/Auth/Login'
 import Intro from './pages/Intro/Intro';
 import SignUp from './pages/Auth/SignUp';
 import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
-import ExamDetails from './pages/ExamDetails/ExamDetails';
+// import ExamDetails from './pages/ExamDetails/ExamDetails';
 import { getApplicationsFromStorage, saveApplicationsToStorage } from './data/applicationsData';
 import { api } from './services/api';
 import Docs from './pages/Profile/Docs';
 import AutoFillData from './pages/AutoFillData/AutoFillData';
 import SignUpStep2 from './pages/Auth/SignUpStep2';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
+
+// Create a wrapper component that uses useLocation
+function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applications, handleLogin, handleSignUp, handleSignUp2, toggleCart }) {
+  const location = useLocation();
+
+  const ProtectedRoute = ({ children }) => {
+    if (!isSignUp2) {
+      return <Navigate to="/intro" replace />;
+    }
+    return children;
+  };
+
+  return (
+    <div className="app">
+      {isSignUp2 && location.pathname !== '/manage-docs' && (
+        <Header cartCount={cartCount} onLogout={handleLogout} currentUser={currentUser} />
+      )}
+      <Routes>
+        <Route 
+          path="/privacy_policy" 
+          element={isSignUp2 ? <Navigate to="/privacy-policy" replace /> : <PrivacyPolicy/>} 
+        />
+        <Route 
+          path="/intro" 
+          element={isSignUp2 ? <Navigate to="/" replace /> : <Intro onLogin={handleLogin} />} 
+        />
+        <Route 
+          path="/login" 
+          element={isSignUp2 ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />} 
+        />
+        <Route 
+          path="/signup" 
+          element={isSignUp2 ? <Navigate to="/signup-page2" replace /> : <SignUp onSignUp={handleSignUp} />} 
+        />
+        <Route 
+          path="/signup-page2" 
+          element={isSignUp2 ? <Navigate to="/" replace /> : <SignUpStep2 onSignUp2={handleSignUp2} />} 
+        />
+        <Route 
+          path="/forgot-password" 
+          element={isSignUp2 ? <Navigate to="/login" replace /> : <ForgotPassword />} 
+        />
+        <Route 
+          path="/" 
+          element={
+            <ProtectedRoute>
+              <Home applications={applications} onToggleCart={toggleCart} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/cart" 
+          element={
+            <ProtectedRoute>
+              <Cart applications={applications} onToggleCart={toggleCart} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/profile" 
+          element={
+            <ProtectedRoute>
+              <Profile applications={applications} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/docs" 
+          element={
+            <ProtectedRoute>
+              <Docs applications={applications} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/auto-fill-data" 
+          element={
+            <ProtectedRoute>
+              <AutoFillData applications={applications} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/manage-docs" 
+          element={
+            <ProtectedRoute>
+              <Docs applications={applications} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
+  );
+}
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
@@ -47,6 +142,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem('isAuthenticated', isAuthenticated);
   }, [isAuthenticated]);
+  
   useEffect(() => {
     localStorage.setItem('isSignUp2', isSignUp2);
   }, [isSignUp2]);
@@ -71,24 +167,46 @@ function App() {
   const handleLogin = async (userData) => {
     try {
       localStorage.clear();
-      const response = await api.login(userData);
-       const user = response.user || userData;
-    if (!user.email) {
-      throw new Error("Login response missing email.");
-    }
-    setCurrentUser(user);
-    localStorage.setItem("currentUser", JSON.stringify(user));
-    setIsAuthenticated(true);
-    setIsSignUp2(true);
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("isSignUp2", "true");
+      
+      // Handle Google login differently
+      if (userData.isGoogleLogin) {
+        const user = userData.userData || { email: userData.email };
+        setCurrentUser(user);
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        setIsAuthenticated(true);
+        setIsSignUp2(true);
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("isSignUp2", "true");
 
-       // Display message to user
-       const messageElement = document.createElement('div');
-       messageElement.textContent = 'User Logged in successfully';
-       messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-       document.body.appendChild(messageElement);
-       setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
+        // Display message to user
+        const messageElement = document.createElement('div');
+        messageElement.textContent = 'Google login successful';
+        messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+        document.body.appendChild(messageElement);
+        setTimeout(() => document.body.removeChild(messageElement), 1000);
+
+        return { success: true };
+      }
+
+      // Regular email/password login
+      const response = await api.login(userData);
+      const user = response.user || userData;
+      if (!user.email) {
+        throw new Error("Login response missing email.");
+      }
+      setCurrentUser(user);
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      setIsAuthenticated(true);
+      setIsSignUp2(true);
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("isSignUp2", "true");
+
+      // Display message to user
+      const messageElement = document.createElement('div');
+      messageElement.textContent = 'User Logged in successfully';
+      messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 1000);
 
       return { success: true };
     } catch (error) {
@@ -96,72 +214,59 @@ function App() {
     }
   };
 
-const handleSignUp = async (userData) => {
-  try {
-    const response = await api.signup(userData);
-    // Always use userData.email if response.user is missing or incomplete
-    let user = response.user && response.user.email ? response.user : userData;
-    // If user.email is still missing, try to get it from userData
-    if (!user.email && userData.email) {
-      user = { ...user, email: userData.email };
-    }
-    if (!user.email) {
-      throw new Error("Signup response missing email.");
-    }
-    setCurrentUser(user);
-    localStorage.setItem("currentUser", JSON.stringify(user));
-    setIsAuthenticated(true);
-    setIsSignUp2(false);
-    localStorage.setItem("isAuthenticated", "true");
-    localStorage.setItem("isSignUp2", "false");
-
-    // Display message to user
-    const messageElement = document.createElement('div');
-    messageElement.textContent = 'User Created successfully, please complete your profile data...';
-    messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-    document.body.appendChild(messageElement);
-    setTimeout(() => document.body.removeChild(messageElement), 1000);
-
-    return { success: true };
-  } catch (error) {
-    return { success: false, message: error.message };
-  }
-};
-
-  const handleSignUp2 = async (userData) => {
+  const handleSignUp = async (userData) => {
     try {
-      const response = await api.update(userData);
-      
-      setIsSignUp2(true);
-      localStorage.setItem("isSignUp2", "true");
+      const response = await api.signup(userData);
+      let user = response.user && response.user.email ? response.user : userData;
+      if (!user.email && userData.email) {
+        user = { ...user, email: userData.email };
+      }
+      if (!user.email) {
+        throw new Error("Signup response missing email.");
+      }
+      setCurrentUser(user);
+      localStorage.setItem("currentUser", JSON.stringify(user));
+      setIsAuthenticated(true);
+      setIsSignUp2(false);
+      localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("isSignUp2", "false");
 
-       // Display message to user
-       const messageElement = document.createElement('div');
-       messageElement.textContent = 'User Signed up successfully';
-       messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-       document.body.appendChild(messageElement);
-       setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
-      
-       return { success: true };
+      // Display message to user
+      const messageElement = document.createElement('div');
+      messageElement.textContent = 'User Created successfully, please complete your profile data...';
+      messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 1000);
+
+      return { success: true };
     } catch (error) {
       return { success: false, message: error.message };
     }
   };
 
-  const handleForgotPassword = async (userData) => {
+  const handleSignUp2 = async (userData) => {
     try {
       const response = await api.update(userData);
-
-       // Display message to user
-       const messageElement = document.createElement('div');
-       messageElement.textContent = 'Password Updated successfully';
-       messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-       document.body.appendChild(messageElement);
-       setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
       
-       return { success: true };
+      // Use the user_data returned from the backend if available
+      const updatedUserData = response.user_data || { ...currentUser, ...userData };
+      setCurrentUser(updatedUserData);
+      localStorage.setItem("currentUser", JSON.stringify(updatedUserData));
+      
+      setIsSignUp2(true);
+      localStorage.setItem("isSignUp2", "true");
+
+      // Display message to user
+      const messageElement = document.createElement('div');
+      messageElement.textContent = 'Profile completed successfully!';
+      messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 1000);
+      
+      return { success: true };
     } catch (error) {
-      return { success: false, message: error.message };
+      console.error('Profile update error:', error);
+      return { success: false, message: error.message || 'Profile update failed' };
     }
   };
 
@@ -180,106 +285,28 @@ const handleSignUp = async (userData) => {
       messageElement.textContent = 'You have been logged out';
       messageElement.style.cssText = 'position: fixed; top: 50px; right: 45%; padding: 10px; background:rgb(249, 30, 63); color: white; border-radius: 4px; z-index: 1000;';
       document.body.appendChild(messageElement);
-      setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
+      setTimeout(() => document.body.removeChild(messageElement), 1000);
 
     } catch (error) {
       console.error('Logout error:', error);
     }
   };
 
-  const ProtectedRoute = ({ children }) => {
-    if (!isAuthenticated) {
-      return <Navigate to="/intro" replace />;
-    }
-    return children;
-  };
-
   const cartCount = applications.filter(app => app.isCart).length;
-  
+
   return (
     <Router>
-      <div className="app">
-        {isSignUp2 && <Header cartCount={cartCount} onLogout={handleLogout} currentUser={currentUser} />}
-        <Routes>
-          <Route 
-            path="/privacy_policy" 
-            element={ isAuthenticated ? <Navigate to="/privacy-policy" replace /> : <PrivacyPolicy/>} 
-          />
-          <Route 
-            path="/intro" 
-            element={isAuthenticated ? <Navigate to="/" replace /> : <Intro onLogin={handleLogin} />} 
-          />
-          <Route 
-            path="/login" 
-            element={isAuthenticated ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />} 
-          />
-          <Route 
-            path="/signup" 
-            element={isAuthenticated ? <Navigate to="/signup-page2" replace /> : <SignUp onSignUp={handleSignUp} />} 
-          />
-          <Route 
-            path="/signup-page2" 
-            element={isSignUp2 ? <Navigate to="/" replace /> : <SignUpStep2 onSignUp2={ handleSignUp2 } />} 
-          />
-          <Route 
-            path="/forgot-password" 
-            element={isAuthenticated ? <Navigate to="/login" replace /> : <ForgotPassword onForgotPassword={ handleForgotPassword } />} 
-          />
-          <Route 
-            path="/" 
-            element={
-              <ProtectedRoute>
-                <Home applications={applications} onToggleCart={toggleCart} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/cart" 
-            element={
-              <ProtectedRoute>
-                <Cart applications={applications} onToggleCart={toggleCart} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/profile" 
-            element={
-              <ProtectedRoute>
-                <Profile applications={applications} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/docs" 
-            element={
-              <ProtectedRoute>
-                <Docs docUpload={handleSignUp2} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/auto-fill-data" 
-            element={
-              <ProtectedRoute>
-                <AutoFillData docUpload={handleSignUp2} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/exam/:id" 
-            element={
-              <ProtectedRoute>
-                <ExamDetails applications={applications} onToggleCart={toggleCart} />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/privacy-policy" 
-            element={<PrivacyPolicy/>} 
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
+      <AppContent 
+        isSignUp2={isSignUp2}
+        cartCount={cartCount}
+        handleLogout={handleLogout}
+        currentUser={currentUser}
+        applications={applications}
+        handleLogin={handleLogin}
+        handleSignUp={handleSignUp}
+        handleSignUp2={handleSignUp2}
+        toggleCart={toggleCart}
+      />
     </Router>
   );
 }

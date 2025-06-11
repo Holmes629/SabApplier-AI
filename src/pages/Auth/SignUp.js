@@ -34,10 +34,46 @@ const SignUp = () => {
   };
 
   const handleVerifyEmail = async () => {
+    if (!formData.email) {
+      setError('Email is required');
+      return;
+    }
+
     setLoading(true);
+    setError('');
+    
     try {
-      await api.sendOtp(formData.email); // This should also check if email already exists
+      await api.sendOtp(formData.email);
       setOtpSent(true);
+      
+      // Show success message
+      const messageElement = document.createElement('div');
+      messageElement.textContent = 'OTP sent to your email!';
+      messageElement.style.cssText = 'position: fixed; top: 70px; left: 50%; transform: translateX(-50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 3000);
+      
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setLoading(true);
+    setError('');
+    
+    try {
+      await api.sendOtp(formData.email);
+      
+      // Show success message
+      const messageElement = document.createElement('div');
+      messageElement.textContent = 'OTP resent to your email!';
+      messageElement.style.cssText = 'position: fixed; top: 70px; left: 50%; transform: translateX(-50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 3000);
+      
     } catch (err) {
       setError(err.message);
     } finally {
@@ -48,18 +84,39 @@ const SignUp = () => {
   const handleSignUp = async (e) => {
     e.preventDefault();
     
+    if (!otpSent) {
+      setError('Please verify your email first');
+      return;
+    }
     
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
+    
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+    
     setLoading(true);
+    setError('');
+    
     try {
       await api.verifyOtp(formData.email, formData.otp);
       await api.signup(formData);
-      alert('Registered successfully! You can now log in.');
-      navigate('/signup-page2');
+      localStorage.setItem("signupData", JSON.stringify({ email: formData.email }));
+      
+      // Show success message
+      const messageElement = document.createElement('div');
+      messageElement.textContent = 'Registered successfully! Redirecting...';
+      messageElement.style.cssText = 'position: fixed; top: 70px; left: 50%; transform: translateX(-50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => {
+        document.body.removeChild(messageElement);
+        navigate('/signup-page2');
+      }, 2000);
+      
     } catch (err) {
       setError(err.message);
     } finally {
@@ -91,19 +148,17 @@ const SignUp = () => {
                   onChange={handleChange}
                   required
                   placeholder="Enter your email"
+                  disabled={otpSent}
                 />
                 <button
                   type="button"
                   className="verify-button"
                   onClick={handleVerifyEmail}
-                  disabled={loading}
+                  disabled={loading || otpSent}
                 >
-                  {loading ? 'Verifying...' : 'Verify'}
-                  
+                  {loading ? 'Sending...' : otpSent ? 'Sent' : 'Send OTP'}
                 </button>
-                
               </div>
-               
             </div>
 
             {otpSent && (
@@ -118,9 +173,28 @@ const SignUp = () => {
                   required
                   placeholder="Enter OTP sent to your email"
                 />
+                <small style={{ color: '#666', fontSize: '0.8rem' }}>
+                  OTP expires in 5 minutes
+                </small>
+                <button 
+                  type="button" 
+                  className="resend-button"
+                  onClick={handleResendOtp}
+                  disabled={loading}
+                  style={{ 
+                    marginTop: '10px', 
+                    background: 'transparent', 
+                    color: '#4a90e2', 
+                    border: 'none',
+                    textDecoration: 'underline',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem'
+                  }}
+                >
+                  Resend OTP
+                </button>
               </div>
-            )} 
-            
+            )}
 
             <div className="form-group">
               <label htmlFor="password">Password</label>
@@ -142,20 +216,28 @@ const SignUp = () => {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              
             </div>
 
             <div className="form-group">
               <label htmlFor="confirmPassword">Confirm Password</label>
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="confirmPassword"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                required
-                placeholder="Confirm your password"
-              />
+              <div style={{ display: 'flex' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  placeholder="Confirm your password"
+                />
+                <button
+                  type="button"
+                  onClick={togglePasswordVisibility}
+                  className="show-hide-button"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
             {error && <div className="error-message">{error}</div>}
 

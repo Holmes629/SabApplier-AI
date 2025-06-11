@@ -1,4 +1,4 @@
-/* .auth-container {
+.auth-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -71,6 +71,63 @@
   cursor: not-allowed;
 }
 
+.verify-button {
+  padding: 0.75rem 1rem;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: 100px;
+  transition: background-color 0.2s;
+}
+
+.verify-button:hover {
+  background-color: #218838;
+}
+
+.verify-button:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+.show-hide-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  color: #666;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+.show-hide-button:hover {
+  color: #4a90e2;
+}
+
+.resend-button {
+  background: transparent !important;
+  color: #4a90e2 !important;
+  border: none !important;
+  text-decoration: underline !important;
+  cursor: pointer !important;
+  font-size: 0.9rem;
+  margin-top: 10px !important;
+}
+
+.resend-button:hover {
+  color: #357abd !important;
+}
+
+.resend-button:disabled {
+  color: #ccc !important;
+  cursor: not-allowed !important;
+}
+
 .error-message {
   background-color: #fee;
   color: #e53935;
@@ -119,4 +176,4 @@
   .auth-card h2 {
     font-size: 1.5rem;
   }
-}  */
+}
