@@ -79,7 +79,7 @@ export const api = {
   update: async (userData) => {
     try {
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      console.log(userData.email);
+      console.log(userData);
       if (!('email' in userData) || !userData.email){
         userData.email = currentUser.email
       }
