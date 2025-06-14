@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import './Header.css';
 import logo from '../../logo.jpeg';
 
 function Header({ cartCount, onLogout }) {
@@ -46,96 +45,153 @@ function Header({ cartCount, onLogout }) {
   }, [showProfileMenu, showMobileMenu]);
 
   return (
-    <header className="header">
-      <div className="header-content">
-        <Link to="/" className="logo-section">
-          <div className="logo">
-            <img src={logo} alt="SabApplier AI" />
+    <header className="bg-white shadow-md sticky top-0 z-50">
+      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+        <Link to="/" className="flex items-center text-gray-800 no-underline hover:text-blue-600 transition-colors">
+          <div className="w-10 h-10 mr-3">
+            <img src={logo} alt="SabApplier AI" className="w-full h-full object-contain" />
           </div>
-          <h2>SabApplier AI</h2>
+          <h2 className="text-xl font-semibold m-0">SabApplier AI</h2>
         </Link>
-        <nav className="nav-tabs">
+        <nav className="hidden md:flex gap-6 items-center">
           <Link 
             to="/" 
-            className={`nav-tab ${location.pathname === '/' ? 'active' : ''}`}
+            className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+              location.pathname === '/' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
             onClick={closeMenus}>
             Home
           </Link>
           <Link 
             to="/cart" 
-            className={`nav-tab ${location.pathname === '/cart' ? 'active' : ''}`}
+            className={`px-4 py-2 rounded-md font-medium transition-all duration-200 relative ${
+              location.pathname === '/cart' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
             onClick={closeMenus}>
             Cart
-            {cartCount > 0 && (<span className="cart-count">{cartCount}</span>)}
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-5 text-center">
+                {cartCount}
+              </span>
+            )}
           </Link>
           <Link 
             to="/docs" 
-            className={`nav-tab ${location.pathname === '/docs' ? 'active' : ''}`}
+            className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+              location.pathname === '/docs' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
             onClick={closeMenus}>
             My Documents
           </Link>
           <Link 
             to="/auto-fill-data" 
-            className={`nav-tab ${location.pathname === '/auto-fill-data' ? 'active' : ''}`}
+            className={`px-4 py-2 rounded-md font-medium transition-all duration-200 ${
+              location.pathname === '/auto-fill-data' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
             onClick={closeMenus}>
             Auto Fill Data
           </Link>
         </nav>
-        <div className="header-profile-section" ref={profileRef}>
+        <div className="relative" ref={profileRef}>
           <button 
-            className={`profile-button ${showProfileMenu ? 'active' : ''}`}
+            className={`p-2 rounded-lg transition-all duration-200 ${
+              showProfileMenu ? 'bg-blue-50' : 'hover:bg-gray-100'
+            }`}
             onClick={handleProfileClick}>
-            <div className="profile-icon"></div>
+            <div className="w-10 h-10 rounded-full bg-blue-600"></div>
           </button>
           {showProfileMenu && (
-            <div className="profile-menu">
-              <Link to="/profile" className="profile-menu-item" onClick={closeMenus}>
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+              <Link 
+                to="/profile" 
+                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors"
+                onClick={closeMenus}>
                 My Details
               </Link>
-              <button onClick={handleLogout} className="profile-menu-item logout">
+              <button 
+                onClick={handleLogout} 
+                className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors">
                 Sign Out
               </button>
             </div>
           )}
         </div>
-        <button className="mobile-menu-button" onClick={handleMobileMenuClick}>
-          <span className={`hamburger ${showMobileMenu ? 'active' : ''}`}></span>
+        <button 
+          className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          onClick={handleMobileMenuClick}>
+          <div className={`w-6 h-0.5 bg-gray-600 transition-all duration-200 ${showMobileMenu ? 'rotate-45 translate-y-1.5' : ''}`}></div>
+          <div className={`w-6 h-0.5 bg-gray-600 mt-1 transition-all duration-200 ${showMobileMenu ? 'opacity-0' : ''}`}></div>
+          <div className={`w-6 h-0.5 bg-gray-600 mt-1 transition-all duration-200 ${showMobileMenu ? '-rotate-45 -translate-y-1.5' : ''}`}></div>
         </button>
       </div>
       {showMobileMenu && (
-        <div className="mobile-menu">
+        <div className="md:hidden bg-white border-t border-gray-200 px-4 py-2">
           <Link 
             to="/" 
-            className={`mobile-menu-item ${location.pathname === '/' ? 'active' : ''}`}
+            className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+              location.pathname === '/' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
             onClick={closeMenus}>
             Home
           </Link>
           <Link 
             to="/cart" 
-            className={`mobile-menu-item ${location.pathname === '/cart' ? 'active' : ''}`}
+            className={`block px-4 py-3 rounded-lg font-medium transition-colors relative ${
+              location.pathname === '/cart' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
             onClick={closeMenus}>
             Cart
-            {cartCount > 0 && (<span className="cart-count">{cartCount}</span>)}
+            {cartCount > 0 && (
+              <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-5 text-center">
+                {cartCount}
+              </span>
+            )}
           </Link>
           <Link 
             to="/docs" 
-            className={`mobile-menu-item ${location.pathname === '/docs' ? 'active' : ''}`}
+            className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+              location.pathname === '/docs' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
             onClick={closeMenus}>
             My Documents
           </Link>
           <Link 
             to="/auto-fill-data" 
-            className={`mobile-menu-item ${location.pathname === '/auto-fill-data' ? 'active' : ''}`}
+            className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+              location.pathname === '/auto-fill-data' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
             onClick={closeMenus}>
             Auto Fill Data
           </Link>
           <Link 
             to="/profile" 
-            className={`mobile-menu-item ${location.pathname === '/profile' ? 'active' : ''}`}
+            className={`block px-4 py-3 rounded-lg font-medium transition-colors ${
+              location.pathname === '/profile' 
+                ? 'text-blue-600 bg-blue-50' 
+                : 'text-gray-600 hover:text-blue-600 hover:bg-blue-50'
+            }`}
             onClick={closeMenus}>
             My Details
           </Link>
-          <button onClick={handleLogout} className="mobile-menu-item logout">
+          <button 
+            onClick={handleLogout} 
+            className="w-full text-left px-4 py-3 rounded-lg font-medium text-red-600 hover:bg-red-50 transition-colors">
             Sign Out
           </button>
         </div>

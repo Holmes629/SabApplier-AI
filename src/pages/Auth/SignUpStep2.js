@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./SignUp.css";
+import logo from "../../logo.jpeg";
 
 const SignUpStep2 = ({ onSignUp2 }) => {
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ const SignUpStep2 = ({ onSignUp2 }) => {
         console.log("Profile update successful:", { ...formData, email });
         // Clear the signup data from localStorage
         localStorage.removeItem("signupData");
-        // Navigate to manage-docs without showing header
+        // Navigate to home
         navigate("/", { replace: true });
       } else {
         setError(result.message || "Profile update failed.");
@@ -86,81 +86,230 @@ const SignUpStep2 = ({ onSignUp2 }) => {
   };
 
   return (
-    <div className="auth-container">
-      <div className="auth-card">
-        <h2>Complete Your Profile</h2>
-        {/* Status bar (progress bar) for step 2 of 3 */}
-        <div
-          style={{
-            marginBottom: "1rem",
-            height: "4px",
-            background: "#eee",
-            borderRadius: "2px",
-          }}
-        >
-          <div
-            style={{
-              width: "66%",
-              height: "100%",
-              background: "#4CAF50",
-              borderRadius: "2px",
-            }}
-          />
+    <div className="h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex flex-col overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="w-full h-full bg-repeat" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.1'%3E%3Cpath d='M30 15c8.284 0 15 6.716 15 15s-6.716 15-15 15-15-6.716-15-15 6.716-15 15-15zm0 2c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}></div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 flex items-center justify-center p-2 sm:p-3 relative z-10">
+        <div className="w-full max-w-lg">
+          {/* Profile Completion Card */}
+          <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/20 overflow-hidden">
+            
+            {/* Header Section */}
+            <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-4 py-3 text-center relative overflow-hidden">
+              {/* Background decoration */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent"></div>
+              <div className="absolute top-0 right-0 w-16 h-16 bg-white/10 rounded-full transform translate-x-8 -translate-y-8"></div>
+              <div className="absolute bottom-0 left-0 w-12 h-12 bg-white/5 rounded-full transform -translate-x-4 translate-y-4"></div>
+              
+              <div className="relative z-10">
+                {/* Logo */}
+                <div className="w-12 h-12 mx-auto mb-2 bg-white rounded-lg shadow-lg flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
+                  <img src={logo} alt="SabApplier AI" className="w-8 h-8 object-contain" />
+                </div>
+                
+                {/* Welcome Text */}
+                <h1 className="text-lg font-bold text-white mb-1">Complete Your Profile</h1>
+                <p className="text-blue-100 text-xs">Final step to get started</p>
+              </div>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="px-4 pt-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-medium text-gray-600">Profile Setup</span>
+                <span className="text-xs font-medium text-blue-600">Step 2 of 2</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-1 overflow-hidden">
+                <div className="h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full transition-all duration-500 ease-out" style={{ width: '100%' }}></div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Account Created</span>
+                <span className="text-blue-600 font-medium">Profile Details</span>
+              </div>
+            </div>
+
+            {/* Form Section */}
+            <div className="px-4 py-3">
+              {/* Error Message */}
+              {error && (
+                <div className="mb-2 bg-red-50 border border-red-200 rounded-lg p-2 flex items-center space-x-2">
+                  <svg className="w-3 h-3 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-red-700 text-xs">{error}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-2">
+                
+                {/* Full Name Field */}
+                <div className="space-y-1">
+                  <label htmlFor="fullname" className="block text-xs font-semibold text-gray-700">
+                    Full Name
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="fullname"
+                      name="fullname"
+                      value={formData.fullname}
+                      onChange={handleChange}
+                      required
+                      placeholder="Enter your full name"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 text-sm"
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Date of Birth Field */}
+                <div className="space-y-1">
+                  <label htmlFor="dateofbirth" className="block text-xs font-semibold text-gray-700">
+                    Date of Birth
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      id="dateofbirth"
+                      name="dateofbirth"
+                      value={formData.dateofbirth}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 text-sm"
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Address Field */}
+                <div className="space-y-1">
+                  <label htmlFor="address" className="block text-xs font-semibold text-gray-700">
+                    Address
+                  </label>
+                  <div className="relative">
+                    <textarea
+                      id="address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      required
+                      placeholder="Enter your complete address"
+                      rows={2}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 resize-none text-sm"
+                    />
+                    <div className="absolute top-2 right-0 pr-2 flex items-start pointer-events-none">
+                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phone Number Field */}
+                <div className="space-y-1">
+                  <label htmlFor="phone_number" className="block text-xs font-semibold text-gray-700">
+                    Phone Number
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="tel"
+                      id="phone_number"
+                      name="phone_number"
+                      value={formData.phone_number}
+                      onChange={handleChange}
+                      required
+                      placeholder="9876543210"
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 text-sm"
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-xs text-gray-500 flex items-center space-x-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <span>Don't include country code</span>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-2.5 px-4 rounded-lg font-semibold text-sm hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:ring-blue-200 transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Setting up profile...</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      <span>Complete Setup</span>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              </form>
+            </div>
+
+            {/* Footer Section */}
+            <div className="px-4 py-3 bg-gray-50 border-t border-gray-100">
+              <div className="text-center space-y-2">
+                <div className="flex items-center justify-center space-x-4 text-sm text-gray-600">
+                  <div className="flex items-center space-x-1">
+                    <svg className="w-3 h-3 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-xs">Secure</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <svg className="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
+                    </svg>
+                    <span className="text-xs">Quick Setup</span>
+                  </div>
+                </div>
+                
+                <p className="text-xs text-gray-500">
+                  Your information is encrypted and secure.
+                </p>
+                
+                {/* Return to Home Link */}
+                <div className="pt-1">
+                  <button
+                    onClick={() => navigate('/')}
+                    className="inline-flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 transition-colors duration-200"
+                  >
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
+                    </svg>
+                    <span>Return to Home</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        {error && <div className="error-message">{error}</div>}
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="fullname">Full Name</label>
-            <input
-              type="text"
-              id="fullname"
-              name="fullname"
-              value={formData.fullname}
-              onChange={handleChange}
-              placeholder="Enter your full name"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="dateofbirth">Date of Birth</label>
-            <input
-              type="date"
-              id="dateofbirth"
-              name="dateofbirth"
-              value={formData.dateofbirth}
-              onChange={handleChange}
-              placeholder="Enter your Date of Birth"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="address">Address</label>
-            <input
-              type="text"
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              placeholder="Enter your address"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="phone_number">Phone Number</label>
-            <input
-              type="tel"
-              id="phone_number"
-              name="phone_number"
-              value={formData.phone_number}
-              onChange={handleChange}
-              placeholder="Enter your phone number"
-              required
-            />
-          </div>
-          <button type="submit" className="auth-button" disabled={loading}>
-            {loading ? "Submitting..." : "Submit Profile"}
-          </button>
-        </form>
       </div>
     </div>
   );
