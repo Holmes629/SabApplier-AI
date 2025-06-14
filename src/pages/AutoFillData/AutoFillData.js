@@ -284,8 +284,8 @@ const AutoFillDataForm = () => {
         total++;
         if (
           value !== null &&
-          value !== "" &&
-          !(typeof value === "object" && Object.keys(value).length === 0)
+          value !== "" 
+          && !(typeof value === "object" && Object.keys(value).length === 0 && key !== 'document_texts')
         ) {
           filled++;
         }

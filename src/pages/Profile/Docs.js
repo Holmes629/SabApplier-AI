@@ -74,7 +74,7 @@ const Docs = ({ docUpload }) => {
   };
   
 
-  const handleFileUpload = async (file) => {
+  const handleFileUpload = async (docType, file) => {
     const loader = document.createElement('div');
     loader.textContent = 'Uploading...';
     loader.style.cssText =
@@ -82,7 +82,7 @@ const Docs = ({ docUpload }) => {
     document.body.appendChild(loader);
 
     try {
-      await docUpload({ 'file': file });
+      await docUpload({ [docType]: file });
       document.body.removeChild(loader);
 
       const message = document.createElement('div');
@@ -112,17 +112,19 @@ const Docs = ({ docUpload }) => {
 
       const response = await api.delete({ field });
       document.body.removeChild(loader);
-
+      
       if (response.success) {
         const message = document.createElement('div');
         message.textContent = 'File deleted successfully!';
         message.style.cssText =
           'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
         document.body.appendChild(message);
+        localStorage.setItem("currentUser", JSON.stringify({ ...userData, document_urls: {...userData.document_urls,[field]: null}, document_texts: {...userData.document_texts,[field.replace('_file_url', '_text_data')]: null} }));
         setTimeout(() => {
          // Set the deleted field to null in userData and formData
           setUserData((prev) => ({ ...prev, document_urls: {...prev.document_urls,[field]: null}, document_texts: {...prev.document_texts,[field.replace('_file_url', '_text_data')]: null} }));
           setFormData((prev) => ({ ...prev, document_urls: {...prev.document_urls,[field]: null}, document_texts: {...prev.document_texts,[field.replace('_file_url', '_text_data')]: null}}));
+    
           document.body.removeChild(message);
         }, 1000);
       }
@@ -141,6 +143,47 @@ const Docs = ({ docUpload }) => {
         <div className="docs-header">
           <h2>My Documents</h2>
           <div className="upload-section">
+            <select
+              className="doc-type-select"
+              value={formData.docType || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, docType: e.target.value })
+              }
+            >
+              <option value="">Select Document Type</option>
+              {Object.entries(DOCUMENT_FIELDS).map(([key, label]) => (
+                <option key={key} value={key.replace("_file_url", "")}>
+                  {label}
+                </option>
+              ))}
+            </select>
+
+            <input
+              type="text"
+              className="custom-doc-input"
+              placeholder="Or enter custom document name"
+              value={customDocType}
+              onChange={(e) => setCustomDocType(e.target.value)}
+              onBlur={() => {
+                if (customDocType.trim()) {
+                  const formattedKey =
+                    customDocType.toLowerCase().replace(/\s+/g, "_") +
+                    "_file_url";
+
+                  if (!DOCUMENT_FIELDS[formattedKey]) {
+                    const updatedFields = {
+                      ...DOCUMENT_FIELDS,
+                      [formattedKey]: customDocType.trim(),
+                    };
+                    // setDocumentFields(updatedFields);
+                    setFormData({
+                      ...formData,
+                      docType: customDocType.toLowerCase().replace(/\s+/g, "_"),
+                    });
+                  }
+                }
+              }}
+            />
             <label className="bulk-upload-button">
               <Upload size={20} /> Upload Document
               <input
@@ -149,8 +192,14 @@ const Docs = ({ docUpload }) => {
                 style={{ display: 'none' }}
                 onChange={(e) => {
                   const file = e.target.files[0];
+                  const docType = formData.docType || customDocType;
                   if (file) {
-                    handleFileUpload(file);
+                    if (docType) {
+                      handleFileUpload(docType, file);
+                    } else {
+                      alert("Please select a document type or enter a custom name.");
+                      return;
+                    }
                   }
                 }}
               />
@@ -182,7 +231,9 @@ const Docs = ({ docUpload }) => {
                         <path d="M6 2h9l5 5v15H6z" />
                         <path d="M14 2v6h6" />
                       </svg>
-                      <div className="document-name">{field.replace(/_/g, ' ').replace('file url', '')}</div>
+                      <div className="document-name">
+                        {field.replace(/_/g, ' ').replace(formData.email.split('@')[0], '').replace('file url', '')}
+                      </div>
                     </a>
 
                     <a

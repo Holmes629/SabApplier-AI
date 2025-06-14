@@ -82,7 +82,7 @@ function App() {
        // Display message to user
        const messageElement = document.createElement('div');
        messageElement.textContent = 'User Logged in successfully';
-       messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+       messageElement.style.cssText = 'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
        document.body.appendChild(messageElement);
        setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
 
@@ -103,7 +103,7 @@ function App() {
        // Display message to user
        const messageElement = document.createElement('div');
        messageElement.textContent = 'User Created successfully, please complete you profile data...';
-       messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+       messageElement.style.cssText = 'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
        document.body.appendChild(messageElement);
        setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
       
@@ -122,8 +122,11 @@ function App() {
 
        // Display message to user
        const messageElement = document.createElement('div');
-       messageElement.textContent = 'User Signed up successfully';
-       messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+       messageElement.textContent = '';
+       if (!isSignUp2) {
+         messageElement.textContent = 'User Signed up successfully';
+       }
+       messageElement.style.cssText = 'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
        document.body.appendChild(messageElement);
        setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
       
@@ -140,7 +143,7 @@ function App() {
        // Display message to user
        const messageElement = document.createElement('div');
        messageElement.textContent = 'Password Updated successfully';
-       messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+       messageElement.style.cssText = 'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
        document.body.appendChild(messageElement);
        setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
       
@@ -163,7 +166,7 @@ function App() {
       // Display message to user
       const messageElement = document.createElement('div');
       messageElement.textContent = 'You have been logged out';
-      messageElement.style.cssText = 'position: fixed; top: 50px; right: 45%; padding: 10px; background:rgb(249, 30, 63); color: white; border-radius: 4px; z-index: 1000;';
+      messageElement.style.cssText = 'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: rgb(249, 30, 63); color: white; border-radius: 4px; z-index: 1000;';
       document.body.appendChild(messageElement);
       setTimeout(() => document.body.removeChild(messageElement), 1000); // Remove after 10sec
 
