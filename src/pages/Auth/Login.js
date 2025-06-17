@@ -73,6 +73,11 @@ const Login = ({ onLogin }) => {
       console.log("Google signup result:", result);
 
       if (result.success) {
+        // Store Google data for use in profile completion
+        if (result.googleData) {
+          localStorage.setItem("googleData", JSON.stringify(result.googleData));
+        }
+
         // Check if user needs to complete profile
         if (result.needsProfileCompletion) {
           // Store the user data and navigate to SignUpStep2
@@ -87,6 +92,7 @@ const Login = ({ onLogin }) => {
             email: result.user?.email || result.email,
             isGoogleLogin: true,
             userData: result.user,
+            googleData: result.googleData,
           });
 
           if (loginResult.success) {

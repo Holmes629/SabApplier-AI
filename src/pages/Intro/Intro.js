@@ -11,7 +11,7 @@ import Footer from '../../components/Footer/Footer';
 const Intro = () => {
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <Navbar isAuthenticated={false} />
       <section id="hero">
         <Hero />
       </section>

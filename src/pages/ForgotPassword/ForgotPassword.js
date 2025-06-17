@@ -15,7 +15,6 @@ const ForgotPassword = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
   const [step, setStep] = useState(1); // 1: Email, 2: OTP + Password
 
   const togglePasswordVisibility = () => {
@@ -54,7 +53,6 @@ const ForgotPassword = () => {
     
     try {
       await api.sendForgotPasswordOtp(formData.email);
-      setOtpSent(true);
       setStep(2);
       showSuccessMessage('OTP sent to your email!');
     } catch (err) {

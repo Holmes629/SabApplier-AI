@@ -298,7 +298,7 @@ export const api = {
         throw new Error(data.error || "Failed to get profile");
       }
 
-      if (!data.success || !data.user_data) {
+      if (!data.user_data) {
         throw new Error("Invalid profile data received");
       }
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../../logo.jpeg";
 
@@ -12,6 +12,96 @@ const SignUpStep2 = ({ onSignUp2 }) => {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [autoFilledFields, setAutoFilledFields] = useState([]);
+
+  // Auto-fill form with Google data and user data if available
+  useEffect(() => {
+    const savedUser = localStorage.getItem("currentUser");
+    const googleData = localStorage.getItem("googleData");
+    
+    // Start with empty form data
+    let newFormData = {
+      fullname: "",
+      dateofbirth: "",
+      address: "",
+      phone_number: "",
+      disability: "",
+    };
+    let filledFields = [];
+    
+    // First apply Google data if available
+    if (googleData) {
+      try {
+        const gData = JSON.parse(googleData);
+        console.log('Found Google data:', gData);
+        
+        // Map Google data to form fields
+        if (gData.name) {
+          newFormData.fullname = gData.name;
+          filledFields.push('fullname');
+          console.log('Auto-filled fullname from Google:', gData.name);
+        }
+        
+        // You could potentially extract more info from Google in the future
+        // For example, if Google provided location data, you could use it for address
+        
+      } catch (error) {
+        console.error('Error parsing Google data:', error);
+      }
+    }
+    
+    // Then apply saved user data (this will override Google data if user data exists)
+    if (savedUser) {
+      try {
+        const user = JSON.parse(savedUser);
+        console.log('Found saved user data:', user);
+        
+        // Apply user data, keeping existing values if they're already set
+        if (user.fullName || user.fullname) {
+          newFormData.fullname = user.fullName || user.fullname || newFormData.fullname;
+          if (!filledFields.includes('fullname')) {
+            filledFields.push('fullname');
+          }
+        }
+        if (user.dateofbirth) {
+          newFormData.dateofbirth = user.dateofbirth || newFormData.dateofbirth;
+          filledFields.push('dateofbirth');
+        }
+        if (user.correspondenceAddress || user.address) {
+          newFormData.address = user.correspondenceAddress || user.address || newFormData.address;
+          filledFields.push('address');
+        }
+        if (user.phone_number) {
+          newFormData.phone_number = user.phone_number || newFormData.phone_number;
+          filledFields.push('phone_number');
+        }
+      } catch (error) {
+        console.error('Error parsing current user data:', error);
+      }
+    }
+    
+    // Update form data and auto-filled fields if there were any changes
+    setFormData(newFormData);
+    setAutoFilledFields(filledFields);
+    
+    // Show a message if any fields were auto-filled
+    if (filledFields.length > 0) {
+      const messageElement = document.createElement('div');
+      messageElement.textContent = `Auto-filled ${filledFields.length} field(s) from your account data`;
+      messageElement.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 text-sm';
+      document.body.appendChild(messageElement);
+      setTimeout(() => {
+        if (document.body.contains(messageElement)) {
+          document.body.removeChild(messageElement);
+        }
+      }, 3000);
+    }
+    
+    // Clean up Google data from localStorage after using it
+    if (googleData) {
+      localStorage.removeItem("googleData");
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -136,6 +226,25 @@ const SignUpStep2 = ({ onSignUp2 }) => {
 
             {/* Form Section */}
             <div className="px-4 py-3">
+              {/* Auto-fill Information Banner */}
+              {autoFilledFields.length > 0 && (
+                <div className="mb-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div className="flex items-start space-x-2">
+                    <svg className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <div>
+                      <p className="text-blue-800 text-xs font-medium">
+                        Great! We've auto-filled some fields with your account information.
+                      </p>
+                      <p className="text-blue-600 text-xs mt-1">
+                        Please review and update any information as needed.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Error Message */}
               {error && (
                 <div className="mb-2 bg-red-50 border border-red-200 rounded-lg p-2 flex items-center space-x-2">
@@ -152,6 +261,14 @@ const SignUpStep2 = ({ onSignUp2 }) => {
                 <div className="space-y-1">
                   <label htmlFor="fullname" className="block text-xs font-semibold text-gray-700">
                     Full Name
+                    {autoFilledFields.includes('fullname') && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Auto-filled
+                      </span>
+                    )}
                   </label>
                   <div className="relative">
                     <input
@@ -162,12 +279,22 @@ const SignUpStep2 = ({ onSignUp2 }) => {
                       onChange={handleChange}
                       required
                       placeholder="Enter your full name"
-                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 text-sm"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 text-sm ${
+                        autoFilledFields.includes('fullname') 
+                          ? 'bg-blue-50 border-blue-200' 
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
                     />
                     <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                      </svg>
+                      {autoFilledFields.includes('fullname') ? (
+                        <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        </svg>
+                      )}
                     </div>
                   </div>
                 </div>

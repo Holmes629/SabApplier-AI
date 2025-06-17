@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import './App.css';
-import Header from './components/Header/Header';
+import Navbar from './components/Navbar/Navbar';
 import Home from './pages/Home/Home';
 import Cart from './pages/Cart/Cart';
 import Profile from './pages/Profile/Profile';
@@ -18,7 +18,7 @@ import SignUpStep2 from './pages/Auth/SignUpStep2';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 
 // Create a wrapper component that uses useLocation
-function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applications, handleLogin, handleSignUp, handleSignUp2, toggleCart }) {
+function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applications, handleLogin, handleSignUp, handleSignUp2, toggleCart, loadingExams }) {
   const location = useLocation();
 
   const ProtectedRoute = ({ children }) => {
@@ -31,7 +31,12 @@ function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applicati
   return (
     <div className="app">
       {isSignUp2 && location.pathname !== '/manage-docs' && (
-        <Header cartCount={cartCount} onLogout={handleLogout} currentUser={currentUser} />
+        <Navbar 
+          isAuthenticated={true}
+          cartCount={cartCount} 
+          onLogout={handleLogout} 
+          currentUser={currentUser} 
+        />
       )}
       <Routes>
         <Route 
@@ -62,7 +67,7 @@ function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applicati
           path="/" 
           element={
             <ProtectedRoute>
-              <Home applications={applications} onToggleCart={toggleCart} />
+              <Home applications={applications} onToggleCart={toggleCart} loadingExams={loadingExams} />
             </ProtectedRoute>
           } 
         />
@@ -126,10 +131,24 @@ function App() {
   });
 
   const [applications, setApplications] = useState([]);
+  const [loadingExams, setLoadingExams] = useState(true);
 
   // Initialize applications on component mount
   useEffect(() => {
-    setApplications(getApplicationsFromStorage());
+    const initializeApplications = async () => {
+      try {
+        setLoadingExams(true);
+        const examData = await getApplicationsFromStorage();
+        setApplications(examData);
+      } catch (error) {
+        console.error('Error loading exam data:', error);
+        setApplications([]);
+      } finally {
+        setLoadingExams(false);
+      }
+    };
+
+    initializeApplications();
   }, []);
 
   // Save applications to storage whenever they change
@@ -171,6 +190,12 @@ function App() {
       // Handle Google login differently
       if (userData.isGoogleLogin) {
         const user = userData.userData || { email: userData.email };
+        
+        // Store Google data if provided
+        if (userData.googleData) {
+          localStorage.setItem("googleData", JSON.stringify(userData.googleData));
+        }
+        
         setCurrentUser(user);
         localStorage.setItem("currentUser", JSON.stringify(user));
         setIsAuthenticated(true);
@@ -306,6 +331,7 @@ function App() {
         handleSignUp={handleSignUp}
         handleSignUp2={handleSignUp2}
         toggleCart={toggleCart}
+        loadingExams={loadingExams}
       />
     </Router>
   );
