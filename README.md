@@ -357,9 +357,7 @@ A: We support all major competitive exams across 9 categories in India.
 **Q: Is there a mobile app?**
 A: Currently web-based, mobile app is in development.
 
-## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
