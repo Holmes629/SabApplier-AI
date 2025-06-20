@@ -315,18 +315,13 @@ export const api = {
 
   updateProfile: async (formData) => {
     try {
-      const token = getAuthToken();
-      if (!token) {
-        throw new Error("No authentication token found");
-      }
-
       const response = await axios.post(
         `${API_BASE_URL}/users/update/`,
         formData,
         {
           headers: {
-            ...getHeaders(true),
-            'Content-Type': 'multipart/form-data',
+            "X-CSRFToken": getCookie("csrftoken"), // Send CSRF token
+            // Don't set Content-Type for multipart/form-data, let axios set it with boundary
           },
         }
       );
@@ -340,16 +335,22 @@ export const api = {
 
   deleteDocument: async (docType) => {
     try {
-      const token = getAuthToken();
-      if (!token) {
-        throw new Error("No authentication token found");
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found. Please log in again.");
       }
 
       const response = await axios.post(
-        `${API_BASE_URL}/users/delete-document/`,
-        { document_type: docType },
+        `${API_BASE_URL}/users/delete/`,
+        { 
+          email: currentUser.email,
+          field: docType 
+        },
         {
-          headers: getHeaders(true),
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
         }
       );
 

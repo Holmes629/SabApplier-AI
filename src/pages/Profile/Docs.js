@@ -61,14 +61,45 @@ const Docs = ({ docUpload }) => {
   const handleFileUpload = async (fileFieldName, file) => {
     setUploading(true);
     try {
+      console.log('Uploading file:', fileFieldName, file.name);
+      
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        throw new Error('File size must be less than 10MB');
+      }
+      
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Please upload only JPG, PNG, or PDF files');
+      }
+      
+      if (!docUpload) {
+        throw new Error('Document upload function not available');
+      }
+      
       await docUpload({ [fileFieldName]: file });
+      
+      // Wait a bit then refresh the profile data
       setTimeout(() => {
         getProfile();
         setUploading(false);
+        
+        // Clear the form after successful upload
+        setFormData(prev => ({ ...prev, docType: '' }));
+        setCustomDocType('');
       }, 1000);
+      
     } catch (error) {
-      console.error(error);
+      console.error('Upload error:', error);
       setUploading(false);
+      
+      // Show error message
+      const messageElement = document.createElement('div');
+      messageElement.textContent = `Upload failed: ${error.message}`;
+      messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #f56565; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 5000);
     }
   };
 
@@ -77,10 +108,25 @@ const Docs = ({ docUpload }) => {
     if (!confirmDelete) return;
 
     try {
-      const response = await api.delete({ field });
+      const response = await api.deleteDocument(field);
       if (response.success) {
+        // Update userData by removing the deleted document field
         setUserData((prev) => ({ ...prev, [field]: null }));
         setFormData((prev) => ({ ...prev, [field]: null }));
+        
+        // Also update localStorage
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+        if (currentUser) {
+          currentUser[field] = null;
+          localStorage.setItem("currentUser", JSON.stringify(currentUser));
+        }
+        
+        // Show success message
+        const messageElement = document.createElement('div');
+        messageElement.textContent = 'Document deleted successfully!';
+        messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+        document.body.appendChild(messageElement);
+        setTimeout(() => document.body.removeChild(messageElement), 3000);
       }
     } catch (err) {
       console.error("Failed to delete document:", err);

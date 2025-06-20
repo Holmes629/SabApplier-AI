@@ -18,7 +18,7 @@ import SignUpStep2 from './pages/Auth/SignUpStep2';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 
 // Create a wrapper component that uses useLocation
-function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applications, handleLogin, handleSignUp, handleSignUp2, toggleCart, loadingExams }) {
+function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applications, handleLogin, handleSignUp, handleSignUp2, toggleCart, loadingExams, handleDocUpload }) {
   const location = useLocation();
 
   const ProtectedRoute = ({ children }) => {
@@ -91,7 +91,7 @@ function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applicati
           path="/docs" 
           element={
             <ProtectedRoute>
-              <Docs applications={applications} />
+              <Docs applications={applications} docUpload={handleDocUpload} />
             </ProtectedRoute>
           } 
         />
@@ -107,7 +107,7 @@ function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applicati
           path="/manage-docs" 
           element={
             <ProtectedRoute>
-              <Docs applications={applications} />
+              <Docs applications={applications} docUpload={handleDocUpload} />
             </ProtectedRoute>
           } 
         />
@@ -317,6 +317,60 @@ function App() {
     }
   };
 
+  // Add document upload function
+  const handleDocUpload = async (fileData) => {
+    try {
+      console.log('Uploading document:', fileData);
+      
+      // Get current user email
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found. Please log in again.");
+      }
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('email', currentUser.email);
+      
+      // Add files to form data
+      Object.entries(fileData).forEach(([fieldName, file]) => {
+        formData.append(fieldName, file);
+      });
+
+      const response = await api.updateProfile(formData);
+      
+      if (response.success || response.user_data) {
+        // Update current user data in localStorage
+        if (response.user_data) {
+          setCurrentUser(response.user_data);
+          localStorage.setItem("currentUser", JSON.stringify(response.user_data));
+        }
+        
+        // Show success message
+        const messageElement = document.createElement('div');
+        messageElement.textContent = 'Document uploaded successfully!';
+        messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+        document.body.appendChild(messageElement);
+        setTimeout(() => document.body.removeChild(messageElement), 3000);
+        
+        return response;
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Document upload error:', error);
+      
+      // Show error message
+      const messageElement = document.createElement('div');
+      messageElement.textContent = `Upload failed: ${error.message}`;
+      messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #f56565; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 3000);
+      
+      throw error;
+    }
+  };
+
   const cartCount = applications.filter(app => app.isCart).length;
 
   return (
@@ -332,9 +386,10 @@ function App() {
         handleSignUp2={handleSignUp2}
         toggleCart={toggleCart}
         loadingExams={loadingExams}
+        handleDocUpload={handleDocUpload}
       />
     </Router>
   );
 }
 
-export default App; 
+export default App;

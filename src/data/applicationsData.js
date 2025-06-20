@@ -1,5 +1,10 @@
 import { geminiExamService } from '../services/geminiApi';
 
+// Cache for exam data to avoid repeated API calls
+let cachedExamData = null;
+let lastFetchTime = null;
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+
 export const defaultApplications = [
   {
     id: 1,
@@ -118,6 +123,8 @@ export const defaultApplications = [
 // Function to fetch fresh exam data from Gemini API
 export const fetchCompetitiveExams = async () => {
   try {
+    const now = Date.now();
+    
     // For debugging, let's temporarily disable cache to ensure fresh API calls
     console.log('🔄 Fetching fresh exam data from Gemini API (cache disabled for debugging)...');
     
@@ -132,6 +139,10 @@ export const fetchCompetitiveExams = async () => {
       firstExam: examData[0]?.title,
       isFromAPI: examData[0]?.title !== "UPSC Civil Services (Prelims) 2025" // Check if it's not fallback data
     });
+    
+    // Cache the fresh data
+    cachedExamData = examData;
+    lastFetchTime = now;
     
     return examData;
   } catch (error) {
