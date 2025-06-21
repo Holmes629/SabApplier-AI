@@ -1,11 +1,11 @@
 // import { UNSAFE_createClientRoutesWithHMRRevalidationOptOut } from "react-router-dom";
 import axios from "axios";
 
-// API Configuration with environment-based switching
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://api.sabapplier.com/api';
+// API Configuration - Using Render Backend (hardcoded for reliability)
+const API_BASE_URL = 'https://api.sabapplier.com/api';
+// const API_BASE_URL = 'http://localhost:8000/api';
 
-
- 
+console.log('🔗 API_BASE_URL configured:', API_BASE_URL);
 
 // Helper function to get auth token
 const getAuthToken = () => localStorage.getItem("token");
