@@ -17,7 +17,7 @@ const DOCUMENT_FIELDS = {
   domicile_certificate_file_url: 'Domicile Certificate',
 };
 
-const Docs = ({ docUpload }) => {
+const Docs = ({  docUpload }) => {
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({});
   const [customDocType, setCustomDocType] = useState('');

@@ -1,196 +1,177 @@
-import { geminiExamService } from '../services/geminiApi';
-
-// Cache for exam data to avoid repeated API calls
-let cachedExamData = null;
-let lastFetchTime = null;
-const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
-
+// Hardcoded exam data - no API dependency
 export const defaultApplications = [
   {
-    id: 1,
-    title: "UPSC Civil Services (Prelims) 2025",
-    status: "Application Open",
-    notificationDate: "14/02/2025",
-    deadline: "14/03/2025",
-    examDate: "31/05/2025",
-    eligibility: "Graduate from recognized university",
-    category: "Government",
-    conductingBody: "Union Public Service Commission",
-    officialLink: "https://upsc.gov.in",
-    isApplied: false,
-    isCart: false
+    "id": 1,
+    "title": "UPSC Civil Services (Prelims) 2026",
+    "status": "Notification Expected",
+    "notificationDate": "14/01/2026",
+    "deadline": "03/02/2026",
+    "examDate": "24/05/2026",
+    "eligibility": "Graduate from recognized university",
+    "category": "Government",
+    "conductingBody": "Union Public Service Commission",
+    "officialLink": "https://upsc.gov.in",
+    "isApplied": false,
+    "isCart": false
   },
   {
-    id: 2,
-    title: "SSC CGL 2025",
-    status: "Application Open",
-    notificationDate: "22/04/2025",
-    deadline: "21/05/2025",
-    examDate: "14/06/2025 to 05/07/2025",
-    eligibility: "Graduate from recognized university",
-    category: "Government",
-    conductingBody: "Staff Selection Commission",
-    officialLink: "https://ssc.nic.in",
-    isApplied: false,
-    isCart: false
+    "id": 2,
+    "title": "JEE Main 2026 (Session 1)",
+    "status": "Notification Expected",
+    "notificationDate": "01/11/2025",
+    "deadline": "30/11/2025",
+    "examDate": "20/01/2026",
+    "eligibility": "Class 12 pass or appearing in 2026",
+    "category": "Engineering",
+    "conductingBody": "National Testing Agency (NTA)",
+    "officialLink": "https://jeemain.nta.ac.in",
+    "isApplied": false,
+    "isCart": false
   },
   {
-    id: 3,
-    title: "JEE Main 2025",
-    status: "Application Open",
-    notificationDate: "30/10/2024",
-    deadline: "30/11/2024",
-    examDate: "22/01/2025 to 31/01/2025",
-    eligibility: "12th with PCM, minimum 75%",
-    category: "Engineering",
-    conductingBody: "National Testing Agency",
-    officialLink: "https://jeemain.nta.nic.in",
-    isApplied: false,
-    isCart: false
+    "id": 3,
+    "title": "JEE Main 2026 (Session 2)",
+    "status": "Notification Expected",
+    "notificationDate": "01/02/2026",
+    "deadline": "01/03/2026",
+    "examDate": "05/04/2026",
+    "eligibility": "Class 12 pass or appearing in 2026",
+    "category": "Engineering",
+    "conductingBody": "National Testing Agency (NTA)",
+    "officialLink": "https://jeemain.nta.ac.in",
+    "isApplied": false,
+    "isCart": false
   },
   {
-    id: 4,
-    title: "NEET UG 2025",
-    status: "Application Open",
-    notificationDate: "07/02/2025",
-    deadline: "09/03/2025",
-    examDate: "04/05/2025",
-    eligibility: "12th with PCB, minimum 50%",
-    category: "Medical",
-    conductingBody: "National Testing Agency",
-    officialLink: "https://neet.nta.nic.in",
-    isApplied: false,
-    isCart: false
+    "id": 4,
+    "title": "NEET UG 2026",
+    "status": "Notification Expected",
+    "notificationDate": "01/12/2025",
+    "deadline": "31/12/2025",
+    "examDate": "03/05/2026",
+    "eligibility": "Class 12 with Physics, Chemistry, Biology/Biotech",
+    "category": "Medical",
+    "conductingBody": "National Testing Agency (NTA)",
+    "officialLink": "https://neet.nta.nic.in",
+    "isApplied": false,
+    "isCart": false
   },
   {
-    id: 5,
-    title: "IBPS PO 2025",
-    status: "Coming Soon",
-    notificationDate: "05/08/2025",
-    deadline: "25/08/2025",
-    examDate: "19/10/2025 to 20/10/2025",
-    eligibility: "Graduate from recognized university",
-    category: "Banking",
-    conductingBody: "Institute of Banking Personnel Selection",
-    officialLink: "https://ibps.in",
-    isApplied: false,
-    isCart: false
+    "id": 5,
+    "title": "CAT 2025",
+    "status": "Notification Expected",
+    "notificationDate": "01/08/2025",
+    "deadline": "15/09/2025",
+    "examDate": "30/11/2025",
+    "eligibility": "Bachelor’s degree with minimum 50% marks",
+    "category": "Management",
+    "conductingBody": "Indian Institutes of Management (IIM)",
+    "officialLink": "https://iimcat.ac.in",
+    "isApplied": false,
+    "isCart": false
   },
   {
-    id: 6,
-    title: "CAT 2025",
-    status: "Coming Soon",
-    notificationDate: "30/07/2025",
-    deadline: "20/09/2025",
-    examDate: "24/11/2025",
-    eligibility: "Graduate with minimum 50%",
-    category: "Management",
-    conductingBody: "Indian Institute of Management",
-    officialLink: "https://iimcat.ac.in",
-    isApplied: false,
-    isCart: false
+    "id": 6,
+    "title": "CLAT 2026",
+    "status": "Notification Expected",
+    "notificationDate": "01/07/2025",
+    "deadline": "15/10/2025",
+    "examDate": "01/12/2025",
+    "eligibility": "Class 12 pass or appearing in 2026",
+    "category": "Law",
+    "conductingBody": "Consortium of NLUs",
+    "officialLink": "https://consortiumofnlus.ac.in",
+    "isApplied": false,
+    "isCart": false
   },
   {
-    id: 7,
-    title: "CLAT 2025",
-    status: "Application Open",
-    notificationDate: "15/01/2025",
-    deadline: "15/05/2025",
-    examDate: "08/12/2025",
-    eligibility: "12th passed or appearing",
-    category: "Law",
-    conductingBody: "Consortium of NLUs",
-    officialLink: "https://consortiumofnlus.ac.in",
-    isApplied: false,
-    isCart: false
+    "id": 7,
+    "title": "NDA & NA (I) Examination 2026",
+    "status": "Notification Expected",
+    "notificationDate": "01/01/2026",
+    "deadline": "31/01/2026",
+    "examDate": "12/04/2026",
+    "eligibility": "Class 12 pass or appearing in 2026",
+    "category": "Defence",
+    "conductingBody": "Union Public Service Commission",
+    "officialLink": "https://upsc.gov.in",
+    "isApplied": false,
+    "isCart": false
   },
   {
-    id: 8,
-    title: "NDA 2025 (II)",
-    status: "Application Open",
-    notificationDate: "31/05/2025",
-    deadline: "18/06/2025",
-    examDate: "01/09/2025",
-    eligibility: "12th passed (unmarried male candidates)",
-    category: "Defence",
-    conductingBody: "Union Public Service Commission",
-    officialLink: "https://upsc.gov.in",
-    isApplied: false,
-    isCart: false
-  }
+    "id": 8,
+    "title": "CDS (I) Examination 2026",
+    "status": "Notification Expected",
+    "notificationDate": "01/01/2026",
+    "deadline": "31/01/2026",
+    "examDate": "12/04/2026",
+    "eligibility": "Graduate/Bachelor’s degree or final year appearing",
+    "category": "Defence",
+    "conductingBody": "Union Public Service Commission",
+    "officialLink": "https://upsc.gov.in",
+    "isApplied": false,
+    "isCart": false
+  },
+  {
+    "id": 9,
+    "title": "XAT 2026",
+    "status": "Notification Expected",
+    "notificationDate": "01/07/2025",
+    "deadline": "30/11/2025",
+    "examDate": "05/01/2026",
+    "eligibility": "Bachelor’s degree or final year appearing",
+    "category": "Management",
+    "conductingBody": "XLRI Jamshedpur",
+    "officialLink": "https://xatonline.in",
+    "isApplied": false,
+    "isCart": false
+  },
 ];
 
-// Function to fetch fresh exam data from Gemini API
-export const fetchCompetitiveExams = async () => {
-  try {
-    const now = Date.now();
-    
-    // For debugging, let's temporarily disable cache to ensure fresh API calls
-    console.log('🔄 Fetching fresh exam data from Gemini API (cache disabled for debugging)...');
-    
-    // Add minimum loading time to show animation (2 seconds)
-    const [examData] = await Promise.all([
-      geminiExamService.fetchCompetitiveExams(),
-      new Promise(resolve => setTimeout(resolve, 2000))
-    ]);
-    
-    console.log('📊 Received exam data:', {
-      count: examData.length,
-      firstExam: examData[0]?.title,
-      isFromAPI: examData[0]?.title !== "UPSC Civil Services (Prelims) 2025" // Check if it's not fallback data
-    });
-    
-    // Cache the fresh data
-    cachedExamData = examData;
-    lastFetchTime = now;
-    
-    return examData;
-  } catch (error) {
-    console.error('❌ Error fetching exam data from Gemini:', error);
-    console.log('🔄 Returning default applications as fallback');
-    // Return default data if API fails
-    return defaultApplications;
-  }
-};
-
+// Simple function to get applications from storage or return default data
 export const getApplicationsFromStorage = async () => {
   try {
-    console.log('🔄 Force fetching fresh exam data (cache disabled for debugging)...');
+    // Check if data exists in localStorage
+    const storedData = localStorage.getItem('applications');
     
-    // Temporarily disable cache to ensure we get fresh data
-    const freshData = await fetchCompetitiveExams();
-    
-    // Cache the fresh data
-    localStorage.setItem('applications', JSON.stringify(freshData));
-    localStorage.setItem('applicationsTimestamp', Date.now().toString());
-    
-    return freshData;
+    if (storedData) {
+      const applications = JSON.parse(storedData);
+      console.log('📊 Loaded applications from storage:', applications.length, 'exams');
+      return applications;
+    } else {
+      // Return default data and save to storage
+      console.log('📊 Using default applications data:', defaultApplications.length, 'exams');
+      saveApplicationsToStorage(defaultApplications);
+      return defaultApplications;
+    }
   } catch (error) {
-    console.error('❌ Error getting applications:', error);
-    
-    // If everything fails, return default data
-    localStorage.setItem('applications', JSON.stringify(defaultApplications));
+    console.error('❌ Error loading applications from storage:', error);
+    // Return default data if there's any error
     return defaultApplications;
   }
 };
 
 export const saveApplicationsToStorage = (applications) => {
-  localStorage.setItem('applications', JSON.stringify(applications));
-  localStorage.setItem('applicationsTimestamp', Date.now().toString());
+  try {
+    localStorage.setItem('applications', JSON.stringify(applications));
+    localStorage.setItem('applicationsTimestamp', Date.now().toString());
+    console.log('✅ Saved', applications.length, 'applications to storage');
+  } catch (error) {
+    console.error('❌ Error saving applications to storage:', error);
+  }
 };
 
-// Function to refresh exam data manually
+// Function to refresh exam data (now just returns the hardcoded data)
 export const refreshExamData = async () => {
   try {
-    const freshData = await fetchCompetitiveExams();
+    console.log('🔄 Refreshing exam data with hardcoded data');
     
-    // Update cache
-    localStorage.setItem('applications', JSON.stringify(freshData));
-    localStorage.setItem('applicationsTimestamp', Date.now().toString());
+    // Update localStorage with fresh copy of default data
+    saveApplicationsToStorage(defaultApplications);
     
-    return freshData;
+    return defaultApplications;
   } catch (error) {
-    console.error('Error refreshing exam data:', error);
+    console.error('❌ Error refreshing exam data:', error);
     return defaultApplications;
   }
 }; 
