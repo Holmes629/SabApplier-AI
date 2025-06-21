@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React from 'react';
 import Footer from '../../components/Footer/Footer';
 import './PrivacyPolicy.css';
 

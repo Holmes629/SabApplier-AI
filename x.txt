@@ -1,0 +1,284 @@
+SabApplier AI Frontend - Complete Color Codes Catalog
+=====================================================
+
+This file contains all color codes used throughout the SabApplier AI frontend application.
+Generated automatically by analyzing all CSS, JavaScript, and configuration files.
+
+====================================================
+1. TAILWIND CUSTOM COLOR PALETTE (tailwind.config.js)
+====================================================
+
+PRIMARY BLUE COLORS:
+- #eff6ff (primary-50)  - Very light blue background
+- #dbeafe (primary-100) - Light blue background
+- #bfdbfe (primary-200) - Light blue border
+- #93c5fd (primary-300) - Medium light blue
+- #60a5fa (primary-400) - Medium blue accent
+- #3b82f6 (primary-500) - Main brand blue
+- #2563eb (primary-600) - Dark brand blue
+- #1d4ed8 (primary-700) - Darker blue
+- #1e40af (primary-800) - Very dark blue
+- #1e3a8a (primary-900) - Darkest blue
+
+NAVY/SLATE COLORS:
+- #f8fafc (navy-50)   - Very light gray-blue
+- #f1f5f9 (navy-100)  - Light gray-blue
+- #e2e8f0 (navy-200)  - Light slate
+- #cbd5e1 (navy-300)  - Medium light slate
+- #94a3b8 (navy-400)  - Medium slate
+- #64748b (navy-500)  - Main slate
+- #475569 (navy-600)  - Dark slate
+- #334155 (navy-700)  - Darker slate
+- #1e293b (navy-800)  - Very dark slate
+- #0f172a (navy-900)  - Darkest slate
+
+====================================================
+2. HERO SECTION COLORS
+====================================================
+
+GRADIENT BACKGROUNDS:
+- bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800
+- bg-gradient-to-r from-blue-500 to-blue-600 (buttons)
+- bg-gradient-to-r from-orange-500 to-red-500 (speed indicator)
+- bg-gradient-to-r from-purple-500 to-purple-600 (form fills)
+- bg-gradient-to-r from-cyan-500 to-cyan-600 (form fills)
+- bg-gradient-to-r from-green-400/20 to-emerald-400/20 (success notification)
+
+ANIMATED PARTICLES:
+- bg-blue-400    - Blue floating particles
+- bg-cyan-400    - Cyan floating particles  
+- bg-purple-400  - Purple floating particles
+- bg-green-400   - Green floating particles
+- bg-yellow-400  - Yellow floating particles
+- bg-red-400     - Red browser window controls
+- bg-yellow-400  - Yellow browser window controls
+- bg-green-400   - Green browser window controls
+
+FORM DEMONSTRATION:
+- bg-purple-500  - Security icon background
+- text-blue-100  - Security text
+- bg-gray-100    - Form input backgrounds
+- text-gray-600  - Form labels
+- text-gray-700  - Form input text
+- border-gray-200 - Form borders
+- text-green-600 - Success message text
+- bg-green-50    - Success notification background
+- border-green-200 - Success notification border
+- text-green-700 - Success notification text
+
+====================================================
+3. FEATURES SECTION COLORS
+====================================================
+
+BACKGROUND GRADIENTS:
+- background: linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)
+- text-white - White text on dark background
+- text-slate-800 - Dark text for titles
+- text-gray-600 - Medium gray for descriptions
+
+FEATURE CARDS:
+- bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 (icon backgrounds)
+- text-white - Icon text
+- group-hover:text-blue-700 - Hover state for titles
+- border-blue-200/50 - Hover border effect
+- shadow-blue-500/30 - Blue shadow on hover
+
+SPECIFIC FEATURE GRADIENTS:
+- background: linear-gradient(135deg, #6C63FF 0%, #3b82f6 100%) (feature card top border)
+- rgba(108, 99, 255, 0.2) - Purple shadow effect
+- rgba(108, 99, 255, 0.4) - Stronger purple shadow on hover
+
+====================================================
+4. NAVIGATION & HEADER COLORS
+====================================================
+
+NAVBAR:
+- bg-gradient-to-br from-blue-500 to-blue-600 (user avatar background)
+- border-white/30 - Avatar border
+- bg-green-500 - Online status indicator
+- text-white - Navigation text
+
+====================================================
+5. STATUS & STATE COLORS
+====================================================
+
+SUCCESS STATES:
+- #4CAF50 - Success green (buttons, notifications)
+- #43a047 - Success green variant
+- #45a049 - Success green hover
+- #28a745 - Success green (verify button)
+- #218838 - Success green hover
+- #388e3c - Success green (form navigation hover)
+- bg-green-50 - Light green background
+- text-green-600 - Green text
+- text-green-700 - Darker green text
+- bg-green-500 - Solid green background
+- border-green-200 - Green borders
+- bg-e8f5e9 - Very light green (applied tags)
+
+ERROR/WARNING STATES:
+- #e53935 - Error red
+- #dc3545 - Error red variant
+- rgb(249, 30, 63) - Bright error red
+- bg-fee - Light error background
+- color: #e53935 - Error text
+- #856404 - Warning brown text
+- #fff3cd - Warning yellow background
+
+INFO/NEUTRAL STATES:
+- #666 - Medium gray text
+- #333 - Dark gray text
+- #555 - Medium dark gray
+- #999 - Light gray
+- #ccc - Very light gray
+- #ddd - Border gray
+- #eee - Very light border
+- #f0f0f0 - Light background gray
+- #f5f5f5 - Very light background
+- #fafafa - Almost white background
+
+BLUE INFO STATES:
+- #007bff - Info blue
+- #0056b3 - Info blue hover
+- #004085 - Dark info blue
+- #cce5ff - Light info blue background
+
+====================================================
+6. FORM & INPUT COLORS
+====================================================
+
+FORM STYLING:
+- #4a90e2 - Primary form blue
+- #357abd - Primary form blue hover
+- border-color: #4caf50 (focus states)
+- box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2) (focus glow)
+- box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2) (blue focus glow)
+
+PROGRESS BARS:
+- background: linear-gradient(to right, #4caf50, #81c784)
+- bg-blue-100 through bg-blue-500 (step indicators)
+- border-blue-500 (active steps)
+- text-blue-600 (step text)
+- bg-gray-100, bg-gray-300 (inactive steps)
+
+====================================================
+7. CARD & COMPONENT COLORS
+====================================================
+
+JOB CARDS:
+- background: white
+- box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1)
+- box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) (hover)
+- bg-f0f0f0 - Company logo placeholder background
+- bg-f5f5f5 - Cart button background
+- #4a90e2 - Cart button active
+- rgba(74, 144, 226, 0.3) - Cart button shadow
+
+MODAL OVERLAYS:
+- background-color: rgba(0, 0, 0, 0.7) - Dark overlay
+- background-color: rgba(0, 0, 0, 0.1) - Light overlay
+
+====================================================
+8. FOOTER COLORS
+====================================================
+
+FOOTER STYLING:
+- background-color: #2c3e50 - Dark footer background
+- color: #fff - White text
+- color: #ecf0f1 - Light footer text
+- color: #3498db - Footer link blue
+- color: #bdc3c7 - Footer copyright text
+- border-top: 1px solid rgba(255, 255, 255, 0.1) - Footer separator
+
+====================================================
+9. ANIMATION & EFFECT COLORS
+====================================================
+
+TYPEWRITER ANIMATIONS:
+- border-right: 2px solid #3b82f6 - Typewriter cursor
+- border-color: #3b82f6 (blinking cursor)
+
+BACKGROUND PATTERNS:
+- fill='%234F46E5' fill-opacity='0.05' - SVG pattern color (purple)
+- fill='%234F46E5' fill-opacity='0.1' - SVG pattern color variant
+- fill='%234F46E5' fill-opacity='0.2' - SVG pattern color variant
+
+====================================================
+10. SPECIALIZED COMPONENT COLORS
+====================================================
+
+AUTO-FILL DATA PAGE:
+- background: #f3f6f9 - Page background
+- color: #2c3e50 - Main heading color
+- background-color: #ffffff - Form background
+- background-color: #e0e0e0 - Progress bar background
+- background-color: #fafafa - Fieldset background
+- color: #4caf50 - Legend text
+
+EXAM DETAILS:
+- #155724 - Application open status
+- #d4edda - Application open background
+- #856404 - Application opening soon status
+- #fff3cd - Application opening soon background
+
+INTRO PAGE:
+- background: linear-gradient(to right, #4b6cb7, #182848) - Hero gradient
+- background: #1a1a1a - Navbar background
+- background-color: #ffbf00 - Get started button
+- background: #f3f3f3 - Feature step backgrounds
+- background: #fafafa - Info card backgrounds
+- background-color: #007bff - Download extension button
+
+PRIVACY POLICY:
+- background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.95) 100%)
+
+====================================================
+11. SVG & ICON COLORS
+====================================================
+
+LOGO COLORS:
+- #61DAFB - React logo blue (from logo.svg)
+
+SVG PATTERNS:
+- Various fill colors with opacity for background patterns
+- Multiple gradient definitions for icons and decorative elements
+
+====================================================
+12. RESPONSIVE & MOBILE COLORS
+====================================================
+
+All above colors maintain consistency across responsive breakpoints.
+Color opacity and transparency values are adjusted for mobile views while maintaining the core color palette.
+
+====================================================
+SUMMARY STATISTICS
+====================================================
+
+Total Unique Color Codes Found: 150+
+- Hex Colors: 85+
+- RGB/RGBA: 15+
+- Named Colors: 20+
+- Tailwind Classes: 200+
+
+Primary Color Families:
+1. Blues (50+ variations)
+2. Grays/Slates (30+ variations) 
+3. Greens (20+ variations)
+4. Reds/Oranges (15+ variations)
+5. Purples (10+ variations)
+6. Yellows (8+ variations)
+7. Cyans (5+ variations)
+
+====================================================
+NOTES
+====================================================
+
+- Colors are organized by usage context for easy reference
+- Many colors use Tailwind CSS utility classes with opacity modifiers
+- Gradient combinations create additional visual variations
+- Color consistency maintained across dark/light themes
+- Accessibility considerations included in color contrast ratios
+- Animation and transition effects utilize color variations
+
+
+Generated from SabApplier AI Frontend Codebase Analysis

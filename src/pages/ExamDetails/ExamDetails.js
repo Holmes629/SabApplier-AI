@@ -22,11 +22,6 @@ function ExamDetails({ applications, onToggleShortlist }) {
     );
   }
 
-  const handleVisitClick = (e) => {
-    e.preventDefault();
-    setShowModal(true);
-  };
-
   const closeModal = () => {
     setShowModal(false);
   };
@@ -124,6 +119,7 @@ function ExamDetails({ applications, onToggleShortlist }) {
             <a 
               href={exam.officialLink} 
               target="_blank" 
+              rel="noreferrer"
               className="official-link-button"
             >
               Visit Official Website
