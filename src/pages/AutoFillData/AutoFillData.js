@@ -172,6 +172,172 @@ const AutoFillDataForm = () => {
     setStep((prev) => Math.min(prev + 1, steps.length - 1));
   };
   const handleBack = () => setStep((prev) => Math.max(prev - 1, 0));
+
+  // const handleParsedTextChange = (filename, field, newValue) => {
+  //   setFormData((prev) => {
+  //   const currentRaw = prev.document_texts?.[filename] || '{}';
+  //     let parsed;
+  //     try {
+  //       parsed = JSON.parse(currentRaw);
+  //     } catch {
+  //       parsed = {};
+  //     }
+
+  //     parsed[field] = newValue;
+
+  //     return {
+  //       ...prev,
+  //       document_texts: {
+  //         ...prev.document_texts,
+  //         [filename]: JSON.stringify(parsed)
+  //       }
+  //     };
+  //   });
+  // };
+
+  // const CollapsibleField = ({ data, path = [], onChange, filename, onAddField, onRemoveField }) => {
+  //   const [isOpen, setIsOpen] = useState(true);
+
+  //   const currentFieldName = typeof path[path.length - 1] === 'number'
+  //     ? `Item ${path[path.length - 1] + 1}`
+  //     : (path[path.length - 1] || 'Extracted file data').replace(/_/g, ' ').toUpperCase();
+
+  //   if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+  //     return (
+  //       <div style={{ marginLeft: '20px', marginBottom: '10px', borderLeft: '2px solid #ddd', paddingLeft: '10px' }}>
+  //         <div
+  //           style={{ cursor: 'pointer', fontWeight: 'bold', color: '#007BFF' }}
+  //           onClick={() => setIsOpen(!isOpen)}
+  //         >
+  //           {currentFieldName} {isOpen ? '▼' : '▶'}
+  //         </div>
+
+  //         {isOpen && (
+  //           <>
+  //             {Object.entries(data).map(([key, val]) => (
+  //               <CollapsibleField
+  //                 key={key}
+  //                 data={val}
+  //                 path={[...path, key]}
+  //                 filename={filename}
+  //                 onChange={onChange}
+  //                 // onAddField={onAddField}
+  //                 onRemoveField={onRemoveField}
+  //               />
+  //             ))}
+  //             <button onClick={() => onAddField(filename, path)} style={{ marginTop: '5px', fontSize: '0.9em', background: 'lightblue', color: 'black', border: 'none', padding: '4px 8px', borderRadius: '4px' }}>
+  //               ➕ Add Field
+  //             </button>
+  //           </>
+  //         )}
+  //       </div>
+  //     );
+  //   } else if (Array.isArray(data)) {
+  //     return (
+  //       <div style={{ marginLeft: '20px' }}>
+  //         <div
+  //           style={{ cursor: 'pointer', fontWeight: 'bold', color: '#28a745' }}
+  //           onClick={() => setIsOpen(!isOpen)}
+  //         >
+  //           {currentFieldName} {isOpen ? '▼' : '▶'}
+  //         </div>
+  //         {isOpen &&
+  //           data.map((item, idx) => (
+  //             <CollapsibleField
+  //               key={idx}
+  //               data={item}
+  //               path={[...path, idx]}
+  //               filename={filename}
+  //               onChange={onChange}
+  //               onAddField={onAddField}
+  //               onRemoveField={onRemoveField}
+  //             />
+  //           ))}
+  //       </div>
+  //     );
+  //   } else {
+  //     return (
+  //       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+  //         <label style={{ flex: 1 }}>
+  //           {currentFieldName}
+  //           <input
+  //             type="text"
+  //             value={data}
+  //             onChange={(e) => onChange(path, e.target.value)}
+  //             style={{ width: '100%', marginTop: '4px' }}
+  //           />
+  //         </label>
+  //         <button
+  //           onClick={() => onRemoveField(filename, path)}
+  //           style={{ marginLeft: '10px', background: 'white', color: 'white', border: 'none', padding: '4px 8px', borderRadius: '4px' }}
+  //         >
+  //           ❌
+  //         </button>
+  //       </div>
+  //     );
+  //   }
+  // };
+
+
+  // const renderInputs = (data, onChange, path = []) => {
+  //   if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+  //     return Object.entries(data).map(([key, val]) => (
+  //       <div key={key} style={{ marginLeft: "20px", marginBottom: "10px" }}>
+  //         <label style={{ display: 'block' }}>
+  //           {key.replace(/_/g, ' ').toUpperCase()}
+  //         </label>
+  //         {renderInputs(val, onChange, [...path, key])}
+  //       </div>
+  //     ));
+  //   } else if (Array.isArray(data)) {
+  //     return data.map((val, idx) => (
+  //       <div key={idx} style={{ marginLeft: "20px", marginBottom: "10px" }}>
+  //         <label style={{ display: 'block' }}>
+  //           Index {idx}
+  //         </label>
+  //         {renderInputs(val, onChange, [...path, idx])}
+  //       </div>
+  //     ));
+  //   } else {
+  //     const name = path.join('.');
+  //     return (
+  //       <input
+  //         type="text"
+  //         value={data}
+  //         onChange={(e) => onChange(path, e.target.value)}
+  //         style={{ width: '100%' }}
+  //       />
+  //     );
+  //   }
+  // };
+
+  const calculateCompletionPercentage = (data) => {
+    let total = 0;
+    let filled = 0;
+
+    // Recursive function to handle nested fields
+    const traverse = (obj) => {
+      for (const key in obj) {
+        const value = obj[key];
+        total++;
+        if (
+          value !== null &&
+          value !== "" 
+          && !(typeof value === "object" && Object.keys(value).length === 0 && key !== 'document_texts')
+        ) {
+          filled++;
+        }
+      }
+    };
+
+    // Call the traverse function on your formData
+    traverse(formData);
+
+    if (total === 0) return 0;
+    return Math.round((filled / total) * 100);
+  };
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     const previousValue = formData[name];
@@ -673,6 +839,8 @@ const AutoFillDataForm = () => {
         return null;
     }
   };
+
+  const completion = calculateCompletionPercentage(formData);
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
