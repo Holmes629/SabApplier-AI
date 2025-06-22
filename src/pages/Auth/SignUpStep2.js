@@ -176,19 +176,12 @@ const SignUpStep2 = ({ onSignUp2 }) => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex flex-col overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="w-full h-full bg-repeat" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.1'%3E%3Cpath d='M30 15c8.284 0 15 6.716 15 15s-6.716 15-15 15-15-6.716-15-15 6.716-15 15-15zm0 2c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-      </div>
-
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-2 sm:p-3 relative z-10">
         <div className="w-full max-w-lg">
           {/* Profile Completion Card */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-2xl border border-white/20 overflow-hidden">
+          <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
             
             {/* Header Section */}
             <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-4 py-3 text-center relative overflow-hidden">

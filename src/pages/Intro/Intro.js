@@ -12,22 +12,22 @@ const Intro = () => {
   return (
     <div className="min-h-screen bg-white">
       <Navbar isAuthenticated={false} />
-      <section id="hero">
+      <section id="hero" className='-mb-10'>
         <Hero />
       </section>
-      <section id="how-it-works">
+      <section id="how-it-works" className="pt-0">
         <HowItWorks />
       </section>
-      <section id="features">
+      <section id="features" className="-mt-8">
         <Features />
       </section>
-      <section id="privacy">
+      <section id="privacy" className="-mt-8">
         <Privacy />
       </section>
-      <section id="testimonials">
+      <section id="testimonials" className="-mt-8">
         <Testimonials />
       </section>
-      <section id="cta">
+      <section id="cta" className="-mt-8">
         <CTA />
       </section>
       <Footer />

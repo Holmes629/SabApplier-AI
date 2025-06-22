@@ -117,19 +117,12 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex flex-col overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="w-full h-full bg-repeat" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.1'%3E%3Cpath d='M30 15c8.284 0 15 6.716 15 15s-6.716 15-15 15-15-6.716-15-15 6.716-15 15-15zm0 2c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-      </div>
-
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-3 sm:p-4 relative z-10">
         <div className="w-full max-w-md">
           {/* Login Card */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
             
             {/* Header Section */}
             <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-6 py-6 text-center relative overflow-hidden">
@@ -309,7 +302,7 @@ const Login = ({ onLogin }) => {
 
           {/* Trust Indicators */}
           <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-            <div className="text-white/80">
+            <div className="text-gray-600">
               <div className="w-6 h-6 bg-green-500 rounded-full mx-auto mb-1 flex items-center justify-center">
                 <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -318,7 +311,7 @@ const Login = ({ onLogin }) => {
               <p className="text-xs">Secure Login</p>
             </div>
             
-            <div className="text-white/80">
+            <div className="text-gray-600">
               <div className="w-6 h-6 bg-blue-500 rounded-full mx-auto mb-1 flex items-center justify-center">
                 <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -327,7 +320,7 @@ const Login = ({ onLogin }) => {
               <p className="text-xs">24/7 Support</p>
             </div>
             
-            <div className="text-white/80">
+            <div className="text-gray-600">
               <div className="w-6 h-6 bg-purple-500 rounded-full mx-auto mb-1 flex items-center justify-center">
                 <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />

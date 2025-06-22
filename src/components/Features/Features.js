@@ -9,7 +9,7 @@ import {
 } from 'react-icons/fi';
 
 const FeatureCard = ({ icon, title, description }) => (
-  <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-8 border border-gray-100 hover:border-blue-200 group relative overflow-hidden h-80 flex flex-col">
+  <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-6 border border-gray-100 hover:border-blue-200 group relative overflow-hidden h-80 flex flex-col">{/* Fixed height h-80 for uniform cards */}
     {/* Background decoration */}
     <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-blue-500/10 to-transparent rounded-full transform translate-x-8 -translate-y-8 group-hover:scale-150 transition-transform duration-500"></div>
     
@@ -19,7 +19,7 @@ const FeatureCard = ({ icon, title, description }) => (
           {icon}
         </div>
         <div className="flex-1 flex flex-col">
-          <h3 className="text-xl font-bold text-slate-800 mb-3 group-hover:text-blue-700 transition-colors duration-300">{title}</h3>
+          <h3 className="text-xl font-bold text-slate-800 mb-4 group-hover:text-blue-700 transition-colors duration-300">{title}</h3>
           <p className="text-gray-600 leading-relaxed text-base flex-1">{description}</p>
         </div>
       </div>
@@ -65,16 +65,9 @@ const Features = () => {
   ];
 
   return (
-    <section id="features" className="py-24 bg-gradient-to-br from-gray-50 via-blue-50/30 to-gray-50 relative overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 opacity-40">
-        <div className="w-full h-full bg-repeat" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.05'%3E%3Cpath d='M30 15c8.284 0 15 6.716 15 15s-6.716 15-15 15-15-6.716-15-15 6.716-15 15-15zm0 2c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-      </div>
-      
-      <div className="relative max-w-7xl mx-auto px-4 lg:px-6">
-        <div className="text-center mb-20">
+    <section id="features" className="py-12 bg-white relative overflow-hidden">
+      <div className="relative max-w-7xl mx-auto px-4 pb-12 lg:px-6">
+        <div className="text-center mb-12">
           <div className="inline-flex items-center px-4 py-2 bg-blue-500/10 border border-blue-200/50 rounded-full text-sm font-semibold text-blue-700 mb-6 backdrop-blur-sm">
             <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
@@ -89,7 +82,7 @@ const Features = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
           {features.map((feature, index) => (
             <div key={index} className="transform hover:-translate-y-2 transition-transform duration-300">
               <FeatureCard
@@ -101,15 +94,7 @@ const Features = () => {
           ))}
         </div>
         
-        {/* Call to action */}
-        <div className="text-center mt-16">
-          <div className="inline-flex items-center space-x-2 text-blue-600 font-semibold">
-            <span>Ready to get started?</span>
-            <svg className="w-5 h-5 animate-bounce" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </div>
-        </div>
+        {/* Call to action removed to reduce dead links */}
       </div>
     </section>
   );

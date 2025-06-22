@@ -113,14 +113,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex flex-col">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="w-full h-full bg-repeat" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.1'%3E%3Cpath d='M30 15c8.284 0 15 6.716 15 15s-6.716 15-15 15-15-6.716-15-15 6.716-15 15-15zm0 2c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-      </div>
-
+    <div className="min-h-screen bg-white flex flex-col">
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8 relative z-10">
         <div className="w-full max-w-md">
@@ -128,10 +121,7 @@ const ForgotPassword = () => {
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
             
             {/* Header Section */}
-            <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-8 py-10 text-center relative overflow-hidden">
-              {/* Background decoration */}
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent"></div>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
+            <div className="bg-blue-600 px-8 py-10 text-center relative overflow-hidden">
               
               <div className="relative z-10">
                 {/* Logo */}
@@ -295,7 +285,7 @@ const ForgotPassword = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-xl font-semibold text-lg hover:from-blue-700 hover:to-blue-800 focus:ring-4 focus:ring-blue-200 transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-xl font-semibold text-lg focus:ring-4 focus:ring-blue-200 transform hover:scale-[1.02] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
                   >
                     {loading ? (
                       <div className="flex items-center justify-center space-x-2">
@@ -352,7 +342,7 @@ const ForgotPassword = () => {
 
           {/* Trust Indicators */}
           <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-            <div className="text-white/80">
+            <div className="text-gray-600">
               <div className="w-8 h-8 bg-green-500 rounded-full mx-auto mb-2 flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -361,7 +351,7 @@ const ForgotPassword = () => {
               <p className="text-xs">Secure Reset</p>
             </div>
             
-            <div className="text-white/80">
+            <div className="text-gray-600">
               <div className="w-8 h-8 bg-blue-500 rounded-full mx-auto mb-2 flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
@@ -370,7 +360,7 @@ const ForgotPassword = () => {
               <p className="text-xs">Quick Recovery</p>
             </div>
             
-            <div className="text-white/80">
+            <div className="text-gray-600">
               <div className="w-8 h-8 bg-purple-500 rounded-full mx-auto mb-2 flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
