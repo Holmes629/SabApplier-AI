@@ -384,8 +384,7 @@ const AutoFillDataForm = () => {
   const getCompletionPercentage = () => {
     // Define required fields for each step
     const stepFields = {
-      0: ['fullName', 'fathersName', 'mothersName', 'gender', 'dob', 'category'], // Personal Details
-      1: ['email', 'mobile', 'permanentAddress', 'correspondenceAddress'] // Contact Information
+      0: ['fullName', 'fathersName', 'mothersName', "nationality", 'gender', 'dob', 'category','email', 'mobile', 'permanentAddress', 'correspondenceAddress', 'altMobile'],
     };
     
     // Calculate overall completion considering all steps
@@ -399,13 +398,13 @@ const AutoFillDataForm = () => {
         return value && value.toString().trim() !== '';
       }).length;
       
-      if (parseInt(stepIndex) < step) {
-        // Previous steps should be fully weighted
-        totalCompletion += completedInStep;
-      } else if (parseInt(stepIndex) === step) {
+      // if (parseInt(stepIndex) < step) {
+      //   // Previous steps should be fully weighted
+      //   totalCompletion += completedInStep;
+      // } else if (parseInt(stepIndex) === step) {
         // Current step gets partial weight
         totalCompletion += completedInStep;
-      }
+      // }
       totalPossibleFields += fields.length;
     });
     
