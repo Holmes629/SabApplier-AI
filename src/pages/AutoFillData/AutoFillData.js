@@ -459,6 +459,14 @@ const AutoFillDataForm = () => {
         }
       });
 
+      // Special handling for phone number fields - they must be valid or null
+      if (backendData.phone_number && (backendData.phone_number.length !== 10 || !/^\d{10}$/.test(backendData.phone_number))) {
+        delete backendData.phone_number;
+      }
+      if (backendData.alt_phone_number && (backendData.alt_phone_number.length !== 10 || !/^\d{10}$/.test(backendData.alt_phone_number))) {
+        delete backendData.alt_phone_number;
+      }
+
       console.log('Saving to backend:', backendData);
       
       const response = await api.update(backendData);
