@@ -1,7 +1,7 @@
 import React from 'react';
 
 const TestimonialCard = ({ name, role, avatar, content, rating }) => (
-  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 h-80 flex flex-col">
+  <div className="bg-white rounded-xl shadow-lg p-6 border border-gray-200 hover:shadow-xl transition-all duration-300 min-h-80 flex flex-col">{/* Changed to min-h-80 for flexible height */}
     <div className="flex items-center mb-4">
       {[...Array(5)].map((_, i) => (
         <svg
@@ -14,7 +14,7 @@ const TestimonialCard = ({ name, role, avatar, content, rating }) => (
         </svg>
       ))}
     </div>
-    <p className="text-gray-600 mb-6 leading-relaxed flex-1">"{content}"</p>
+    <p className="text-gray-600 mb-4 leading-relaxed flex-1">"{content}"</p>
     <div className="flex items-center mt-auto">
       <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-navy-500 rounded-full flex items-center justify-center text-white font-semibold mr-4">
         {name.charAt(0)}
@@ -50,9 +50,9 @@ const Testimonials = () => {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-12 bg-white">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="text-center mb-16">
+        <div className="text-center mb-12">
           <h2 className="text-4xl font-bold bg-gradient-to-br from-slate-800 to-primary-600 bg-clip-text text-transparent mb-4">What Our Users Say</h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Join thousands of satisfied users who have transformed their application process

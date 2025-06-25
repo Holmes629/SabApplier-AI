@@ -4,8 +4,8 @@ import logo from '../../logo.jpeg';
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-white mt-16">
-      <div className="max-w-6xl mx-auto px-4 py-12">
+    <footer className="bg-gray-900 text-white mt-8">
+      <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="flex flex-col items-start">
             <div className="flex items-center mb-4">
@@ -47,7 +47,7 @@ const Footer = () => {
         </div>
       </div>
       <div className="border-t border-gray-800">
-        <div className="max-w-6xl mx-auto px-4 py-6">
+        <div className="max-w-6xl mx-auto px-4 py-4">
           <p className="text-center text-gray-400">
             &copy; {new Date().getFullYear()} SabApplier AI. All rights reserved.
           </p>

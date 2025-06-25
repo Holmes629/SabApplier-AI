@@ -6,7 +6,7 @@ import { api } from '../../services/api';
 
 const Navbar = ({ 
   isAuthenticated = false, 
-  cartCount = 0, 
+  // cartCount = 0, 
   onLogout,
   currentUser 
 }) => {
@@ -124,6 +124,7 @@ const Navbar = ({
                     location.pathname === '/' ? 'w-full' : 'w-0 group-hover:w-full'
                   }`}></span>
                 </Link>
+                {/* 
                 <Link 
                   to="/cart" 
                   className={`font-medium transition-all duration-300 hover:scale-105 relative group ${
@@ -144,6 +145,7 @@ const Navbar = ({
                     location.pathname === '/cart' ? 'w-full' : 'w-0 group-hover:w-full'
                   }`}></span>
                 </Link>
+                */}
                 <Link 
                   to="/docs" 
                   className={`font-medium transition-all duration-300 hover:scale-105 relative group ${
@@ -375,6 +377,7 @@ const Navbar = ({
                       onClick={closeMenus}>
                       Home
                     </Link>
+                    {/* 
                     <Link 
                       to="/cart" 
                       className={`flex items-center justify-between font-medium py-2 transition-colors duration-300 w-full text-left ${
@@ -388,6 +391,7 @@ const Navbar = ({
                         </span>
                       )}
                     </Link>
+                    */}
                     <Link 
                       to="/docs" 
                       className={`block font-medium py-2 transition-colors duration-300 w-full text-left ${

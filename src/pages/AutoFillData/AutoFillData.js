@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Footer from '../../components/Footer/Footer';
-import { User, Mail, ChevronRight, ChevronLeft, Check, Save, FileText } from 'lucide-react';
+import { User, Mail, ChevronRight, ChevronLeft, Check, Save } from 'lucide-react';
 import { api } from '../../services/api';
+import { LoadingProgressBar } from '../../components/ProgressBar';
 
 const steps = [
   { name: 'Personal Details', icon: User },
@@ -14,7 +15,6 @@ const AutoFillDataForm = () => {
     const saved = localStorage.getItem('autoFillData');
     return saved ? JSON.parse(saved) : {};
   });
-  const [autoFilledFields, setAutoFilledFields] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
   const [completedFields, setCompletedFields] = useState(new Set());
@@ -62,71 +62,70 @@ const AutoFillDataForm = () => {
           const userData = JSON.parse(currentUser);
           console.log('Auto-filling from user data:', userData);
           
-          // Map user data to form fields
-          if (userData.fullName && !updatedFormData.fullName) {
-            updatedFormData.fullName = userData.fullName;
-            if (!filledFields.includes('fullName')) filledFields.push('fullName');
-          }
-          if (userData.email && !updatedFormData.email) {
-            updatedFormData.email = userData.email;
-            if (!filledFields.includes('email')) filledFields.push('email');
-          }
-          if (userData.dateofbirth && !updatedFormData.dob) {
-            updatedFormData.dob = userData.dateofbirth;
-            filledFields.push('dob');
-          }
-          if (userData.phone_number && !updatedFormData.mobile) {
-            updatedFormData.mobile = userData.phone_number;
-            filledFields.push('mobile');
-          }
-          if (userData.correspondenceAddress && !updatedFormData.correspondenceAddress) {
-            updatedFormData.correspondenceAddress = userData.correspondenceAddress;
-            filledFields.push('correspondenceAddress');
-          }
-          if (userData.permanentAddress && !updatedFormData.permanentAddress) {
-            updatedFormData.permanentAddress = userData.permanentAddress;
-            filledFields.push('permanentAddress');
-          }
-          if (userData.gender && !updatedFormData.gender) {
-            updatedFormData.gender = userData.gender;
-            filledFields.push('gender');
-          }
-          if (userData.category && !updatedFormData.category) {
-            updatedFormData.category = userData.category;
-            filledFields.push('category');
-          }
-          if (userData.fathersName && !updatedFormData.fathersName) {
-            updatedFormData.fathersName = userData.fathersName;
-            filledFields.push('fathersName');
-          }
-          if (userData.mothersName && !updatedFormData.mothersName) {
-            updatedFormData.mothersName = userData.mothersName;
-            filledFields.push('mothersName');
-          }
-          if (userData.nationality && !updatedFormData.nationality) {
-            updatedFormData.nationality = userData.nationality;
-            filledFields.push('nationality');
-          }
-          if (userData.domicileState && !updatedFormData.domicile) {
-            updatedFormData.domicile = userData.domicileState;
-            filledFields.push('domicile');
-          }
-          if (userData.maritalStatus && !updatedFormData.maritalStatus) {
-            updatedFormData.maritalStatus = userData.maritalStatus;
-            filledFields.push('maritalStatus');
-          }
-          if (userData.religion && !updatedFormData.religion) {
-            updatedFormData.religion = userData.religion;
-            filledFields.push('religion');
-          }
-          if (userData.alt_phone_number && !updatedFormData.altMobile) {
-            updatedFormData.altMobile = userData.alt_phone_number;
-            filledFields.push('altMobile');
-          }
-          if (userData.disability !== undefined && updatedFormData.disability === undefined) {
-            updatedFormData.disability = userData.disability;
-            filledFields.push('disability');
-          }
+          // Map user data to form fields with comprehensive field mapping
+          const fieldMappings = [
+            { userField: 'fullName', formField: 'fullName' },
+            { userField: 'email', formField: 'email' },
+            { userField: 'dateofbirth', formField: 'dob' },
+            { userField: 'phone_number', formField: 'mobile' },
+            { userField: 'correspondenceAddress', formField: 'correspondenceAddress' },
+            { userField: 'permanentAddress', formField: 'permanentAddress' },
+            { userField: 'gender', formField: 'gender' },
+            { userField: 'category', formField: 'category' },
+            { userField: 'fathersName', formField: 'fathersName' },
+            { userField: 'mothersName', formField: 'mothersName' },
+            { userField: 'nationality', formField: 'nationality' },
+            { userField: 'domicileState', formField: 'domicile' },
+            { userField: 'domicile', formField: 'domicile' }, // Alternative mapping
+            { userField: 'district', formField: 'district' },
+            { userField: 'mandal', formField: 'mandal' },
+            { userField: 'pincode', formField: 'pincode' },
+            { userField: 'maritalStatus', formField: 'maritalStatus' },
+            { userField: 'religion', formField: 'religion' },
+            { userField: 'alt_phone_number', formField: 'altMobile' },
+            { userField: 'disability', formField: 'disability' }
+          ];
+
+          // Define valid options for dropdown fields
+          const validDropdownOptions = {
+            gender: ['Male', 'Female', 'Other'],
+            category: ['GEN', 'OBC', 'SC', 'ST', 'EWS'],
+            maritalStatus: ['Single', 'Married', 'Divorced', 'Widowed', 'Others']
+          };
+
+          fieldMappings.forEach(({ userField, formField }) => {
+            const userValue = userData[userField];
+            const currentFormValue = updatedFormData[formField];
+            
+            // Only fill if user has data and form field is empty
+            if (userValue !== undefined && userValue !== null && userValue !== '' && 
+                (currentFormValue === undefined || currentFormValue === null || currentFormValue === '')) {
+              
+              // For dropdown fields, validate that the value is in the valid options
+              if (validDropdownOptions[formField]) {
+                if (validDropdownOptions[formField].includes(userValue)) {
+                  updatedFormData[formField] = userValue;
+                  
+                  if (!filledFields.includes(formField)) {
+                    filledFields.push(formField);
+                  }
+                  
+                  console.log(`✅ Auto-filled ${formField} with valid dropdown value:`, userValue);
+                } else {
+                  console.log(`⚠️ Skipped auto-fill for ${formField}: "${userValue}" is not a valid option. Valid options:`, validDropdownOptions[formField]);
+                }
+              } else {
+                // For non-dropdown fields, fill as usual
+                updatedFormData[formField] = userValue;
+                
+                if (!filledFields.includes(formField)) {
+                  filledFields.push(formField);
+                }
+                
+                console.log(`✅ Auto-filled ${formField} with value:`, userValue);
+              }
+            }
+          });
           
         } catch (error) {
           console.error('Error parsing user data:', error);
@@ -136,20 +135,45 @@ const AutoFillDataForm = () => {
       // Update state if any fields were filled
       if (filledFields.length > 0) {
         setFormData(updatedFormData);
-        setAutoFilledFields(filledFields);
         
-        // Show auto-fill notification
+        // Show auto-fill notification with beautiful styling
         const messageElement = document.createElement('div');
-        messageElement.textContent = `Auto-filled ${filledFields.length} field(s) from your profile data`;
-        messageElement.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 text-sm font-medium';
+        messageElement.innerHTML = `
+          <div class="flex items-center">
+            <div class="w-8 h-8 mr-3 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-white font-medium text-sm">Auto-Fill Complete!</p>
+              <p class="text-green-100 text-xs">Filled ${filledFields.length} field(s) from your profile data</p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-3 text-green-200 hover:text-white transition-colors">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        `;
+        messageElement.className = 'fixed top-6 right-6 z-50 max-w-sm p-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-2xl shadow-2xl border border-green-400/20 backdrop-blur-sm transform transition-all duration-300 animate-in slide-in-from-top-2';
         document.body.appendChild(messageElement);
         setTimeout(() => {
           if (document.body.contains(messageElement)) {
-            document.body.removeChild(messageElement);
+            messageElement.style.transform = 'translateY(-100%) scale(0.9)';
+            messageElement.style.opacity = '0';
+            setTimeout(() => {
+              if (document.body.contains(messageElement)) {
+                document.body.removeChild(messageElement);
+              }
+            }, 300);
           }
         }, 4000);
         
-        console.log(`Auto-filled fields: ${filledFields.join(', ')}`);
+        console.log(`✅ Auto-filled fields: ${filledFields.join(', ')}`);
+        console.log('📋 Updated form data:', updatedFormData);
+      } else {
+        console.log('ℹ️ No fields auto-filled. Available user data:', currentUser ? JSON.parse(currentUser) : 'None');
       }
       
       // Clean up localStorage data after using it
@@ -311,35 +335,19 @@ const AutoFillDataForm = () => {
   //   }
   // };
 
-  const calculateCompletionPercentage = (data) => {
-    let total = 0;
-    let filled = 0;
-
-    // Recursive function to handle nested fields
-    const traverse = (obj) => {
-      for (const key in obj) {
-        const value = obj[key];
-        total++;
-        if (
-          value !== null &&
-          value !== "" 
-          && !(typeof value === "object" && Object.keys(value).length === 0 && key !== 'document_texts')
-        ) {
-          filled++;
-        }
-      }
-    };
-
-    // Call the traverse function on your formData
-    traverse(formData);
-
-    if (total === 0) return 0;
-    return Math.round((filled / total) * 100);
-  };
-
+  // ...existing code...
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    
+    // Special validation for pincode - only allow 6 digits
+    if (name === 'pincode') {
+      // Only allow numeric input and limit to 6 characters
+      if (value && (!/^\d*$/.test(value) || value.length > 6)) {
+        return; // Don't update state if invalid
+      }
+    }
+    
     const previousValue = formData[name];
     const isNewlyCompleted = !previousValue && value && value.trim() !== '';
     
@@ -355,26 +363,51 @@ const AutoFillDataForm = () => {
       
       // Check if step is completed
       const stepFields = {
-        0: ['fullName', 'fathersName', 'mothersName', 'gender', 'dob', 'category'],
-        1: ['email', 'mobile', 'permanentAddress', 'correspondenceAddress']
+        0: ['fullName', 'fathersName', 'mothersName', 'gender', 'dob', 'category', 
+            'disability', 'nationality', 'domicile', 'district', 'mandal', 'pincode', 'maritalStatus', 'religion'],
+        1: ['permanentAddress', 'correspondenceAddress', 'email', 'mobile', 'altMobile']
       };
       
       const currentStepFields = stepFields[step] || [];
       const newFormData = { ...formData, [name]: value };
       const completedInStep = currentStepFields.filter(field => {
         const fieldValue = newFormData[field];
-        return fieldValue && fieldValue.toString().trim() !== '';
+        return fieldValue !== undefined && fieldValue !== null && fieldValue !== '' && 
+               (typeof fieldValue === 'boolean' || fieldValue.toString().trim() !== '');
       }).length;
       
       if (completedInStep === currentStepFields.length) {
-        // Step completed - show success message
+        // Step completed - show beautiful success message
         const celebrationElement = document.createElement('div');
-        celebrationElement.textContent = `🎉 ${steps[step].name} completed!`;
-        celebrationElement.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 text-sm font-medium animate-bounce';
+        celebrationElement.innerHTML = `
+          <div class="flex items-center">
+            <div class="w-8 h-8 mr-3 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="text-white font-medium text-sm">🎉 Step Complete!</p>
+              <p class="text-blue-100 text-xs">${steps[step].name} has been completed</p>
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="ml-3 text-blue-200 hover:text-white transition-colors">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </div>
+        `;
+        celebrationElement.className = 'fixed top-6 right-6 z-50 max-w-sm p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl shadow-2xl border border-blue-400/20 backdrop-blur-sm transform transition-all duration-300 animate-in slide-in-from-top-2';
         document.body.appendChild(celebrationElement);
         setTimeout(() => {
           if (document.body.contains(celebrationElement)) {
-            document.body.removeChild(celebrationElement);
+            celebrationElement.style.transform = 'translateY(-100%) scale(0.9)';
+            celebrationElement.style.opacity = '0';
+            setTimeout(() => {
+              if (document.body.contains(celebrationElement)) {
+                document.body.removeChild(celebrationElement);
+              }
+            }, 300);
           }
         }, 3000);
       }
@@ -382,42 +415,126 @@ const AutoFillDataForm = () => {
   };
 
   const getCompletionPercentage = () => {
-    // Define required fields for each step
-    const stepFields = {
-      0: ['fullName', 'fathersName', 'mothersName', "nationality", 'gender', 'dob', 'category','email', 'mobile', 'permanentAddress', 'correspondenceAddress', 'altMobile'],
+    // Define all form fields organized by step (as they appear in the actual form)
+    const allFormFields = {
+      0: [ // Personal Details step
+        'fullName', 'fathersName', 'mothersName', 'gender', 'dob', 'category',
+        'disability', 'nationality', 'domicile', 'district', 'mandal', 'pincode', 'maritalStatus', 'religion'
+      ],
+      1: [ // Contact Information step
+        'permanentAddress', 'correspondenceAddress', 'email', 'mobile', 'altMobile'
+      ]
     };
     
-    // Calculate overall completion considering all steps
-    let totalCompletion = 0;
-    let totalPossibleFields = 0;
+    // Define valid options for dropdown fields (same as auto-fill validation)
+    const validDropdownOptions = {
+      gender: ['Male', 'Female', 'Other'],
+      category: ['GEN', 'OBC', 'SC', 'ST', 'EWS'],
+      maritalStatus: ['Single', 'Married', 'Divorced', 'Widowed', 'Others']
+    };
     
-    Object.keys(stepFields).forEach(stepIndex => {
-      const fields = stepFields[stepIndex];
-      const completedInStep = fields.filter(field => {
-        const value = formData[field];
-        return value && value.toString().trim() !== '';
-      }).length;
+    // Helper function to check if a field has a valid value
+    const hasValidValue = (value, fieldName) => {
+      if (value === undefined || value === null || value === '') {
+        return false;
+      }
       
-      // if (parseInt(stepIndex) < step) {
-      //   // Previous steps should be fully weighted
-      //   totalCompletion += completedInStep;
-      // } else if (parseInt(stepIndex) === step) {
-        // Current step gets partial weight
-        totalCompletion += completedInStep;
-      // }
-      totalPossibleFields += fields.length;
+      // For dropdown fields, validate against valid options
+      if (validDropdownOptions[fieldName]) {
+        return validDropdownOptions[fieldName].includes(value);
+      }
+      
+      // Handle boolean values properly (false is a valid value)
+      if (typeof value === 'boolean') {
+        return true;
+      }
+      // Handle string values
+      if (typeof value === 'string') {
+        return value.trim() !== '';
+      }
+      // Handle numbers
+      if (typeof value === 'number') {
+        return true;
+      }
+      return false;
+    };
+    
+    // Calculate completion across all steps
+    let totalCompleted = 0;
+    let totalFields = 0;
+    const completedFields = [];
+    const emptyFields = [];
+    
+    Object.values(allFormFields).forEach(stepFields => {
+      stepFields.forEach(field => {
+        totalFields++;
+        const value = formData[field];
+        if (hasValidValue(value, field)) {
+          totalCompleted++;
+          completedFields.push(field);
+        } else {
+          emptyFields.push(field);
+        }
+      });
     });
     
-    return totalPossibleFields > 0 ? Math.round((totalCompletion / totalPossibleFields) * 100) : 0;
+    const percentage = totalFields > 0 ? Math.round((totalCompleted / totalFields) * 100) : 0;
+    
+    // Debug logging
+    console.log('📊 Progress Calculation:', {
+      totalFields,
+      totalCompleted,
+      percentage: `${percentage}%`,
+      completedFields,
+      emptyFields,
+      formData: Object.keys(formData).reduce((acc, key) => {
+        acc[key] = `${typeof formData[key]}: ${formData[key]}`;
+        return acc;
+      }, {})
+    });
+    
+    return percentage;
   };
 
   // Helper function to get field styling based on completion status
   const getFieldClassName = (fieldName) => {
-    const baseClass = "w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
+    const baseClass = "w-full px-3 py-2 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200";
     
-    if (autoFilledFields.includes(fieldName)) {
-      return `${baseClass} border-green-200 bg-green-50`;
-    } else if (completedFields.has(fieldName) || (formData[fieldName] && formData[fieldName].toString().trim() !== '')) {
+    // Define valid options for dropdown fields (same as progress calculation)
+    const validDropdownOptions = {
+      gender: ['Male', 'Female', 'Other'],
+      category: ['GEN', 'OBC', 'SC', 'ST', 'EWS'],
+      maritalStatus: ['Single', 'Married', 'Divorced', 'Widowed', 'Others']
+    };
+    
+    // Helper function to check if field has valid value
+    const hasValidValue = (value, fieldName) => {
+      if (value === undefined || value === null || value === '') {
+        return false;
+      }
+      
+      // For dropdown fields, validate against valid options
+      if (validDropdownOptions[fieldName]) {
+        return validDropdownOptions[fieldName].includes(value);
+      }
+      
+      // Handle boolean values properly (false is a valid value)
+      if (typeof value === 'boolean') {
+        return true;
+      }
+      // Handle string values
+      if (typeof value === 'string') {
+        return value.trim() !== '';
+      }
+      // Handle numbers
+      if (typeof value === 'number') {
+        return true;
+      }
+      return false;
+    };
+    
+    // Removed auto-filled field styling condition to eliminate green background
+    if (completedFields.has(fieldName) || hasValidValue(formData[fieldName], fieldName)) {
       return `${baseClass} border-blue-300 bg-blue-50/50 shadow-sm`;
     } else {
       return `${baseClass} border-gray-200 hover:border-gray-300`;
@@ -442,6 +559,9 @@ const AutoFillDataForm = () => {
         correspondenceAddress: formData.correspondenceAddress,
         permanentAddress: formData.permanentAddress,
         domicileState: formData.domicile,
+        district: formData.district,
+        mandal: formData.mandal,
+        pincode: formData.pincode,
         gender: formData.gender,
         category: formData.category,
         nationality: formData.nationality,
@@ -450,20 +570,41 @@ const AutoFillDataForm = () => {
         disability: formData.disability
       };
 
-      // Remove undefined fields and frontend-specific fields
+      // Get user authentication info
+      const currentUser = localStorage.getItem("currentUser");
+      if (!currentUser) {
+        throw new Error('User not authenticated');
+      }
+      const userData = JSON.parse(currentUser);
+      if (!userData.email) {
+        throw new Error('User email not found');
+      }
+      
+      // Add email to backend data
+      backendData.email = userData.email;
+      
+      // Remove undefined fields and handle empty values properly
       Object.keys(backendData).forEach(key => {
-        if (backendData[key] === undefined || backendData[key] === '' || 
+        if (backendData[key] === undefined || 
             ['dob', 'mobile', 'altMobile', 'domicile'].includes(key)) {
           delete backendData[key];
+        } else if (backendData[key] === '') {
+          // Send empty strings as null to properly clear fields in backend
+          backendData[key] = null;
         }
       });
 
       // Special handling for phone number fields - they must be valid or null
       if (backendData.phone_number && (backendData.phone_number.length !== 10 || !/^\d{10}$/.test(backendData.phone_number))) {
-        delete backendData.phone_number;
+        backendData.phone_number = null;
       }
       if (backendData.alt_phone_number && (backendData.alt_phone_number.length !== 10 || !/^\d{10}$/.test(backendData.alt_phone_number))) {
-        delete backendData.alt_phone_number;
+        backendData.alt_phone_number = null;
+      }
+
+      // Special handling for pincode - must be 6 digits or null
+      if (backendData.pincode && (backendData.pincode.length !== 6 || !/^\d{6}$/.test(backendData.pincode))) {
+        backendData.pincode = null;
       }
 
       console.log('Saving to backend:', backendData);
@@ -486,12 +627,18 @@ const AutoFillDataForm = () => {
         
         return { success: true };
       } else {
-        throw new Error('Save failed');
+        throw new Error(`Profile update failed. Response: ${JSON.stringify(response)}`);
       }
     } catch (error) {
-      console.error('Error saving to backend:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        stack: error.stack
+      });
+      
       if (showNotification) {
-        setSaveMessage('Failed to save to backend. Data saved locally.');
+        setSaveMessage(`Failed to save to backend: ${error.message}. Data saved locally.`);
         setTimeout(() => setSaveMessage(''), 3000);
       }
       
@@ -518,19 +665,11 @@ const AutoFillDataForm = () => {
     switch (step) {
       case 0:
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Full Name (As per Aadhaar) *
-                  {autoFilledFields.includes('fullName') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <input 
                   name="fullName" 
@@ -542,17 +681,9 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Father's Name (As per Aadhaar) *
-                  {autoFilledFields.includes('fathersName') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <input 
                   name="fathersName" 
@@ -564,17 +695,9 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Mother's Name (As per Aadhaar) *
-                  {autoFilledFields.includes('mothersName') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <input 
                   name="mothersName" 
@@ -586,17 +709,9 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Gender
-                  {autoFilledFields.includes('gender') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <select 
                   name="gender" 
@@ -611,17 +726,9 @@ const AutoFillDataForm = () => {
                 </select>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Date of Birth
-                  {autoFilledFields.includes('dob') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <input 
                   type="date" 
@@ -632,8 +739,10 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Category</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Category
+                </label>
                 <select 
                   name="category" 
                   onChange={handleChange} 
@@ -649,15 +758,31 @@ const AutoFillDataForm = () => {
                 </select>
               </div>
               
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Disability Status</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Disability Status
+                </label>
                 <select 
                   name="disability" 
                   onChange={(e) => {
                     const { name, value } = e.target;
                     // Convert string values to boolean for backend compatibility
                     const boolValue = value === "Yes" ? true : value === "No" ? false : '';
+                    
+                    // Track previous value for completion detection
+                    const previousValue = formData[name];
+                    const isNewlyCompleted = (previousValue === undefined || previousValue === null || previousValue === '') && boolValue !== '';
+                    
                     setFormData((prev) => ({ ...prev, [name]: boolValue }));
+                    
+                    // Track field completion for visual feedback
+                    if (isNewlyCompleted) {
+                      setCompletedFields(prev => new Set([...prev, name]));
+                      
+                      // Show brief celebration effect
+                      setShowCelebration(true);
+                      setTimeout(() => setShowCelebration(false), 600);
+                    }
                   }}
                   value={formData.disability === true ? "Yes" : formData.disability === false ? "No" : ''}
                   className={getFieldClassName('disability')}
@@ -668,8 +793,10 @@ const AutoFillDataForm = () => {
                 </select>
               </div>
               
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Nationality</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Nationality
+                </label>
                 <input 
                   name="nationality" 
                   onChange={handleChange} 
@@ -679,8 +806,10 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Domicile State</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Domicile State
+                </label>
                 <input 
                   name="domicile" 
                   onChange={handleChange} 
@@ -690,8 +819,52 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Marital Status</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  District
+                </label>
+                <input 
+                  name="district" 
+                  onChange={handleChange} 
+                  value={formData.district || ''} 
+                  className={getFieldClassName('district')}
+                  placeholder="Enter district"
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Mandal
+                </label>
+                <input 
+                  name="mandal" 
+                  onChange={handleChange} 
+                  value={formData.mandal || ''} 
+                  className={getFieldClassName('mandal')}
+                  placeholder="Enter mandal"
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Pincode
+                </label>
+                <input 
+                  name="pincode" 
+                  type="text"
+                  onChange={handleChange} 
+                  value={formData.pincode || ''} 
+                  className={getFieldClassName('pincode')}
+                  placeholder="Enter 6-digit pincode"
+                  pattern="[0-9]{6}"
+                  maxLength="6"
+                />
+              </div>
+              
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Marital Status
+                </label>
                 <select 
                   name="maritalStatus" 
                   onChange={handleChange} 
@@ -705,8 +878,10 @@ const AutoFillDataForm = () => {
                 </select>
               </div>
               
-              <div className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">Religion</label>
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Religion
+                </label>
                 <input 
                   name="religion" 
                   onChange={handleChange} 
@@ -720,19 +895,11 @@ const AutoFillDataForm = () => {
         );
       case 1:
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2 md:col-span-2">
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1 md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700">
                   Permanent Address
-                  {autoFilledFields.includes('permanentAddress') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <textarea 
                   name="permanentAddress" 
@@ -744,17 +911,9 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-1 md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700">
                   Correspondence Address
-                  {autoFilledFields.includes('correspondenceAddress') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <textarea 
                   name="correspondenceAddress" 
@@ -766,17 +925,9 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Email ID
-                  {autoFilledFields.includes('email') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <input 
                   name="email" 
@@ -788,17 +939,9 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Mobile Number
-                  {autoFilledFields.includes('mobile') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <input 
                   name="mobile" 
@@ -810,17 +953,9 @@ const AutoFillDataForm = () => {
                 />
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
                   Alternate Mobile Number
-                  {autoFilledFields.includes('altMobile') && (
-                    <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                      <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                      Auto-filled
-                    </span>
-                  )}
                 </label>
                 <input 
                   name="altMobile" 
@@ -839,16 +974,12 @@ const AutoFillDataForm = () => {
     }
   };
 
-  const completion = calculateCompletionPercentage(formData);
+  const completion = getCompletionPercentage();
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-100 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute top-1/3 -left-32 w-64 h-64 bg-blue-50 rounded-full opacity-30"></div>
-        <div className="absolute bottom-20 right-1/4 w-48 h-48 bg-blue-200 rounded-full opacity-15 animate-pulse delay-1000"></div>
-        
         {/* Geometric patterns */}
         <div className="absolute top-20 left-1/4 w-2 h-2 bg-blue-400 rounded-full opacity-40 animate-bounce"></div>
         <div className="absolute top-1/2 right-1/3 w-3 h-3 bg-blue-300 rounded-full opacity-30 animate-pulse delay-500"></div>
@@ -875,11 +1006,7 @@ const AutoFillDataForm = () => {
 
       <main className="relative z-10 max-w-6xl mx-auto px-4 py-8">
         {/* Header Section */}
-        <div className="mb-12 text-center">
-          <div className="inline-flex items-center px-4 py-2 bg-blue-50 border border-blue-200 rounded-full text-sm font-semibold text-blue-700 mb-6">
-            <FileText className="w-4 h-4 mr-2" />
-            Auto-Fill Data Setup
-          </div>
+        <div className="mb-8 text-center">
           <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
             Complete Your <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">Profile</span>
           </h1>
@@ -888,157 +1015,40 @@ const AutoFillDataForm = () => {
           </p>
         </div>
 
-        {/* Progress Section */}
-        <div className="mb-12">
-          {/* Save Message Notification */}
-          {saveMessage && (
-            <div className={`mb-4 p-4 rounded-lg text-center font-medium transition-all duration-300 ${
-              saveMessage.includes('Failed') 
-                ? 'bg-yellow-50 text-yellow-700 border border-yellow-200' 
-                : saveMessage.includes('completed successfully') || saveMessage.includes('Profile completed')
-                  ? 'bg-gradient-to-r from-green-50 to-emerald-50 text-green-800 border border-green-200 shadow-md'
-                  : 'bg-green-50 text-green-700 border border-green-200'
-            }`}>
-              <div className="flex items-center justify-center">
-                {saveMessage.includes('completed successfully') && (
-                  <div className="w-6 h-6 mr-2 bg-green-500 rounded-full flex items-center justify-center">
-                    <Check className="w-4 h-4 text-white" />
-                  </div>
-                )}
-                <span className="text-sm lg:text-base">{saveMessage}</span>
-              </div>
-            </div>
-          )}
-          
-          <div className="bg-white rounded-2xl p-8 border border-gray-100 shadow-sm">
+        {/* Form Content Container */}
+        <div className="mb-1">
+          <div className="bg-white rounded-2xl pl-5 pr-5 pb-5 pt-5 border border-gray-100 shadow-sm">
             {/* Progress Bar */}
-            <div className="mb-8">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Overall Progress</span>
-                <span>{getCompletionPercentage()}% Complete</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3 relative overflow-hidden">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full transition-all duration-700 ease-out relative"
-                  style={{ width: `${getCompletionPercentage()}%` }}
-                >
-                  {/* Animated shimmer effect */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Step Indicators */}
-            <div className="flex items-center justify-between mb-8">
-              {steps.map((stepItem, index) => {
-                const StepIcon = stepItem.icon;
-                const isCompleted = index < step;
-                const isCurrent = index === step;
-                
-                // Calculate completion for step indicator
-                const stepFields = {
-                  0: ['fullName', 'fathersName', 'mothersName', 'gender', 'dob', 'category'],
-                  1: ['email', 'mobile', 'permanentAddress', 'correspondenceAddress']
-                };
-                
-                const currentFields = stepFields[index] || [];
-                const filledInStep = currentFields.filter(field => {
-                  const value = formData[field];
-                  return value && value.toString().trim() !== '';
-                }).length;
-                
-                const stepCompletion = currentFields.length > 0 
-                  ? (filledInStep / currentFields.length) * 100 
-                  : 0;
-                
-                const isPartiallyComplete = stepCompletion > 0 && stepCompletion < 100;
-                
-                return (
-                  <div key={index} className="flex items-center">
-                    <div className={`relative flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ${
-                      isCompleted 
-                        ? 'bg-green-500 border-green-500 text-white' 
-                        : isCurrent 
-                          ? isPartiallyComplete
-                            ? 'bg-blue-100 border-blue-500 text-blue-600'
-                            : 'bg-blue-500 border-blue-500 text-white'
-                          : 'bg-gray-100 border-gray-300 text-gray-400'
-                    }`}>
-                      {isCompleted ? (
-                        <Check className="w-5 h-5" />
-                      ) : isCurrent && isPartiallyComplete ? (
-                        <>
-                          <StepIcon className="w-5 h-5" />
-                          {/* Progress ring for current step */}
-                          <div className="absolute inset-0 rounded-full border-2 border-transparent">
-                            <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                              <path
-                                className="text-blue-200"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                fill="none"
-                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                              />
-                              <path
-                                className="text-blue-500"
-                                stroke="currentColor"
-                                strokeWidth="3"
-                                fill="none"
-                                strokeLinecap="round"
-                                strokeDasharray={`${stepCompletion}, 100`}
-                                d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                                style={{
-                                  transition: 'stroke-dasharray 0.5s ease-out'
-                                }}
-                              />
-                            </svg>
-                          </div>
-                        </>
-                      ) : (
-                        <StepIcon className="w-5 h-5" />
-                      )}
-                    </div>
-                    <div className={`ml-3 ${index < steps.length - 1 ? 'mr-8' : ''}`}>
-                      <p className={`text-sm font-medium transition-colors duration-200 ${
-                        isCurrent ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'
-                      }`}>
-                        Step {index + 1}
-                        {isCurrent && isPartiallyComplete && (
-                          <span className="ml-1 text-xs">({Math.round(stepCompletion)}%)</span>
-                        )}
-                      </p>
-                      <p className={`text-xs transition-colors duration-200 ${
-                        isCurrent ? 'text-blue-500' : isCompleted ? 'text-green-500' : 'text-gray-400'
-                      }`}>
-                        {stepItem.name}
-                      </p>
-                    </div>
-                    {index < steps.length - 1 && (
-                      <div className={`flex-1 h-0.5 mx-4 transition-colors duration-300 ${
-                        index < step ? 'bg-green-400' : 'bg-gray-200'
-                      }`}></div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Current Step Title */}
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">{steps[step].name}</h2>
-              <p className="text-gray-600">
-                {step === 0 && "Please provide your personal information as it appears on official documents."}
-                {step === 1 && "Enter your contact details and address information."}
+            <div className="mb-0">
+              
+              <LoadingProgressBar 
+                percentage={completion}
+                showPercentage={false}
+                size="normal"
+                fillColor="bg-green-500"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                {completion === 0 ? 'Start filling your profile details...' : 
+                 completion < 25 ? 'Just getting started...' : 
+                 completion < 50 ? 'Making good progress!' : 
+                 completion < 75 ? 'More than halfway there!' : 
+                 completion < 100 ? 'Almost complete!' : 
+                 'Profile completed! 🎉'}
               </p>
             </div>
 
+            {/* Form Title */}
+            <div className="-ml-10">
+              <h2 className="text-xl font-bold text-gray-900 ">Profile Information</h2>
+            </div>
+
             {/* Form Content */}
-            <div className="mb-8">
+            <div className="mb-5">
               {renderStep()}
             </div>
 
             {/* Navigation Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t border-gray-100">
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
               <div>
                 {step > 0 && (
                   <button 
@@ -1088,9 +1098,9 @@ const AutoFillDataForm = () => {
                       setTimeout(() => setShowCelebration(false), 2000);
                       
                       if (result.success) {
-                        setSaveMessage('🎉 Profile completed successfully! Your data is now saved and ready for auto-filling applications.');
+                        setSaveMessage('Profile completed successfully!');
                       } else {
-                        setSaveMessage('✅ Profile completed! Data saved locally. Please check your internet connection to sync with server.');
+                        setSaveMessage('Profile completed! Data saved locally.');
                       }
                       setTimeout(() => setSaveMessage(''), 5000);
                     }}
@@ -1116,6 +1126,66 @@ const AutoFillDataForm = () => {
         </div>
       </main>
       <Footer />
+
+      {/* Beautiful Toast Notification Popup */}
+      {saveMessage && (
+        <div className="fixed top-6 right-6 z-50 animate-in slide-in-from-top-2 duration-300">
+          <div className={`max-w-sm p-4 rounded-2xl shadow-2xl border backdrop-blur-sm transform transition-all duration-300 ${
+            saveMessage.includes('Failed') 
+              ? 'bg-gradient-to-r from-yellow-500/95 to-orange-500/95 text-white border-yellow-400/20' 
+              : saveMessage.includes('completed successfully') || saveMessage.includes('Profile completed')
+                ? 'bg-gradient-to-r from-green-500/95 to-emerald-500/95 text-white border-green-400/20'
+                : 'bg-gradient-to-r from-blue-500/95 to-blue-600/95 text-white border-blue-400/20'
+          }`}>
+            <div className="flex items-center">
+              {saveMessage.includes('completed successfully') && (
+                <div className="w-8 h-8 mr-3 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <Check className="w-5 h-5 text-green-500" />
+                </div>
+              )}
+              {saveMessage.includes('Failed') ? (
+                <div className="w-8 h-8 mr-3 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              ) : !saveMessage.includes('completed successfully') && (
+                <div className="w-8 h-8 mr-3 bg-white rounded-full flex items-center justify-center flex-shrink-0">
+                  <svg className="w-5 h-5 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+              <div className="flex-1">
+                <p className="font-medium text-sm leading-relaxed">{saveMessage}</p>
+                {saveMessage.includes('completed successfully') && (
+                  <p className="text-xs text-green-100 mt-1">Ready for auto-filling applications!</p>
+                )}
+                {saveMessage.includes('Data saved locally') && (
+                  <p className="text-xs text-green-100 mt-1">Check internet connection to sync</p>
+                )}
+                {saveMessage === 'Data saved successfully to your profile!' && (
+                  <p className="text-xs text-blue-100 mt-1">Progress automatically saved</p>
+                )}
+              </div>
+              <button 
+                onClick={() => setSaveMessage('')}
+                className={`ml-3 transition-colors ${
+                  saveMessage.includes('Failed') 
+                    ? 'text-yellow-200 hover:text-white'
+                    : saveMessage.includes('completed successfully') || saveMessage.includes('Profile completed')
+                      ? 'text-green-200 hover:text-white'
+                      : 'text-blue-200 hover:text-white'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

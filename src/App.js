@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'r
 import './App.css';
 import Navbar from './components/Navbar/Navbar';
 import Home from './pages/Home/Home';
-import Cart from './pages/Cart/Cart';
+// import Cart from './pages/Cart/Cart';
 import Profile from './pages/Profile/Profile';
 import Login from './pages/Auth/Login'
 import Intro from './pages/Intro/Intro';
@@ -18,7 +18,7 @@ import SignUpStep2 from './pages/Auth/SignUpStep2';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
 
 // Create a wrapper component that uses useLocation
-function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applications, handleLogin, handleSignUp, handleSignUp2, toggleCart, loadingExams, handleDocUpload }) {
+function AppContent({ isSignUp2, /* cartCount, */ handleLogout, currentUser, applications, handleLogin, handleSignUp, handleSignUp2, /* toggleCart, */ loadingExams, handleDocUpload }) {
   const location = useLocation();
 
   const ProtectedRoute = ({ children }) => {
@@ -33,7 +33,7 @@ function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applicati
       {isSignUp2 && location.pathname !== '/manage-docs' && (
         <Navbar 
           isAuthenticated={true}
-          cartCount={cartCount} 
+          // cartCount={cartCount} 
           onLogout={handleLogout} 
           currentUser={currentUser} 
         />
@@ -67,10 +67,11 @@ function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applicati
           path="/" 
           element={
             <ProtectedRoute>
-              <Home applications={applications} onToggleCart={toggleCart} loadingExams={loadingExams} />
+              <Home applications={applications} /* onToggleCart={toggleCart} */ loadingExams={loadingExams} />
             </ProtectedRoute>
           } 
         />
+        {/* 
         <Route 
           path="/cart" 
           element={
@@ -79,6 +80,7 @@ function AppContent({ isSignUp2, cartCount, handleLogout, currentUser, applicati
             </ProtectedRoute>
           } 
         />
+        */}
         <Route 
           path="/profile" 
           element={
@@ -139,6 +141,8 @@ function App() {
       try {
         setLoadingExams(true);
         const examData = await getApplicationsFromStorage();
+        console.log('🔄 App.js - Loaded exam data:', examData.length, 'exams');
+        console.log('📋 App.js - Exam titles:', examData.map(app => app.title));
         setApplications(examData);
       } catch (error) {
         console.error('Error loading exam data:', error);
@@ -174,6 +178,7 @@ function App() {
     }
   }, [currentUser]);
 
+  /*
   const toggleCart = (id) => {
     setApplications(applications.map(app => {
       if (app.id === id) {
@@ -182,6 +187,7 @@ function App() {
       return app;
     }));
   };
+  */
 
   const handleLogin = async (userData) => {
     try {
@@ -371,20 +377,20 @@ function App() {
     }
   };
 
-  const cartCount = applications.filter(app => app.isCart).length;
+  // const cartCount = applications.filter(app => app.isCart).length;
 
   return (
     <Router>
       <AppContent 
         isSignUp2={isSignUp2}
-        cartCount={cartCount}
+        // cartCount={cartCount}
         handleLogout={handleLogout}
         currentUser={currentUser}
         applications={applications}
         handleLogin={handleLogin}
         handleSignUp={handleSignUp}
         handleSignUp2={handleSignUp2}
-        toggleCart={toggleCart}
+        // toggleCart={toggleCart}
         loadingExams={loadingExams}
         handleDocUpload={handleDocUpload}
       />

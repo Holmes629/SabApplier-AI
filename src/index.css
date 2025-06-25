@@ -7,6 +7,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Improved spacing for intro page sections */
+.intro-section-spacing {
+  margin-top: -2rem;
+}
+
 /* Custom typewriter animations for Hero component */
 .typewriter, .typewriter-delay, .typewriter-delay-2, .typewriter-delay-3 {
   display: inline-block;

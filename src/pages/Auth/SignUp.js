@@ -124,19 +124,12 @@ const SignUp = () => {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 flex flex-col overflow-hidden">
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-10">
-        <div className="w-full h-full bg-repeat" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234F46E5' fill-opacity='0.1'%3E%3Cpath d='M30 15c8.284 0 15 6.716 15 15s-6.716 15-15 15-15-6.716-15-15 6.716-15 15-15zm0 2c-7.18 0-13 5.82-13 13s5.82 13 13 13 13-5.82 13-13-5.82-13-13-13z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
-      </div>
-
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-3 sm:p-4 relative z-10">
         <div className="w-full max-w-md">
           {/* SignUp Card */}
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
             
             {/* Header Section */}
             <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 px-6 py-5 text-center relative overflow-hidden">
@@ -403,7 +396,7 @@ const SignUp = () => {
 
           {/* Security Features */}
           <div className="mt-4 grid grid-cols-3 gap-3 text-center">
-            <div className="text-white/80">
+            <div className="text-gray-600">
               <div className="w-6 h-6 bg-green-500 rounded-full mx-auto mb-1 flex items-center justify-center">
                 <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
@@ -412,7 +405,7 @@ const SignUp = () => {
               <p className="text-xs">Email Verified</p>
             </div>
             
-            <div className="text-white/80">
+            <div className="text-gray-600">
               <div className="w-6 h-6 bg-blue-500 rounded-full mx-auto mb-1 flex items-center justify-center">
                 <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
@@ -421,7 +414,7 @@ const SignUp = () => {
               <p className="text-xs">Secure Data</p>
             </div>
             
-            <div className="text-white/80">
+            <div className="text-gray-600">
               <div className="w-6 h-6 bg-purple-500 rounded-full mx-auto mb-1 flex items-center justify-center">
                 <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" />
