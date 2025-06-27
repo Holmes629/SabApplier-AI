@@ -982,7 +982,6 @@ const AutoFillDataForm = () => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Geometric patterns */}
         <div className="absolute top-20 left-1/4 w-2 h-2 bg-blue-400 rounded-full opacity-40 animate-bounce"></div>
-        <div className="absolute top-1/2 right-1/3 w-3 h-3 bg-blue-300 rounded-full opacity-30 animate-pulse delay-500"></div>
         <div className="absolute bottom-1/3 left-1/3 w-1.5 h-1.5 bg-blue-500 rounded-full opacity-50"></div>
         
         {/* Celebration confetti when progress is made */}
@@ -1038,8 +1037,8 @@ const AutoFillDataForm = () => {
             </div>
 
             {/* Form Title */}
-            <div className="-ml-10">
-              <h2 className="text-xl font-bold text-gray-900 ">Profile Information</h2>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Profile Information</h2>
             </div>
 
             {/* Form Content */}

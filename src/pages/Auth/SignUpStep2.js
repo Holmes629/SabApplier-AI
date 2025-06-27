@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import logo from "../../logo.jpeg";
 
 const SignUpStep2 = ({ onSignUp2 }) => {
@@ -415,7 +415,7 @@ const SignUpStep2 = ({ onSignUp2 }) => {
                 </p>
                 
                 {/* Return to Home Link */}
-                <div className="pt-1">
+                <div className="pt-1 flex items-center justify-center space-x-4">
                   <button
                     onClick={() => navigate('/')}
                     className="inline-flex items-center space-x-1 text-xs text-blue-600 hover:text-blue-800 transition-colors duration-200"
@@ -425,6 +425,13 @@ const SignUpStep2 = ({ onSignUp2 }) => {
                     </svg>
                     <span>Return to Home</span>
                   </button>
+                  <span className="text-gray-300">•</span>
+                  <Link
+                    to="/privacy-policy"
+                    className="text-xs text-gray-500 hover:text-gray-700 transition-colors duration-200"
+                  >
+                    Privacy Policy
+                  </Link>
                 </div>
               </div>
             </div>

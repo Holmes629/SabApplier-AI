@@ -40,8 +40,8 @@ function AppContent({ isSignUp2, /* cartCount, */ handleLogout, currentUser, app
       )}
       <Routes>
         <Route 
-          path="/privacy_policy" 
-          element={isSignUp2 ? <Navigate to="/privacy-policy" replace /> : <PrivacyPolicy/>} 
+          path="/privacy-policy" 
+          element={<PrivacyPolicy/>} 
         />
         <Route 
           path="/intro" 
