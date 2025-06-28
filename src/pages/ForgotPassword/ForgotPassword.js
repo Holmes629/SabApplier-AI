@@ -331,7 +331,7 @@ const ForgotPassword = () => {
               
               <div className="pt-2 border-t border-gray-200">
                 <Link 
-                  to="/privacy_policy" 
+                  to="/privacy-policy" 
                   className="text-sm text-gray-500 hover:text-gray-700 hover:underline transition-colors"
                 >
                   Privacy Policy & Terms of Service
