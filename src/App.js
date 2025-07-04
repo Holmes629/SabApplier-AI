@@ -41,7 +41,7 @@ function AppContent({ isSignUp2, /* cartCount, */ handleLogout, currentUser, app
       )}
       <Routes>
         <Route 
-          path="/privacy_policy" 
+          path="/privacy-policy" 
           element={<PrivacyPolicy/>} 
         />
         <Route 

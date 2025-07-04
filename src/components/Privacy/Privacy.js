@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { FiLock, FiCheck, FiUser, FiShield } from 'react-icons/fi';
 
 const PrivacyCard = ({ icon, title, description }) => (
@@ -72,7 +73,7 @@ const Privacy = () => {
         {/* Your Data, Your Rights Section */}
         <div className="bg-white rounded-2xl shadow-lg p-6 lg:p-8 border border-gray-100 hover:shadow-xl transition-all duration-300">
           <h3 className="text-2xl font-bold text-slate-800 mb-6 text-center">Your Data, Your Rights</h3>
-          <div className="flex flex-wrap justify-center gap-4">
+          <div className="flex flex-wrap justify-center gap-4 mb-6">
             <span className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:shadow-md transition-all duration-300">
               Right to Access
             </span>
@@ -91,6 +92,17 @@ const Privacy = () => {
             <span className="inline-flex items-center px-6 py-3 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 hover:shadow-md transition-all duration-300">
               Right to Restrict Processing
             </span>
+          </div>
+          
+          {/* Read Full Privacy Policy Button */}
+          <div className="text-center">
+            <Link 
+              to="/privacy-policy"
+              className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/30 transition-all duration-300 border border-blue-400/30"
+            >
+              <FiShield className="w-5 h-5 mr-2" />
+              Read Full Privacy Policy
+            </Link>
           </div>
         </div>
       </div>

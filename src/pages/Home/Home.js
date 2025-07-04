@@ -223,7 +223,7 @@ const Home = ({ applications, /* onToggleCart, */ loadingExams }) => {
         {/* Privacy Policy Link */}
         <div className="text-center py-8 border-t border-gray-200">
           <Link 
-            to="/privacy_policy" 
+            to="/privacy-policy" 
             className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
           >
             Our Privacy Policy

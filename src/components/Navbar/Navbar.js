@@ -287,6 +287,15 @@ const Navbar = ({
                       </svg>
                       My Details
                     </Link>
+                    {/* <Link 
+                      to="/privacy-policy" 
+                      className="flex items-center px-6 py-3 text-white/90 hover:bg-white/10 hover:text-blue-300 transition-all duration-200 font-medium"
+                      onClick={closeMenus}>
+                      <svg className="w-5 h-5 mr-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      Privacy Policy
+                    </Link> */}
                     <div className="border-t border-white/10 my-2"></div>
                     <button 
                       onClick={handleLogout} 
@@ -443,6 +452,14 @@ const Navbar = ({
                       onClick={closeMenus}>
                       My Details
                     </Link>
+                    <Link 
+                      to="/privacy-policy" 
+                      className={`block font-medium py-2 transition-colors duration-300 w-full text-left ${
+                        location.pathname === '/privacy-policy' ? 'text-blue-300' : 'text-white/90 hover:text-blue-300'
+                      }`}
+                      onClick={closeMenus}>
+                      Privacy Policy
+                    </Link>
                   </>
                 ) : (
                   // Intro Page Mobile Navigation
@@ -460,10 +477,11 @@ const Navbar = ({
                       How it Works
                     </button>
                     <Link 
-                      to="/privacy_policy"
+                      to="/privacy-policy"
                       className="block text-white/90 hover:text-blue-300 font-medium py-2 transition-colors duration-300 w-full text-left"
+                      onClick={closeMenus}
                     >
-                      Privacy
+                      Privacy Policy
                     </Link>
                     <button 
                       onClick={() => scrollToSection('testimonials')}
