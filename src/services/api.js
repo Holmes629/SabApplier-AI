@@ -2,8 +2,8 @@
 import axios from "axios";
 
 
-const API_BASE_URL = 'https://api.sabapplier.com/api';
-// const API_BASE_URL = 'http://localhost:8000/api';
+// const API_BASE_URL = 'https://api.sabapplier.com/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 
 
@@ -361,5 +361,204 @@ export const api = {
       console.error("Document deletion error:", error.response?.data || error.message);
       throw new Error(error.response?.data?.message || "Document deletion failed");
     }
+  },
+
+  // Data Sharing APIs
+  shareDataWithFriend: async (receiverEmail, selectedDocuments = []) => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found. Please log in again.");
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/users/share/send/`,
+        {
+          sender_email: currentUser.email,
+          receiver_email: receiverEmail,
+          selected_documents: selectedDocuments
+        },
+        {
+          headers: getHeaders(),
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Share data error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to share data");
+    }
+  },
+
+  respondToShareRequest: async (shareId, action) => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found. Please log in again.");
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/users/share/respond/`,
+        {
+          share_id: shareId,
+          action: action, // 'accept' or 'decline'
+          receiver_email: currentUser.email
+        },
+        {
+          headers: getHeaders(),
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Respond to share error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to respond to share request");
+    }
+  },
+
+  stopDataSharing: async (receiverEmail) => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found. Please log in again.");
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/users/share/stop/`,
+        {
+          sender_email: currentUser.email,
+          receiver_email: receiverEmail
+        },
+        {
+          headers: getHeaders(),
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Stop sharing error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to stop data sharing");
+    }
+  },
+
+  getSharedData: async (senderEmail) => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found. Please log in again.");
+      }
+
+      const response = await axios.get(
+        `${API_BASE_URL}/users/share/get-data/`,
+        {
+          params: {
+            receiver_email: currentUser.email,
+            sender_email: senderEmail
+          },
+          headers: getHeaders(),
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Get shared data error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to get shared data");
+    }
+  },
+
+  getUserNotifications: async () => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found. Please log in again.");
+      }
+
+      const response = await axios.get(
+        `${API_BASE_URL}/users/notifications/`,
+        {
+          params: {
+            email: currentUser.email
+          },
+          headers: getHeaders(),
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Get notifications error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to get notifications");
+    }
+  },
+
+  getUserShares: async () => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found. Please log in again.");
+      }
+
+      const response = await axios.get(
+        `${API_BASE_URL}/users/shares/`,
+        {
+          params: {
+            email: currentUser.email
+          },
+          headers: getHeaders(),
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Get user shares error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to get user shares");
+    }
+  },
+
+  getActiveAutofillData: async () => {
+    try {
+      // Check if user has selected to use shared data
+      const activeData = localStorage.getItem('activeAutofillData');
+      
+      if (activeData) {
+        const parsedData = JSON.parse(activeData);
+        if (parsedData.source === 'shared' && parsedData.data) {
+          // Return the shared data
+          return {
+            source: 'shared',
+            senderEmail: parsedData.senderEmail,
+            data: parsedData.data
+          };
+        }
+      }
+      
+      // Fall back to user's own data
+      const response = await api.getProfile();
+      return {
+        source: 'own',
+        data: response.user_data
+      };
+    } catch (error) {
+      console.error("Get active autofill data error:", error);
+      throw new Error("Failed to get autofill data");
+    }
+  },
+
+  switchToSharedData: async (senderEmail) => {
+    try {
+      const sharedData = await api.getSharedData(senderEmail);
+      localStorage.setItem('activeAutofillData', JSON.stringify({
+        source: 'shared',
+        senderEmail: senderEmail,
+        data: sharedData.shared_data
+      }));
+      return sharedData.shared_data;
+    } catch (error) {
+      console.error("Switch to shared data error:", error);
+      throw new Error("Failed to switch to shared data");
+    }
+  },
+
+  switchToOwnData: () => {
+    localStorage.removeItem('activeAutofillData');
   },
 };

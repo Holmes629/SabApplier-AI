@@ -1038,8 +1038,8 @@ const AutoFillDataForm = () => {
             </div>
 
             {/* Form Title */}
-            <div className="-ml-10">
-              <h2 className="text-xl font-bold text-gray-900 ">Profile Information</h2>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 my-2 ">Profile Information</h2>
             </div>
 
             {/* Form Content */}

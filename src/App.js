@@ -5,6 +5,7 @@ import Navbar from './components/Navbar/Navbar';
 import Home from './pages/Home/Home';
 // import Cart from './pages/Cart/Cart';
 import Profile from './pages/Profile/Profile';
+import DataSharing from './pages/DataSharing/DataSharing';
 import Login from './pages/Auth/Login'
 import Intro from './pages/Intro/Intro';
 import SignUp from './pages/Auth/SignUp';
@@ -41,7 +42,7 @@ function AppContent({ isSignUp2, /* cartCount, */ handleLogout, currentUser, app
       <Routes>
         <Route 
           path="/privacy_policy" 
-          element={isSignUp2 ? <Navigate to="/privacy-policy" replace /> : <PrivacyPolicy/>} 
+          element={<PrivacyPolicy/>} 
         />
         <Route 
           path="/intro" 
@@ -102,6 +103,14 @@ function AppContent({ isSignUp2, /* cartCount, */ handleLogout, currentUser, app
           element={
             <ProtectedRoute>
               <AutoFillData applications={applications} />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/data-sharing" 
+          element={
+            <ProtectedRoute>
+              <DataSharing />
             </ProtectedRoute>
           } 
         />
