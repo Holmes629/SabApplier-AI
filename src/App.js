@@ -17,26 +17,135 @@ import Docs from './pages/Profile/Docs';
 import AutoFillData from './pages/AutoFillData/AutoFillData';
 import SignUpStep2 from './pages/Auth/SignUpStep2';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-// Create a wrapper component that uses useLocation
-function AppContent({ isSignUp2, /* cartCount, */ handleLogout, currentUser, applications, handleLogin, handleSignUp, handleSignUp2, /* toggleCart, */ loadingExams, handleDocUpload }) {
+import { tokenManager } from './utils/tokenManager';
+
+// Create a wrapper component that uses useLocation and useAuth
+function AppContent() {
   const location = useLocation();
+  const { user, isAuthenticated, logout, isProfileComplete, isLoading } = useAuth();
+  const [applications, setApplications] = useState([]);
+  const [loadingExams, setLoadingExams] = useState(true);
+
+  // Check if user is fully authenticated (has completed profile)
+  const isFullyAuthenticated = isAuthenticated && isProfileComplete();
 
   const ProtectedRoute = ({ children }) => {
-    if (!isSignUp2) {
+    // Show loading spinner while checking authentication
+    if (isLoading) {
+      return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      );
+    }
+
+    // If not authenticated, redirect to intro
+    if (!isAuthenticated) {
       return <Navigate to="/intro" replace />;
     }
+
+    // If authenticated but profile not complete, redirect to profile completion
+    if (isAuthenticated && !isProfileComplete()) {
+      return <Navigate to="/signup-page2" replace />;
+    }
+
+    // If fully authenticated, render the protected component
     return children;
+  };
+
+  // Initialize applications on component mount
+  useEffect(() => {
+    const initializeApplications = async () => {
+      try {
+        setLoadingExams(true);
+        const examData = await getApplicationsFromStorage();
+        console.log('🔄 App.js - Loaded exam data:', examData.length, 'exams');
+        console.log('📋 App.js - Exam titles:', examData.map(app => app.title));
+        setApplications(examData);
+      } catch (error) {
+        console.error('Error loading exam data:', error);
+        setApplications([]);
+      } finally {
+        setLoadingExams(false);
+      }
+    };
+
+    initializeApplications();
+  }, []);
+
+  // Initialize token manager for automatic token refresh
+  useEffect(() => {
+    // Token manager is already initialized as a singleton
+    // Cleanup on unmount
+    return () => {
+      tokenManager.destroy();
+    };
+  }, []);
+
+  // Save applications to storage whenever they change
+  useEffect(() => {
+    if (applications.length > 0) {
+      saveApplicationsToStorage(applications);
+    }
+  }, [applications]);
+
+  // Add document upload function
+  const handleDocUpload = async (fileData) => {
+    try {
+      console.log('Uploading document:', fileData);
+      
+      // Get current user email
+      if (!user || !user.email) {
+        throw new Error("User not found. Please log in again.");
+      }
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('email', user.email);
+      
+      // Add files to form data
+      Object.entries(fileData).forEach(([fieldName, file]) => {
+        formData.append(fieldName, file);
+      });
+
+      const response = await api.updateProfile(formData);
+      
+      if (response.success || response.user_data) {
+        // Show success message
+        const messageElement = document.createElement('div');
+        messageElement.textContent = 'Document uploaded successfully!';
+        messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+        document.body.appendChild(messageElement);
+        setTimeout(() => document.body.removeChild(messageElement), 3000);
+        
+        return response;
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Document upload error:', error);
+      
+      // Show error message
+      const messageElement = document.createElement('div');
+      messageElement.textContent = `Upload failed: ${error.message}`;
+      messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #f56565; color: white; border-radius: 4px; z-index: 1000;';
+      document.body.appendChild(messageElement);
+      setTimeout(() => document.body.removeChild(messageElement), 3000);
+      
+      throw error;
+    }
   };
 
   return (
     <div className="app">
-      {isSignUp2 && location.pathname !== '/manage-docs' && (
+      {isFullyAuthenticated && location.pathname !== '/manage-docs' && (
         <Navbar 
           isAuthenticated={true}
           // cartCount={cartCount} 
-          onLogout={handleLogout} 
-          currentUser={currentUser} 
+          onLogout={logout} 
+          currentUser={user} 
         />
       )}
       <Routes>
@@ -46,23 +155,23 @@ function AppContent({ isSignUp2, /* cartCount, */ handleLogout, currentUser, app
         />
         <Route 
           path="/intro" 
-          element={isSignUp2 ? <Navigate to="/" replace /> : <Intro onLogin={handleLogin} />} 
+          element={isFullyAuthenticated ? <Navigate to="/" replace /> : <Intro />} 
         />
         <Route 
           path="/login" 
-          element={isSignUp2 ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />} 
+          element={isFullyAuthenticated ? <Navigate to="/" replace /> : <Login />} 
         />
         <Route 
           path="/signup" 
-          element={isSignUp2 ? <Navigate to="/signup-page2" replace /> : <SignUp onSignUp={handleSignUp} />} 
+          element={isFullyAuthenticated ? <Navigate to="/signup-page2" replace /> : <SignUp />} 
         />
         <Route 
           path="/signup-page2" 
-          element={isSignUp2 ? <Navigate to="/" replace /> : <SignUpStep2 onSignUp2={handleSignUp2} />} 
+          element={isFullyAuthenticated ? <Navigate to="/" replace /> : <SignUpStep2 />} 
         />
         <Route 
           path="/forgot-password" 
-          element={isSignUp2 ? <Navigate to="/login" replace /> : <ForgotPassword />} 
+          element={isFullyAuthenticated ? <Navigate to="/login" replace /> : <ForgotPassword />} 
         />
         <Route 
           path="/" 
@@ -129,281 +238,12 @@ function AppContent({ isSignUp2, /* cartCount, */ handleLogout, currentUser, app
 }
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('isAuthenticated') === 'true';
-  });
-  const [isSignUp2, setIsSignUp2] = useState(() => {
-    return localStorage.getItem('isSignUp2') === 'true';
-  });
-
-  const [currentUser, setCurrentUser] = useState(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
-
-  const [applications, setApplications] = useState([]);
-  const [loadingExams, setLoadingExams] = useState(true);
-
-  // Initialize applications on component mount
-  useEffect(() => {
-    const initializeApplications = async () => {
-      try {
-        setLoadingExams(true);
-        const examData = await getApplicationsFromStorage();
-        console.log('🔄 App.js - Loaded exam data:', examData.length, 'exams');
-        console.log('📋 App.js - Exam titles:', examData.map(app => app.title));
-        setApplications(examData);
-      } catch (error) {
-        console.error('Error loading exam data:', error);
-        setApplications([]);
-      } finally {
-        setLoadingExams(false);
-      }
-    };
-
-    initializeApplications();
-  }, []);
-
-  // Save applications to storage whenever they change
-  useEffect(() => {
-    if (applications.length > 0) {
-      saveApplicationsToStorage(applications);
-    }
-  }, [applications]);
-
-  useEffect(() => {
-    localStorage.setItem('isAuthenticated', isAuthenticated);
-  }, [isAuthenticated]);
-  
-  useEffect(() => {
-    localStorage.setItem('isSignUp2', isSignUp2);
-  }, [isSignUp2]);
-
-  useEffect(() => {
-    if (currentUser) {
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-    } else {
-      localStorage.removeItem('currentUser');
-    }
-  }, [currentUser]);
-
-  /*
-  const toggleCart = (id) => {
-    setApplications(applications.map(app => {
-      if (app.id === id) {
-        return { ...app, isCart: !app.isCart };
-      }
-      return app;
-    }));
-  };
-  */
-
-  const handleLogin = async (userData) => {
-    try {
-      localStorage.clear();
-      
-      // Handle Google login differently
-      if (userData.isGoogleLogin) {
-        const user = userData.userData || { email: userData.email };
-        
-        // Store Google data if provided
-        if (userData.googleData) {
-          localStorage.setItem("googleData", JSON.stringify(userData.googleData));
-        }
-        
-        setCurrentUser(user);
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        setIsAuthenticated(true);
-        setIsSignUp2(true);
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("isSignUp2", "true");
-
-        // Display message to user
-        const messageElement = document.createElement('div');
-        messageElement.textContent = 'Google login successful';
-        messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-        document.body.appendChild(messageElement);
-        setTimeout(() => document.body.removeChild(messageElement), 1000);
-
-        return { success: true };
-      }
-
-      // Regular email/password login
-      const response = await api.login(userData);
-      const user = response.user || userData;
-      if (!user.email) {
-        throw new Error("Login response missing email.");
-      }
-      setCurrentUser(user);
-      localStorage.setItem("currentUser", JSON.stringify(user));
-      setIsAuthenticated(true);
-      setIsSignUp2(true);
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("isSignUp2", "true");
-
-      // Display message to user
-      const messageElement = document.createElement('div');
-      messageElement.textContent = 'User Logged in successfully';
-      messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-      document.body.appendChild(messageElement);
-      setTimeout(() => document.body.removeChild(messageElement), 1000);
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
-  };
-
-  const handleSignUp = async (userData) => {
-    try {
-      const response = await api.signup(userData);
-      let user = response.user && response.user.email ? response.user : userData;
-      if (!user.email && userData.email) {
-        user = { ...user, email: userData.email };
-      }
-      if (!user.email) {
-        throw new Error("Signup response missing email.");
-      }
-      setCurrentUser(user);
-      localStorage.setItem("currentUser", JSON.stringify(user));
-      setIsAuthenticated(true);
-      setIsSignUp2(false);
-      localStorage.setItem("isAuthenticated", "true");
-      localStorage.setItem("isSignUp2", "false");
-
-      // Display message to user
-      const messageElement = document.createElement('div');
-      messageElement.textContent = 'User Created successfully, please complete your profile data...';
-      messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-      document.body.appendChild(messageElement);
-      setTimeout(() => document.body.removeChild(messageElement), 1000);
-
-      return { success: true };
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
-  };
-
-  const handleSignUp2 = async (userData) => {
-    try {
-      const response = await api.update(userData);
-      
-      // Use the user_data returned from the backend if available
-      const updatedUserData = response.user_data || { ...currentUser, ...userData };
-      setCurrentUser(updatedUserData);
-      localStorage.setItem("currentUser", JSON.stringify(updatedUserData));
-      
-      setIsSignUp2(true);
-      localStorage.setItem("isSignUp2", "true");
-
-      // Display message to user
-      const messageElement = document.createElement('div');
-      messageElement.textContent = 'Profile completed successfully!';
-      messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-      document.body.appendChild(messageElement);
-      setTimeout(() => document.body.removeChild(messageElement), 1000);
-      
-      return { success: true };
-    } catch (error) {
-      console.error('Profile update error:', error);
-      return { success: false, message: error.message || 'Profile update failed' };
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await api.logout(localStorage.getItem("currentUser"));
-      setIsAuthenticated(false);
-      setIsSignUp2(false);
-      setCurrentUser(null);
-      localStorage.setItem("currentUser", null);
-      localStorage.setItem("isSignUp2", false);
-      localStorage.setItem("isAuthenticated", false);
-      localStorage.clear();
-      // Display message to user
-      const messageElement = document.createElement('div');
-      messageElement.textContent = 'You have been logged out';
-      messageElement.style.cssText = 'position: fixed; top: 130px; left:50%; transform: translate(-50%, -50%); padding: 10px; background: rgb(249, 30, 63); color: white; border-radius: 4px; z-index: 1000;';
-      document.body.appendChild(messageElement);
-      setTimeout(() => document.body.removeChild(messageElement), 1000);
-
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
-  // Add document upload function
-  const handleDocUpload = async (fileData) => {
-    try {
-      console.log('Uploading document:', fileData);
-      
-      // Get current user email
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-      if (!currentUser || !currentUser.email) {
-        throw new Error("User not found. Please log in again.");
-      }
-
-      // Create FormData for file upload
-      const formData = new FormData();
-      formData.append('email', currentUser.email);
-      
-      // Add files to form data
-      Object.entries(fileData).forEach(([fieldName, file]) => {
-        formData.append(fieldName, file);
-      });
-
-      const response = await api.updateProfile(formData);
-      
-      if (response.success || response.user_data) {
-        // Update current user data in localStorage
-        if (response.user_data) {
-          setCurrentUser(response.user_data);
-          localStorage.setItem("currentUser", JSON.stringify(response.user_data));
-        }
-        
-        // Show success message
-        const messageElement = document.createElement('div');
-        messageElement.textContent = 'Document uploaded successfully!';
-        messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-        document.body.appendChild(messageElement);
-        setTimeout(() => document.body.removeChild(messageElement), 3000);
-        
-        return response;
-      } else {
-        throw new Error('Upload failed');
-      }
-    } catch (error) {
-      console.error('Document upload error:', error);
-      
-      // Show error message
-      const messageElement = document.createElement('div');
-      messageElement.textContent = `Upload failed: ${error.message}`;
-      messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #f56565; color: white; border-radius: 4px; z-index: 1000;';
-      document.body.appendChild(messageElement);
-      setTimeout(() => document.body.removeChild(messageElement), 3000);
-      
-      throw error;
-    }
-  };
-
-  // const cartCount = applications.filter(app => app.isCart).length;
-
   return (
-    <Router>
-      <AppContent 
-        isSignUp2={isSignUp2}
-        // cartCount={cartCount}
-        handleLogout={handleLogout}
-        currentUser={currentUser}
-        applications={applications}
-        handleLogin={handleLogin}
-        handleSignUp={handleSignUp}
-        handleSignUp2={handleSignUp2}
-        // toggleCart={toggleCart}
-        loadingExams={loadingExams}
-        handleDocUpload={handleDocUpload}
-      />
-    </Router>
+    <AuthProvider>
+      <Router>
+        <AppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 

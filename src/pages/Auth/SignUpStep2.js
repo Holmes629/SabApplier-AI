@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../../logo.jpeg";
+import { useAuth } from "../../hooks/useAuth";
 
-const SignUpStep2 = ({ onSignUp2 }) => {
+const SignUpStep2 = () => {
   const navigate = useNavigate();
+  const { completeProfile, user } = useAuth();
   const [formData, setFormData] = useState({
     fullname: "",
     dateofbirth: "",
@@ -130,15 +132,18 @@ const SignUpStep2 = ({ onSignUp2 }) => {
     setLoading(true);
     setError("");
     try {
-      // Get email from localStorage
-      const savedUser = localStorage.getItem("currentUser");
-      let email = "";
-      if (savedUser) {
-        const user = JSON.parse(savedUser);
-        email = user.email;
+      // Get email from user context or localStorage
+      let email = user?.email;
+      
+      if (!email) {
+        const savedUser = localStorage.getItem("currentUser");
+        if (savedUser) {
+          const userData = JSON.parse(savedUser);
+          email = userData.email;
+        }
       }
 
-      // If email is not in currentUser, try to get it from the signup data
+      // If email is still not found, try to get it from the signup data
       if (!email) {
         const signupData = localStorage.getItem("signupData");
         if (signupData) {
@@ -153,7 +158,7 @@ const SignUpStep2 = ({ onSignUp2 }) => {
         return;
       }
 
-      const result = await onSignUp2({
+      const result = await completeProfile({
         ...formData,
         email, // include email in payload
       });
@@ -162,6 +167,15 @@ const SignUpStep2 = ({ onSignUp2 }) => {
         console.log("Profile update successful:", { ...formData, email });
         // Clear the signup data from localStorage
         localStorage.removeItem("signupData");
+        localStorage.removeItem("googleData");
+        
+        // Show success message
+        const messageElement = document.createElement('div');
+        messageElement.textContent = 'Profile completed successfully!';
+        messageElement.style.cssText = 'position: fixed; top: 70px; right: 50%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+        document.body.appendChild(messageElement);
+        setTimeout(() => document.body.removeChild(messageElement), 1000);
+        
         // Navigate to home
         navigate("/", { replace: true });
       } else {

@@ -13,13 +13,32 @@ console.log('🔗 API_BASE_URL configured:', API_BASE_URL);
 const getAuthToken = () => localStorage.getItem("token");
 
 // Helper function to set auth token
-// const setAuthToken = (token) => {
-//   if (token) {
-//     localStorage.setItem("token", token);
-//   } else {
-//     localStorage.removeItem("token");
-//   }
-// };
+const setAuthToken = (token) => {
+  if (token) {
+    localStorage.setItem("token", token);
+  } else {
+    localStorage.removeItem("token");
+  }
+};
+
+// Helper function to clear auth token
+const clearAuthToken = () => {
+  localStorage.removeItem("token");
+};
+
+// Helper function to check if token is expired
+const isTokenExpired = (token) => {
+  if (!token) return true;
+  
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const currentTime = Date.now() / 1000;
+    return payload.exp < currentTime;
+  } catch (error) {
+    console.error('Error checking token expiration:', error);
+    return true;
+  }
+};
 
 // Helper function to get headers
 const getHeaders = (includeAuth = true) => {
@@ -30,7 +49,7 @@ const getHeaders = (includeAuth = true) => {
 
   if (includeAuth) {
     const token = getAuthToken();
-    if (token) {
+    if (token && !isTokenExpired(token)) {
       headers["Authorization"] = `Bearer ${token}`;
     }
   }
@@ -53,6 +72,59 @@ function getCookie(name) {
   }
   return cookieValue;
 }
+
+// Axios instance with interceptors
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+});
+
+// Request interceptor to add auth token
+axiosInstance.interceptors.request.use(
+  (config) => {
+    const token = getAuthToken();
+    if (token && !isTokenExpired(token)) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    config.headers['X-CSRFToken'] = getCookie('csrftoken');
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle token refresh
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+
+      try {
+        // Try to refresh token
+        const refreshResult = await api.refreshToken();
+        
+        if (refreshResult.token) {
+          // Retry original request with new token
+          originalRequest.headers.Authorization = `Bearer ${refreshResult.token}`;
+          return axiosInstance(originalRequest);
+        }
+      } catch (refreshError) {
+        // Refresh failed, clear auth and redirect to login
+        clearAuthToken();
+        localStorage.clear();
+        window.location.href = '/login';
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export const api = {
 
@@ -133,14 +205,9 @@ export const api = {
       if (userData.confirmPassword) {
         payload.confirmPassword = userData.confirmPassword;
       }
-      const response = await axios.post(
-        `${API_BASE_URL}/users/register/`,
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await axiosInstance.post(
+        `/users/register/`,
+        payload
       );
       return response.data;
     } catch (error) {
@@ -151,17 +218,31 @@ export const api = {
 
   googleSignup: async (credentialToken) => {
     try {
-      console.log('Sending Google credential to backend:', credentialToken);
-      const response = await axios.post(
-        `${API_BASE_URL}/users/google-signup/`,
-        { credential: credentialToken },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      console.log('🔵 Sending Google credential to backend:', credentialToken.substring(0, 50) + '...');
+      const response = await axiosInstance.post(
+        `/users/google-signup/`,
+        { credential: credentialToken }
       );
-      console.log('Backend response:', response.data);
+      
+      console.log('🔵 Backend response received:', {
+        status: response.status,
+        hasToken: !!response.data.token,
+        hasAccessToken: !!response.data.access_token,
+        hasUser: !!response.data.user,
+        hasEmail: !!response.data.email,
+        success: response.data.success,
+        keys: Object.keys(response.data),
+        fullResponse: response.data
+      });
+      
+      // Store token if provided
+      if (response.data.token) {
+        console.log('🔵 Setting auth token from response:', response.data.token.substring(0, 20) + '...');
+        setAuthToken(response.data.token);
+      } else {
+        console.warn('⚠️ No token in backend response for Google login');
+      }
+      
       return response.data;
     } catch (error) {
       console.error("Google signup error details:", {
@@ -242,13 +323,15 @@ export const api = {
 
   login: async (credentials) => {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/users/login/`,
+      const response = await axiosInstance.post(
+        `/users/login/`,
         credentials
       );
+      
       if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
+        setAuthToken(response.data.token);
       }
+      
       return response.data;
     } catch (error) {
       console.error("Login error:", error.response?.data || error.message);
@@ -258,21 +341,14 @@ export const api = {
 
   logout: async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = getAuthToken();
       if (token) {
-        await axios.post(
-          `${API_BASE_URL}/users/logout/`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await axiosInstance.post(`/users/logout/`, {});
       }
-      localStorage.removeItem("token");
+      clearAuthToken();
     } catch (error) {
       console.error("Logout error:", error.response?.data || error.message);
+      clearAuthToken(); // Clear token even if API call fails
       throw new Error(error.response?.data?.message || "Logout failed");
     }
   },
@@ -311,8 +387,96 @@ export const api = {
     }
   },
 
+  // JWT Token Management APIs
+  verifyToken: async (token = null) => {
+    try {
+      const tokenToVerify = token || getAuthToken();
+      if (!tokenToVerify) {
+        throw new Error("No token provided");
+      }
+
+      const response = await fetch(`${API_BASE_URL}/users/verify-token/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${tokenToVerify}`,
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({ token: tokenToVerify }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Token verification failed");
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Token verification error:", error);
+      throw error;
+    }
+  },
+
+  refreshToken: async () => {
+    try {
+      const currentToken = getAuthToken();
+      if (!currentToken) {
+        throw new Error("No token to refresh");
+      }
+
+      const response = await fetch(`${API_BASE_URL}/users/refresh-token/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${currentToken}`,
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+        body: JSON.stringify({ refresh_token: currentToken }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Token refresh failed");
+      }
+
+      if (data.token) {
+        setAuthToken(data.token);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("Token refresh error:", error);
+      clearAuthToken();
+      throw error;
+    }
+  },
+
+  // Enhanced authentication check
   isAuthenticated() {
-    return !!localStorage.getItem("token");
+    const token = getAuthToken();
+    return token && !isTokenExpired(token);
+  },
+
+  // Get current user from token
+  getCurrentUserFromToken: () => {
+    try {
+      const token = getAuthToken();
+      if (!token || isTokenExpired(token)) {
+        return null;
+      }
+
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return {
+        id: payload.user_id,
+        email: payload.email,
+        // Add other user fields as needed
+      };
+    } catch (error) {
+      console.error('Error extracting user from token:', error);
+      return null;
+    }
   },
 
   updateProfile: async (formData) => {

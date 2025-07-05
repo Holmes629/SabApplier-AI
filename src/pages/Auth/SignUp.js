@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
 import logo from '../../logo.jpeg';
-
+import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../services/api';
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { signup } = useAuth();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -102,20 +103,29 @@ const SignUp = () => {
     setError('');
     
     try {
+      // Verify OTP first
       await api.verifyOtp(formData.email, formData.otp);
-      await api.signup(formData);
-      localStorage.setItem("signupData", JSON.stringify({ email: formData.email }));
       
-      // Show success message
-      const messageElement = document.createElement('div');
-      messageElement.textContent = 'Registered successfully! Redirecting...';
-      messageElement.style.cssText = 'position: fixed; top: 70px; left: 50%; transform: translateX(-50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
-      document.body.appendChild(messageElement);
-      setTimeout(() => {
-        document.body.removeChild(messageElement);
-        navigate('/signup-page2');
-      }, 2000);
+      // Then signup using AuthContext
+      const result = await signup({
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
+      });
       
+      if (result.success) {
+        // Show success message
+        const messageElement = document.createElement('div');
+        messageElement.textContent = 'Registered successfully! Please complete your profile...';
+        messageElement.style.cssText = 'position: fixed; top: 70px; left: 50%; transform: translateX(-50%); padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+        document.body.appendChild(messageElement);
+        setTimeout(() => {
+          document.body.removeChild(messageElement);
+          navigate('/signup-page2');
+        }, 2000);
+      } else {
+        setError(result.message || 'Signup failed. Please try again.');
+      }
     } catch (err) {
       setError(err.message);
     } finally {
