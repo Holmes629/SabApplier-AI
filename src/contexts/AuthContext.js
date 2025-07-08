@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { clearAuthData, storage, isTokenExpired } from '../utils/authUtils';
+import { clearAuthData, storage, isTokenExpired, syncTokenWithExtension, syncLogoutWithExtension } from '../utils/authUtils';
 
 const AuthContext = createContext();
 
@@ -128,7 +128,11 @@ export const AuthProvider = ({ children }) => {
           if (userToken) {
             console.log('🔵 Storing Google token:', userToken.substring(0, 20) + '...');
             localStorage.setItem('token', userToken);
+            localStorage.setItem('jwt_token', userToken); // Add for extension sync
             setToken(userToken);
+            
+            // Sync with extension
+            syncTokenWithExtension(userToken, result);
           } else {
             console.warn('⚠️ No token received from Google login - creating JWT fallback');
             
@@ -148,10 +152,17 @@ export const AuthProvider = ({ children }) => {
             
             localStorage.setItem('token', fallbackToken);
             localStorage.setItem('tokenType', 'google-fallback');
+            localStorage.setItem('jwt_token', fallbackToken); // Add this for extension sync
             setToken(fallbackToken);
+            
+            // Sync with extension
+            syncTokenWithExtension(fallbackToken, result);
             
             console.log('🔧 Created JWT fallback token:', fallbackToken.substring(0, 30) + '...');
           }
+          
+          // Store user data for extension sync
+          localStorage.setItem('sabapplier_user_data', JSON.stringify(result));
           
           // Check if user needs to complete profile
           if (result.needsProfileCompletion) {
@@ -174,9 +185,14 @@ export const AuthProvider = ({ children }) => {
       if (result.token && result.user) {
         // Store JWT token and user data
         localStorage.setItem('token', result.token);
+        localStorage.setItem('jwt_token', result.token); // Add for extension sync
         localStorage.setItem('currentUser', JSON.stringify(result.user));
+        localStorage.setItem('sabapplier_user_data', JSON.stringify(result.user)); // Add for extension sync
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('isSignUp2', 'true');
+        
+        // Sync with extension
+        syncTokenWithExtension(result.token, result.user);
         
         setToken(result.token);
         setUser(result.user);
@@ -217,6 +233,7 @@ export const AuthProvider = ({ children }) => {
         
         // Store user data but not fully authenticated yet (needs profile completion)
         localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem('sabapplier_user_data', JSON.stringify(user)); // Add for extension sync
         localStorage.setItem('isAuthenticated', 'true');
         localStorage.setItem('isSignUp2', 'false'); // Needs profile completion
         
@@ -247,10 +264,15 @@ export const AuthProvider = ({ children }) => {
         // Store JWT token if provided
         if (result.token) {
           localStorage.setItem('token', result.token);
+          localStorage.setItem('jwt_token', result.token); // Add for extension sync
           setToken(result.token);
+          
+          // Sync with extension
+          syncTokenWithExtension(result.token, updatedUser);
         }
         
         localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+        localStorage.setItem('sabapplier_user_data', JSON.stringify(updatedUser)); // Add for extension sync
         localStorage.setItem('isSignUp2', 'true'); // Profile completed
         
         setUser(updatedUser);
@@ -279,6 +301,9 @@ export const AuthProvider = ({ children }) => {
       // Clear all auth data regardless of API call success
       clearAuthData();
       
+      // Sync logout with extension
+      syncLogoutWithExtension();
+      
       setToken(null);
       setUser(null);
       setIsAuthenticated(false);
@@ -291,6 +316,7 @@ export const AuthProvider = ({ children }) => {
       
       if (result.token) {
         localStorage.setItem('token', result.token);
+        localStorage.setItem('jwt_token', result.token); // Add for extension sync
         setToken(result.token);
         return result.token;
       }

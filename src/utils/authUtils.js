@@ -103,11 +103,21 @@ export const clearAuthData = () => {
     'isAuthenticated',
     'isSignUp2',
     'googleData',
-    'signupData'
+    'signupData',
+    // Extension sync keys
+    'jwt_token',
+    'sabapplier_jwt_token',
+    'sabapplier_user_data',
+    'tokenType'
   ];
   
   keysToRemove.forEach(key => {
     localStorage.removeItem(key);
+  });
+  
+  // Also clear session storage
+  keysToRemove.forEach(key => {
+    sessionStorage.removeItem(key);
   });
 };
 
@@ -211,6 +221,138 @@ export const storage = {
   }
 };
 
+/**
+ * Sync JWT token with the SabApplier extension
+ * @param {string} token - JWT token to sync
+ * @param {object} userData - User data to sync
+ */
+export const syncTokenWithExtension = (token, userData = null) => {
+  if (!token) return;
+  
+  try {
+    console.log('🔄 Attempting to sync JWT token with SabApplier Extension...');
+    
+    // Method 1: Store with extension-specific keys
+    localStorage.setItem('sabapplier_extension_jwt', token);
+    localStorage.setItem('sabapplier_extension_user', JSON.stringify(userData || {}));
+    localStorage.setItem('sabapplier_extension_sync_timestamp', Date.now().toString());
+    
+    // Method 2: Dispatch custom event for the extension content script
+    window.dispatchEvent(new CustomEvent('sabapplier_jwt_login', {
+      detail: {
+        token: token,
+        userData: userData
+      }
+    }));
+    
+    // Method 3: Try storage event (cross-tab communication)
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'sabapplier_extension_jwt',
+      newValue: token,
+      oldValue: null,
+      storageArea: localStorage
+    }));
+    
+    // Method 4: Set window flags for extension detection
+    window.sabApplierJWTToken = token;
+    window.sabApplierUserData = userData;
+    window.sabApplierExtensionSync = {
+      token: token,
+      userData: userData,
+      timestamp: Date.now()
+    };
+    
+    // Method 5: Post message to window (for content script detection)
+    window.postMessage({
+      type: 'SABAPPLIER_JWT_TOKEN',
+      token: token,
+      userData: userData,
+      timestamp: Date.now()
+    }, window.location.origin);
+    
+    // Method 6: Try to communicate with extension via injected script
+    const script = document.createElement('script');
+    script.textContent = `
+      try {
+        if (window.chrome && window.chrome.runtime) {
+          console.log('🔄 Trying direct extension communication...');
+          // This will be picked up by extension if content script is working
+          window.dispatchEvent(new CustomEvent('sabapplier_extension_sync', {
+            detail: { token: '${token}', userData: ${JSON.stringify(userData)} }
+          }));
+        }
+      } catch (e) {
+        console.log('🔄 Extension communication attempt:', e.message);
+      }
+    `;
+    document.head.appendChild(script);
+    document.head.removeChild(script);
+    
+    console.log('🔄 JWT token synced with SabApplier Extension (multiple methods)');
+    console.log('🔄 Token preview:', token.substring(0, 30) + '...');
+    console.log('🔄 User data:', userData);
+    
+  } catch (error) {
+    console.error('Error syncing token with extension:', error);
+  }
+};
+
+/**
+ * Notify extension about logout
+ */
+export const syncLogoutWithExtension = () => {
+  try {
+    console.log('🔄 Syncing logout with SabApplier Extension...');
+    
+    // Method 1: Clear extension-specific localStorage keys
+    localStorage.removeItem('sabapplier_extension_jwt');
+    localStorage.removeItem('sabapplier_extension_user');
+    localStorage.removeItem('sabapplier_extension_sync_timestamp');
+    
+    // Method 2: Dispatch custom logout event
+    window.dispatchEvent(new CustomEvent('sabapplier_jwt_logout', {
+      detail: {
+        action: 'logout',
+        timestamp: Date.now()
+      }
+    }));
+    
+    // Method 3: Dispatch extension-specific logout event
+    window.dispatchEvent(new CustomEvent('sabapplier_extension_logout', {
+      detail: {
+        action: 'logout',
+        timestamp: Date.now()
+      }
+    }));
+    
+    // Method 4: Post logout message to window
+    window.postMessage({
+      type: 'SABAPPLIER_LOGOUT',
+      action: 'logout',
+      timestamp: Date.now()
+    }, window.location.origin);
+    
+    // Method 5: Clear window flags
+    window.sabApplierJWTToken = null;
+    window.sabApplierUserData = null;
+    window.sabApplierExtensionSync = null;
+    
+    // Method 6: Set logout flag for extension polling
+    localStorage.setItem('sabapplier_extension_logout', 'true');
+    localStorage.setItem('sabapplier_extension_logout_timestamp', Date.now().toString());
+    
+    // Method 7: Remove the logout flag after a short delay (so polling can detect it)
+    setTimeout(() => {
+      localStorage.removeItem('sabapplier_extension_logout');
+      localStorage.removeItem('sabapplier_extension_logout_timestamp');
+    }, 5000);
+    
+    console.log('🔄 Logout synced with SabApplier Extension (multiple methods)');
+  } catch (error) {
+    console.error('Error syncing logout with extension:', error);
+  }
+};
+
 export default {
   isTokenExpired,
   getUserFromToken,
@@ -220,5 +362,7 @@ export default {
   getAuthHeaders,
   formatTokenExpiry,
   isValidTokenFormat,
-  storage
+  storage,
+  syncTokenWithExtension,
+  syncLogoutWithExtension
 };
