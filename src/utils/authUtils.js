@@ -353,7 +353,7 @@ export const syncLogoutWithExtension = () => {
   }
 };
 
-export default {
+const authUtils = {
   isTokenExpired,
   getUserFromToken,
   getTokenTimeRemaining,
@@ -366,3 +366,5 @@ export default {
   syncTokenWithExtension,
   syncLogoutWithExtension
 };
+
+export default authUtils;

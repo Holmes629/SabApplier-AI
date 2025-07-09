@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { api } from '../services/api';
-import { clearAuthData, storage, isTokenExpired, syncTokenWithExtension, syncLogoutWithExtension } from '../utils/authUtils';
+import { clearAuthData, isTokenExpired, syncTokenWithExtension, syncLogoutWithExtension } from '../utils/authUtils';
 
 const AuthContext = createContext();
 

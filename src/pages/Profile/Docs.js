@@ -15,6 +15,7 @@ const DOCUMENT_CATEGORIES = {
       name_change_certificate_file_url: "Name Change Certificate",
       _10th_certificate_file_url: "10th Certificate / Marksheet",
       _12th_certificate_file_url: "12th Certificate / Marksheet",
+      pwd_certificate_file_url: "PWD Certificate",
       graduation_certificate_file_url: "Graduation Certificate / Degree",
       post_graduation_certificate_file_url: "Post Graduation Certificate / Degree",
       left_thumb_file_url: "Left Thumb Impression",
@@ -35,7 +36,6 @@ const DOCUMENT_CATEGORIES = {
       marriage_certificate_file_url: "Marriage Certificate",
       divorce_decree_file_url: "Divorce Decree",
       caste_certificate_file_url: "Caste Certificate",
-      pwd_certificate_file_url: "PWD Certificate",
       domicile_certificate_file_url: "Domicile Certificate",
       income_certificate_file_url: "Income Certificate",
       character_certificate_file_url: "Character Certificate",
@@ -52,7 +52,6 @@ const DOCUMENT_FIELDS = {
 const Docs = ({ docUpload }) => {
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({});
-  const [customDocType, setCustomDocType] = useState("");
   const [uploading, setUploading] = useState(false);
   const [isProfileFetched, setIsProfileFetched] = useState(
     localStorage.getItem("isProfileFetched") === "true"

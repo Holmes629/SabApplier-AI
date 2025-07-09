@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './NotificationBell.css';
 import { api } from '../../services/api';
+import { Bell, X, CheckCheck, Share2, Check, XCircle, StopCircle, Mail } from 'lucide-react';
 
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
 
   useEffect(() => {
     loadNotifications();
@@ -15,6 +18,26 @@ const NotificationBell = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Handle outside click to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        showDropdown &&
+        dropdownRef.current &&
+        buttonRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        !buttonRef.current.contains(event.target)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showDropdown]);
+
   const loadNotifications = async () => {
     try {
       setIsLoading(true);
@@ -22,8 +45,15 @@ const NotificationBell = () => {
       const sortedNotifications = response.notifications.sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
       );
-      setNotifications(sortedNotifications);
-      setUnreadCount(sortedNotifications.filter(n => !n.is_read).length);
+      
+      // Ensure each notification has is_read property (default to false if not present)
+      const notificationsWithReadStatus = sortedNotifications.map(notification => ({
+        ...notification,
+        is_read: notification.is_read || false
+      }));
+      
+      setNotifications(notificationsWithReadStatus);
+      setUnreadCount(notificationsWithReadStatus.filter(n => !n.is_read).length);
     } catch (error) {
       console.error('Failed to load notifications:', error);
     } finally {
@@ -31,8 +61,33 @@ const NotificationBell = () => {
     }
   };
 
+  const markAsRead = async (notificationId) => {
+    // For now, mark as read locally since backend doesn't support it yet
+    setNotifications(prev => 
+      prev.map(n => 
+        n.id === notificationId ? { ...n, is_read: true } : n
+      )
+    );
+    setUnreadCount(prev => Math.max(0, prev - 1));
+  };
+
+  const markAllAsRead = async () => {
+    // For now, mark all as read locally since backend doesn't support it yet
+    const unreadCount = notifications.filter(n => !n.is_read).length;
+    if (unreadCount === 0) return;
+    
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    setUnreadCount(0);
+  };
+
   const handleNotificationClick = () => {
     setShowDropdown(!showDropdown);
+  };
+
+  const handleNotificationItemClick = (notification) => {
+    if (!notification.is_read) {
+      markAsRead(notification.id);
+    }
   };
 
   const formatTimeAgo = (dateString) => {
@@ -49,39 +104,27 @@ const NotificationBell = () => {
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'share_request':
-        return '📤';
+        return <Share2 className="w-4 h-4 text-blue-600" />;
       case 'share_accepted':
-        return '✅';
+        return <Check className="w-4 h-4 text-green-600" />;
       case 'share_declined':
-        return '❌';
+        return <XCircle className="w-4 h-4 text-red-600" />;
       case 'share_stopped':
-        return '⏹️';
+        return <StopCircle className="w-4 h-4 text-orange-600" />;
       default:
-        return '📧';
+        return <Mail className="w-4 h-4 text-gray-600" />;
     }
   };
 
   return (
     <div className="notification-bell-container">
       <button
+        ref={buttonRef}
         className="notification-bell-button"
         onClick={handleNotificationClick}
         aria-label="Notifications"
       >
-        <svg
-          className="notification-bell-icon"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-          />
-        </svg>
+        <Bell className="notification-bell-icon" />
         {unreadCount > 0 && (
           <span className="notification-bell-badge">
             {unreadCount > 99 ? '99+' : unreadCount}
@@ -90,15 +133,28 @@ const NotificationBell = () => {
       </button>
 
       {showDropdown && (
-        <div className="notification-dropdown">
+        <div ref={dropdownRef} className="notification-dropdown">
           <div className="notification-dropdown-header">
             <h3>Notifications</h3>
-            <button
-              className="notification-close-btn"
-              onClick={() => setShowDropdown(false)}
-            >
-              ×
-            </button>
+            <div className="notification-header-actions">
+              {unreadCount > 0 && (
+                <button
+                  className="notification-mark-all-read"
+                  onClick={markAllAsRead}
+                  title="Mark all as read"
+                >
+                  <CheckCheck className="w-3 h-3 mr-1" />
+                  Mark all read
+                </button>
+              )}
+              <button
+                className="notification-close-btn"
+                onClick={() => setShowDropdown(false)}
+                aria-label="Close notifications"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
           
           <div className="notification-dropdown-body">
@@ -106,7 +162,7 @@ const NotificationBell = () => {
               <div className="notification-loading">Loading...</div>
             ) : notifications.length === 0 ? (
               <div className="notification-empty">
-                <span>🔔</span>
+                <Bell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                 <p>No notifications yet</p>
               </div>
             ) : (
@@ -115,6 +171,7 @@ const NotificationBell = () => {
                   <div
                     key={notification.id}
                     className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
+                    onClick={() => handleNotificationItemClick(notification)}
                   >
                     <div className="notification-icon">
                       {getNotificationIcon(notification.notification_type)}
@@ -123,9 +180,14 @@ const NotificationBell = () => {
                       <p className="notification-message">
                         {notification.message}
                       </p>
-                      <span className="notification-time">
-                        {formatTimeAgo(notification.created_at)}
-                      </span>
+                      <div className="notification-meta">
+                        <span className="notification-time">
+                          {formatTimeAgo(notification.created_at)}
+                        </span>
+                        {!notification.is_read && (
+                          <span className="notification-unread-dot"></span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
