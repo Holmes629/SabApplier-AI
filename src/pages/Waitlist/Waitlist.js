@@ -1,9 +1,63 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Waitlist = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, checkWebsiteAccess, hasWebsiteAccess } = useAuth();
+  const navigate = useNavigate();
   const [signupCount, setSignupCount] = useState(4567); // Dynamic count
+  const [isCheckingAccess, setIsCheckingAccess] = useState(false);
+
+  // Check if user has gained access and redirect
+  useEffect(() => {
+    if (hasWebsiteAccess) {
+      navigate('/', { replace: true });
+    }
+  }, [hasWebsiteAccess, navigate]);
+
+  // Periodic access check
+  useEffect(() => {
+    const checkAccessPeriodically = async () => {
+      if (user?.email) {
+        try {
+          await checkWebsiteAccess(user.email);
+        } catch (error) {
+          console.error('Periodic access check failed:', error);
+        }
+      }
+    };
+
+    // Check access every 30 seconds
+    const accessInterval = setInterval(checkAccessPeriodically, 30000);
+
+    return () => clearInterval(accessInterval);
+  }, [user?.email, checkWebsiteAccess]);
+
+  // Manual access check
+  const handleCheckAccess = async () => {
+    if (user?.email) {
+      setIsCheckingAccess(true);
+      try {
+        await checkWebsiteAccess(user.email);
+      } catch (error) {
+        console.error('Manual access check failed:', error);
+      } finally {
+        setIsCheckingAccess(false);
+      }
+    }
+  };
+
+  // Handle logout and redirect to intro
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/intro', { replace: true });
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Still redirect even if logout fails
+      navigate('/intro', { replace: true });
+    }
+  };
 
   useEffect(() => {
     // Simulate periodic count updates
@@ -163,7 +217,21 @@ const Waitlist = () => {
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-8">
             <button
-              onClick={logout}
+              onClick={handleCheckAccess}
+              disabled={isCheckingAccess}
+              className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 disabled:transform-none"
+            >
+              {isCheckingAccess ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Checking...
+                </div>
+              ) : (
+                'Check Access Status'
+              )}
+            </button>
+            <button
+              onClick={handleLogout}
               className="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
             >
               Logout
