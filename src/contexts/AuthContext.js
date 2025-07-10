@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState(null);
+  const [hasWebsiteAccess, setHasWebsiteAccess] = useState(false);
 
   // Initialize authentication state on app load
   useEffect(() => {
@@ -307,6 +308,7 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setUser(null);
       setIsAuthenticated(false);
+      setHasWebsiteAccess(false);
     }
   };
 
@@ -344,11 +346,24 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   };
 
+  const checkWebsiteAccess = async (email) => {
+    try {
+      const accessResult = await api.checkAccessStatus(email);
+      setHasWebsiteAccess(accessResult.is_enabled);
+      return accessResult;
+    } catch (error) {
+      console.error('Website access check error:', error);
+      setHasWebsiteAccess(false);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     token,
     isAuthenticated,
     isLoading,
+    hasWebsiteAccess,
     login,
     signup,
     completeProfile,
@@ -356,7 +371,8 @@ export const AuthProvider = ({ children }) => {
     refreshToken,
     updateUser,
     isProfileComplete,
-    refreshAuthState
+    refreshAuthState,
+    checkWebsiteAccess
   };
 
   return (

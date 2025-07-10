@@ -2,8 +2,8 @@
 import axios from "axios";
 
 
-const API_BASE_URL = 'https://api.sabapplier.com/api';
-// const API_BASE_URL = 'http://localhost:8000/api';
+// const API_BASE_URL = 'https://api.sabapplier.com/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 
 
@@ -724,5 +724,18 @@ export const api = {
 
   switchToOwnData: () => {
     localStorage.removeItem('activeAutofillData');
+  },
+
+  checkAccessStatus: async (email) => {
+    try {
+      const response = await axiosInstance.post(
+        `/users/check-access/`,
+        { email }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Access check error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to check access status");
+    }
   },
 };

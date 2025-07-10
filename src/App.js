@@ -17,6 +17,7 @@ import Docs from './pages/Profile/Docs';
 import AutoFillData from './pages/AutoFillData/AutoFillData';
 import SignUpStep2 from './pages/Auth/SignUpStep2';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
+import Waitlist from './pages/Waitlist/Waitlist';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 import { tokenManager } from './utils/tokenManager';
@@ -24,16 +25,37 @@ import { tokenManager } from './utils/tokenManager';
 // Create a wrapper component that uses useLocation and useAuth
 function AppContent() {
   const location = useLocation();
-  const { user, isAuthenticated, logout, isProfileComplete, isLoading } = useAuth();
+  const { user, isAuthenticated, logout, isProfileComplete, isLoading, hasWebsiteAccess, checkWebsiteAccess } = useAuth();
   const [applications, setApplications] = useState([]);
   const [loadingExams, setLoadingExams] = useState(true);
+  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
 
   // Check if user is fully authenticated (has completed profile)
   const isFullyAuthenticated = isAuthenticated && isProfileComplete();
 
+  // Check website access on authentication
+  useEffect(() => {
+    const checkAccess = async () => {
+      if (isAuthenticated && user?.email) {
+        try {
+          setAccessCheckLoading(true);
+          await checkWebsiteAccess(user.email);
+        } catch (error) {
+          console.error('Access check failed:', error);
+        } finally {
+          setAccessCheckLoading(false);
+        }
+      } else {
+        setAccessCheckLoading(false);
+      }
+    };
+
+    checkAccess();
+  }, [isAuthenticated, user?.email, checkWebsiteAccess]);
+
   const ProtectedRoute = ({ children }) => {
-    // Show loading spinner while checking authentication
-    if (isLoading) {
+    // Show loading spinner while checking authentication or access
+    if (isLoading || accessCheckLoading) {
       return (
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -51,7 +73,12 @@ function AppContent() {
       return <Navigate to="/signup-page2" replace />;
     }
 
-    // If fully authenticated, render the protected component
+    // If authenticated and profile complete but no website access, redirect to waitlist
+    if (isAuthenticated && isProfileComplete() && !hasWebsiteAccess) {
+      return <Navigate to="/waitlist" replace />;
+    }
+
+    // If fully authenticated and has access, render the protected component
     return children;
   };
 
@@ -140,7 +167,7 @@ function AppContent() {
 
   return (
     <div className="app">
-      {isFullyAuthenticated && location.pathname !== '/manage-docs' && (
+      {isFullyAuthenticated && hasWebsiteAccess && location.pathname !== '/manage-docs' && (
         <Navbar 
           isAuthenticated={true}
           // cartCount={cartCount} 
@@ -154,20 +181,48 @@ function AppContent() {
           element={<PrivacyPolicy/>} 
         />
         <Route 
+          path="/waitlist" 
+          element={<Waitlist />} 
+        />
+        <Route 
           path="/intro" 
-          element={isFullyAuthenticated ? <Navigate to="/" replace /> : <Intro />} 
+          element={
+            isFullyAuthenticated && hasWebsiteAccess ? 
+              <Navigate to="/" replace /> : 
+              isFullyAuthenticated && !hasWebsiteAccess ?
+                <Navigate to="/waitlist" replace /> :
+                <Intro />
+          } 
         />
         <Route 
           path="/login" 
-          element={isFullyAuthenticated ? <Navigate to="/" replace /> : <Login />} 
+          element={
+            isFullyAuthenticated && hasWebsiteAccess ? 
+              <Navigate to="/" replace /> : 
+              isFullyAuthenticated && !hasWebsiteAccess ?
+                <Navigate to="/waitlist" replace /> :
+                <Login />
+          } 
         />
         <Route 
           path="/signup" 
-          element={isFullyAuthenticated ? <Navigate to="/signup-page2" replace /> : <SignUp />} 
+          element={
+            isFullyAuthenticated && hasWebsiteAccess ? 
+              <Navigate to="/" replace /> : 
+              isFullyAuthenticated && !hasWebsiteAccess ?
+                <Navigate to="/waitlist" replace /> :
+                <SignUp />
+          } 
         />
         <Route 
           path="/signup-page2" 
-          element={isFullyAuthenticated ? <Navigate to="/" replace /> : <SignUpStep2 />} 
+          element={
+            isFullyAuthenticated && hasWebsiteAccess ? 
+              <Navigate to="/" replace /> : 
+              isFullyAuthenticated && !hasWebsiteAccess ?
+                <Navigate to="/waitlist" replace /> :
+                <SignUpStep2 />
+          } 
         />
         <Route 
           path="/forgot-password" 
