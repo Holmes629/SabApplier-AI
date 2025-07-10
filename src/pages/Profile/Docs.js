@@ -3,24 +3,55 @@ import { api } from "../../services/api";
 import Footer from "../../components/Footer/Footer";
 import { Download, Trash2, Upload, FileText, CheckCircle } from "lucide-react";
 
+const DOCUMENT_CATEGORIES = {
+  examRelated: {
+    title: "Exam Related Documents",
+    icon: "📝",
+    description: "Documents required for exam applications and admissions",
+    fields: {
+      passport_size_photo_file_url: "Passport Size Photo",
+      signature_file_url: "Signature",
+      aadhaar_card_file_url: "Aadhaar Card / National ID / Social Security Card",
+      name_change_certificate_file_url: "Name Change Certificate",
+      _10th_certificate_file_url: "10th Certificate / Marksheet",
+      _12th_certificate_file_url: "12th Certificate / Marksheet",
+      pwd_certificate_file_url: "PWD Certificate",
+      graduation_certificate_file_url: "Graduation Certificate / Degree",
+      post_graduation_certificate_file_url: "Post Graduation Certificate / Degree",
+      left_thumb_file_url: "Left Thumb Impression",
+      category_certificate_file_url: "Category Certificate (SC/ST/OBC)",
+    }
+  },
+  personal: {
+    title: "Personal Identification Documents",
+    icon: "🆔",
+    description: "Personal identification and government documents",
+    fields: {
+      passport_file_url: "Passport",
+      drivers_license_file_url: "Driver's License",
+      birth_certificate_file_url: "Birth Certificate",
+      voter_id_file_url: "Voter ID",
+      pan_card_file_url: "PAN Card",
+      residence_card_file_url: "Residence/Green Card",
+      marriage_certificate_file_url: "Marriage Certificate",
+      divorce_decree_file_url: "Divorce Decree",
+      caste_certificate_file_url: "Caste Certificate",
+      domicile_certificate_file_url: "Domicile Certificate",
+      income_certificate_file_url: "Income Certificate",
+      character_certificate_file_url: "Character Certificate",
+    }
+  }
+};
+
+// Flattened version for backward compatibility
 const DOCUMENT_FIELDS = {
-  passport_size_photo_file_url: "Passport Size Photo",
-  aadhaar_card_file_url: "Aadhaar Card",
-  pan_card_file_url: "PAN Card",
-  signature_file_url: "Signature",
-  _10th_certificate_file_url: "10th Certificate",
-  _12th_certificate_file_url: "12th Certificate",
-  graduation_certificate_file_url: "Graduation Certificate",
-  left_thumb_file_url: "Left Thumb",
-  caste_certificate_file_url: "Caste Certificate",
-  pwd_certificate_file_url: "PWD Certificate",
-  domicile_certificate_file_url: "Domicile Certificate",
+  ...DOCUMENT_CATEGORIES.examRelated.fields,
+  ...DOCUMENT_CATEGORIES.personal.fields,
 };
 
 const Docs = ({ docUpload }) => {
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({});
-  const [customDocType, setCustomDocType] = useState("");
   const [uploading, setUploading] = useState(false);
   const [isProfileFetched, setIsProfileFetched] = useState(
     localStorage.getItem("isProfileFetched") === "true"
@@ -93,9 +124,14 @@ const Docs = ({ docUpload }) => {
         getProfile();
         setUploading(false);
 
-        // Clear the form after successful upload
-        setFormData((prev) => ({ ...prev, docType: "" }));
-        setCustomDocType("");
+        // Clear the form after successful upload - clear all category form fields
+        setFormData((prev) => ({
+          ...prev,
+          examRelated_docType: "",
+          personal_docType: "",
+          examRelated_customDocType: "",
+          personal_customDocType: ""
+        }));
       }, 1000);
     } catch (error) {
       console.error("Upload error:", error);
@@ -149,6 +185,12 @@ const Docs = ({ docUpload }) => {
     ([field]) => userData?.[field]
   ).length;
 
+  const getUploadedCountByCategory = (category) => {
+    return Object.entries(DOCUMENT_CATEGORIES[category].fields).filter(
+      ([field]) => userData?.[field]
+    ).length;
+  };
+
   if (!userData) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -171,113 +213,116 @@ const Docs = ({ docUpload }) => {
       <main className="relative z-10 max-w-6xl mx-auto px-4 py-8">
         {/* Header Section - Matching Complete Your Profile Design */}
         <div className="mb-12 text-center">
-          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-            My{" "}
-            <span className="bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-              Documents
-            </span>
-          </h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-3">
-            Upload Exam documents for quick access and auto-fill during form
-            submission.
+            Upload your important documents to <span className="font-semibold text-dark">Manage</span>, <span className="font-semibold text-dark">access</span> them anytime, and easily <span className="font-semibold text-dark">share</span> or <span className="font-semibold text-dark">fill complex forms</span>.
           </p>
           <p className="text-sm text-gray-500 max-w-2xl mx-auto">
             OCR technology extracts data from your documents to automatically
-            fill forms.
+            fill forms and the Documents gets resized, cropped, compressed and change file format according to the requirements.
           </p>
         </div>
 
         {/* Documents Grid - Enhanced with AutoFill Theme */}
         <div className="space-y-6">
-          {/* Upload Section */}
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            <div className="flex flex-col sm:flex-row gap-3 items-end">
-              <select
-                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
-                value={formData.docType || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, docType: e.target.value })
-                }
-              >
-                <option value="">Select document type</option>
-                {Object.entries(DOCUMENT_FIELDS).map(([key, label]) => (
-                  <option key={key} value={key.replace("_file_url", "")}>
-                    {label}
-                  </option>
-                ))}
-              </select>
-
-              <input
-                type="text"
-                className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
-                placeholder="Custom document name (optional)"
-                value={customDocType}
-                onChange={(e) => setCustomDocType(e.target.value)}
-                onBlur={() => {
-                  if (customDocType.trim()) {
-                    const formattedKey =
-                      customDocType.toLowerCase().replace(/\s+/g, "_") +
-                      "_file_url";
-
-                    if (!DOCUMENT_FIELDS[formattedKey]) {
-                      setFormData({
-                        ...formData,
-                        docType: customDocType
-                          .toLowerCase()
-                          .replace(/\s+/g, "_"),
-                      });
-                    }
-                  }
-                }}
-              />
-
-              <div>
-                <label
-                  className={`flex items-center justify-center px-6 py-3 rounded-xl cursor-pointer transition-all duration-300 whitespace-nowrap ${
-                    formData.docType
-                      ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg"
-                      : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  }`}
-                >
-                  {uploading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                      <span className="font-medium">Uploading...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-4 h-4 mr-2" />
-                      <span className="font-medium">Upload File</span>
-                    </>
-                  )}
-                  <input
-                    type="file"
-                    accept=".pdf,image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      const docType = formData.docType;
-                      if (file && docType) {
-                        handleFileUpload(`${docType}_file_url`, file);
-                      }
-                    }}
-                    disabled={!formData.docType || uploading}
-                  />
-                </label>
+          {/* Upload Sections - Separate for each category */}
+          {Object.entries(DOCUMENT_CATEGORIES).map(([categoryKey, category]) => (
+            <div key={categoryKey} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              {/* Category Header */}
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-200 to-blue-300 rounded-xl flex items-center justify-center mr-3">
+                  <span className="text-lg">{category.icon}</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
+                  <p className="text-sm text-gray-600">{category.description}</p>
+                </div>
+                <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                  {getUploadedCountByCategory(categoryKey)} uploaded
+                </span>
               </div>
-            </div>
 
+              {/* Upload Form for this category */}
+              <div className="flex flex-col sm:flex-row gap-3 items-end mb-6">
+                <select
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                  value={formData[`${categoryKey}_docType`] || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, [`${categoryKey}_docType`]: e.target.value })
+                  }
+                >
+                  <option value="">Select document type</option>
+                  {Object.entries(category.fields).map(([key, label]) => (
+                    <option key={key} value={key.replace("_file_url", "")}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
 
-            {/* Uploaded Documents Grid */}
-            {uploadedCount > 0 && (
-              <div className="bg-white rounded-2xl p-2  shadow-sm">
-                <h3 className="text-xl font-bold text-gray-900 mb-2 -ml-8">
-                      Uploaded Documents
-                    </h3>
-                
+                <input
+                  type="text"
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Custom document name (optional)"
+                  value={formData[`${categoryKey}_customDocType`] || ""}
+                  onChange={(e) => setFormData({ ...formData, [`${categoryKey}_customDocType`]: e.target.value })}
+                  onBlur={() => {
+                    const customDocType = formData[`${categoryKey}_customDocType`];
+                    if (customDocType && customDocType.trim()) {
+                      const formattedKey =
+                        customDocType.toLowerCase().replace(/\s+/g, "_") +
+                        "_file_url";
 
+                      if (!DOCUMENT_FIELDS[formattedKey]) {
+                        setFormData({
+                          ...formData,
+                          [`${categoryKey}_docType`]: customDocType
+                            .toLowerCase()
+                            .replace(/\s+/g, "_"),
+                        });
+                      }
+                    }
+                  }}
+                />
+
+                <div>
+                  <label
+                    className={`flex items-center justify-center px-6 py-3 rounded-xl cursor-pointer transition-all duration-300 whitespace-nowrap ${
+                      formData[`${categoryKey}_docType`]
+                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    {uploading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                        <span className="font-medium">Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" />
+                        <span className="font-medium">Upload File</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        const docType = formData[`${categoryKey}_docType`];
+                        if (file && docType) {
+                          handleFileUpload(`${docType}_file_url`, file);
+                        }
+                      }}
+                      disabled={!formData[`${categoryKey}_docType`] || uploading}
+                    />
+                  </label>
+                </div>
+              </div>
+
+              {/* Uploaded Documents Grid for this category */}
+              {getUploadedCountByCategory(categoryKey) > 0 && (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {Object.entries(DOCUMENT_FIELDS).map(([field, label]) =>
+                  {Object.entries(category.fields).map(([field, label]) =>
                     userData[field] ? (
                       <div
                         key={field}
@@ -326,9 +371,9 @@ const Docs = ({ docUpload }) => {
                     ) : null
                   )}
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
+          ))}
 
           {/* Empty State - Enhanced */}
           {uploadedCount === 0 && (

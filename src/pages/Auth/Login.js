@@ -3,11 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import logo from "../../logo.jpeg";
+import { useAuth } from "../../hooks/useAuth";
 
-import { api } from "../../services/api";
-
-const Login = ({ onLogin }) => {
+const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -49,9 +49,16 @@ const Login = ({ onLogin }) => {
     setError("");
 
     try {
-      const result = await onLogin(formData);
+      const result = await login(formData);
 
       if (result.success) {
+        // Show success message
+        const messageElement = document.createElement('div');
+        messageElement.textContent = 'Login successful!';
+        messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+        document.body.appendChild(messageElement);
+        setTimeout(() => document.body.removeChild(messageElement), 1000);
+
         navigate("/");
       } else {
         setError(result.message || "Login failed. Please try again.");
@@ -69,44 +76,31 @@ const Login = ({ onLogin }) => {
 
     try {
       console.log("Google credential response:", credentialResponse);
-      const result = await api.googleSignup(credentialResponse.credential);
-      console.log("Google signup result:", result);
+      
+      const result = await login({
+        isGoogleLogin: true,
+        credential: credentialResponse.credential
+      });
 
       if (result.success) {
-        // Store Google data for use in profile completion
-        if (result.googleData) {
-          localStorage.setItem("googleData", JSON.stringify(result.googleData));
-        }
+        // Show success message
+        const messageElement = document.createElement('div');
+        messageElement.textContent = 'Google login successful!';
+        messageElement.style.cssText = 'position: fixed; top: 70px; right: 45%; padding: 10px; background: #4CAF50; color: white; border-radius: 4px; z-index: 1000;';
+        document.body.appendChild(messageElement);
+        setTimeout(() => document.body.removeChild(messageElement), 1000);
 
-        // Check if user needs to complete profile
         if (result.needsProfileCompletion) {
-          // Store the user data and navigate to SignUpStep2
-          const userData = result.user || { email: result.email };
-          localStorage.setItem("currentUser", JSON.stringify(userData));
-          localStorage.setItem("isAuthenticated", "true");
-          localStorage.setItem("isSignUp2", "false");
           navigate("/signup-page2");
         } else {
-          // User already has complete profile, log them in
-          const loginResult = await onLogin({
-            email: result.user?.email || result.email,
-            isGoogleLogin: true,
-            userData: result.user,
-            googleData: result.googleData,
-          });
-
-          if (loginResult.success) {
-            navigate("/");
-          } else {
-            setError("Login failed after Google authentication.");
-          }
+          navigate("/");
         }
       } else {
-        setError(result.message || "Google signup failed. Please try again.");
+        setError(result.message || "Google login failed. Please try again.");
       }
     } catch (err) {
-      console.error("Google signup error:", err);
-      setError(`Google signup failed: ${err.message || "Please try again."}`);
+      console.error("Google login error:", err);
+      setError(`Google login failed: ${err.message || "Please try again."}`);
     } finally {
       setLoading(false);
     }

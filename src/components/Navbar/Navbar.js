@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, User } from 'lucide-react';
 import logo from '../../logo.jpeg';
 import { api } from '../../services/api';
+import NotificationBell from '../NotificationBell/NotificationBell';
 
 const Navbar = ({ 
   isAuthenticated = false, 
@@ -172,6 +173,19 @@ const Navbar = ({
                     location.pathname === '/auto-fill-data' ? 'w-full' : 'w-0 group-hover:w-full'
                   }`}></span>
                 </Link>
+                <Link 
+                  to="/data-sharing" 
+                  className={`font-medium transition-all duration-300 hover:scale-105 relative group ${
+                    location.pathname === '/data-sharing' 
+                      ? 'text-blue-300' 
+                      : 'text-white/90 hover:text-blue-300'
+                  }`}
+                  onClick={closeMenus}>
+                  Data Sharing
+                  <span className={`absolute -bottom-1 left-0 h-0.5 bg-blue-400 transition-all duration-300 ${
+                    location.pathname === '/data-sharing' ? 'w-full' : 'w-0 group-hover:w-full'
+                  }`}></span>
+                </Link>
               </>
             ) : (
               // Intro Page Navigation
@@ -191,19 +205,19 @@ const Navbar = ({
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
                 </button>
                 <button 
-                  onClick={() => scrollToSection('privacy')}
-                  className="text-white/90 hover:text-blue-300 font-medium transition-all duration-300 hover:scale-105 relative group"
-                >
-                  Privacy
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
-                </button>
-                <button 
                   onClick={() => scrollToSection('testimonials')}
                   className="text-white/90 hover:text-blue-300 font-medium transition-all duration-300 hover:scale-105 relative group"
                 >
                   Reviews
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
                 </button>
+                 <Link 
+                  to="/privacy_policy"
+                  className="text-white/90 hover:text-blue-300 font-medium transition-all duration-300 hover:scale-105 relative group"
+                >
+                  Privacy
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
+                </Link>
               </>
             )}
           </nav>
@@ -212,7 +226,11 @@ const Navbar = ({
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated ? (
               // Profile Section for Authenticated Users
-              <div className="relative" ref={profileRef}>
+              <>
+                {/* Notification Bell */}
+                <NotificationBell />
+                
+                <div className="relative" ref={profileRef}>
                 <button 
                   className={`flex items-center gap-3 px-4 py-2 text-white border border-white/30 rounded-lg font-semibold text-sm transition-all duration-300 hover:bg-white/10 hover:border-blue-300/50 hover:shadow-md backdrop-blur-sm ${
                     showProfileMenu ? 'bg-white/10 border-blue-300/50' : ''
@@ -290,6 +308,7 @@ const Navbar = ({
                   </div>
                 )}
               </div>
+              </>
             ) : (
               // CTA Buttons for Intro Page
               <>
@@ -418,6 +437,14 @@ const Navbar = ({
                       Auto Fill Data
                     </Link>
                     <Link 
+                      to="/data-sharing" 
+                      className={`block font-medium py-2 transition-colors duration-300 w-full text-left ${
+                        location.pathname === '/data-sharing' ? 'text-blue-300' : 'text-white/90 hover:text-blue-300'
+                      }`}
+                      onClick={closeMenus}>
+                      Data Sharing
+                    </Link>
+                    <Link 
                       to="/profile" 
                       className={`block font-medium py-2 transition-colors duration-300 w-full text-left ${
                         location.pathname === '/profile' ? 'text-blue-300' : 'text-white/90 hover:text-blue-300'
@@ -449,19 +476,13 @@ const Navbar = ({
                     >
                       How it Works
                     </button>
-                    <button 
-                      onClick={() => scrollToSection('privacy')}
-                      className="block text-white/90 hover:text-blue-300 font-medium py-2 transition-colors duration-300 w-full text-left"
-                    >
-                      Privacy
-                    </button>
-                    {/* <Link 
-                      to="/privacy-policy" 
+                    <Link 
+                      to="/privacy-policy"
                       className="block text-white/90 hover:text-blue-300 font-medium py-2 transition-colors duration-300 w-full text-left"
                       onClick={closeMenus}
                     >
                       Privacy Policy
-                    </Link> */}
+                    </Link>
                     <button 
                       onClick={() => scrollToSection('testimonials')}
                       className="block text-white/90 hover:text-blue-300 font-medium py-2 transition-colors duration-300 w-full text-left"
