@@ -62,22 +62,25 @@ const NotificationBell = () => {
   };
 
   const markAsRead = async (notificationId) => {
-    // For now, mark as read locally since backend doesn't support it yet
-    setNotifications(prev => 
-      prev.map(n => 
-        n.id === notificationId ? { ...n, is_read: true } : n
-      )
-    );
-    setUnreadCount(prev => Math.max(0, prev - 1));
+    try {
+      await api.markNotificationAsRead(notificationId);
+      setNotifications(prev => prev.map(n => n.id === notificationId ? { ...n, is_read: true } : n));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
   };
 
   const markAllAsRead = async () => {
-    // For now, mark all as read locally since backend doesn't support it yet
-    const unreadCount = notifications.filter(n => !n.is_read).length;
-    if (unreadCount === 0) return;
-    
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
-    setUnreadCount(0);
+    const unreadNotifications = notifications.filter(n => !n.is_read);
+    if (unreadNotifications.length === 0) return;
+    try {
+      await Promise.all(unreadNotifications.map(n => api.markNotificationAsRead(n.id)));
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
   };
 
   const handleNotificationClick = () => {
@@ -167,30 +170,36 @@ const NotificationBell = () => {
               </div>
             ) : (
               <div className="notification-list">
-                {notifications.slice(0, 10).map((notification) => (
-                  <div
-                    key={notification.id}
-                    className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
-                    onClick={() => handleNotificationItemClick(notification)}
-                  >
-                    <div className="notification-icon">
-                      {getNotificationIcon(notification.notification_type)}
-                    </div>
-                    <div className="notification-content">
-                      <p className="notification-message">
-                        {notification.message}
-                      </p>
-                      <div className="notification-meta">
-                        <span className="notification-time">
-                          {formatTimeAgo(notification.created_at)}
-                        </span>
-                        {!notification.is_read && (
+                {notifications.filter(n => !n.is_read).length === 0 ? (
+                  <div className="notification-empty" style={{ padding: '16px 0', textAlign: 'center', fontSize: '13px', color: '#888' }}>
+                    <Bell className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                    <p>No new notifications</p>
+                  </div>
+                ) : (
+                  notifications.filter(n => !n.is_read).slice(0, 10).map((notification) => (
+                    <div
+                      key={notification.id}
+                      className={`notification-item unread`}
+                      onClick={() => handleNotificationItemClick(notification)}
+                      style={{ padding: '6px 8px', fontSize: '12px', minHeight: '28px', marginBottom: '2px' }}
+                    >
+                      <div className="notification-icon">
+                        {getNotificationIcon(notification.notification_type)}
+                      </div>
+                      <div className="notification-content">
+                        <p className="notification-message" style={{ fontSize: '12px', margin: 0, lineHeight: '1.3' }}>
+                          {notification.message}
+                        </p>
+                        <div className="notification-meta" style={{ fontSize: '11px', marginTop: '2px' }}>
+                          <span className="notification-time">
+                            {formatTimeAgo(notification.created_at)}
+                          </span>
                           <span className="notification-unread-dot"></span>
-                        )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             )}
           </div>

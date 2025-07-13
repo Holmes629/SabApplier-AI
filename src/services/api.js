@@ -2,8 +2,8 @@
 import axios from "axios";
 
 
-const API_BASE_URL = 'https://api.sabapplier.com/api';
-// const API_BASE_URL = 'http://localhost:8000/api';
+// const API_BASE_URL = 'https://api.sabapplier.com/api';
+const API_BASE_URL = 'http://localhost:8000/api';
 
 
 
@@ -528,7 +528,7 @@ export const api = {
   },
 
   // Data Sharing APIs
-  shareDataWithFriend: async (receiverEmail, selectedDocuments = []) => {
+  shareDataWithFriend: async (receiverEmail, selectedDocuments = [], sharingType = 'documents_only') => {
     try {
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
       if (!currentUser || !currentUser.email) {
@@ -540,7 +540,8 @@ export const api = {
         {
           sender_email: currentUser.email,
           receiver_email: receiverEmail,
-          selected_documents: selectedDocuments
+          selected_documents: selectedDocuments,
+          sharing_type: sharingType
         },
         {
           headers: getHeaders(),
@@ -736,6 +737,20 @@ export const api = {
     } catch (error) {
       console.error("Access check error:", error.response?.data || error.message);
       throw new Error(error.response?.data?.error || "Failed to check access status");
+    }
+  },
+
+  markNotificationAsRead: async (notificationId) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/users/notifications/mark-as-read/`,
+        { notification_id: notificationId },
+        { headers: getHeaders() }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Mark notification as read error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to mark notification as read");
     }
   },
 };
