@@ -708,6 +708,53 @@ const AutoFillDataForm = () => {
                   placeholder="Enter mother's name"
                 />
               </div>
+
+              {/* New: Have you changed name? */}
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Have you changed name?
+                </label>
+                <select
+                  name="hasChangedName"
+                  onChange={handleChange}
+                  value={formData.hasChangedName || ''}
+                  className={getFieldClassName('hasChangedName')}
+                >
+                  <option value="">Select option</option>
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+
+              {/* New: If yes changed name_ */}
+              {formData.hasChangedName === 'Yes' && (
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    If yes, changed name
+                  </label>
+                  <input
+                    name="changedNameDetail"
+                    onChange={handleChange}
+                    value={formData.changedNameDetail || ''}
+                    className={getFieldClassName('changedNameDetail')}
+                    placeholder="Enter new name or details"
+                  />
+                </div>
+              )}
+
+              {/* New: Mother tongue */}
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Mother tongue
+                </label>
+                <input
+                  name="motherTongue"
+                  onChange={handleChange}
+                  value={formData.motherTongue || ''}
+                  className={getFieldClassName('motherTongue')}
+                  placeholder="Enter your mother tongue"
+                />
+              </div>
               
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">

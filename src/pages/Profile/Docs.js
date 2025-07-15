@@ -117,7 +117,29 @@ const Docs = ({ docUpload }) => {
         throw new Error("Document upload function not available");
       }
 
-      await docUpload({ [fileFieldName]: file });
+      // Determine if this is a custom doc (not in DOCUMENT_FIELDS)
+      let customDocCategories = {};
+      let categoryKey = null;
+      Object.entries(DOCUMENT_CATEGORIES).forEach(([catKey, cat]) => {
+        if (cat.fields[fileFieldName]) {
+          categoryKey = catKey;
+        }
+      });
+      // If not found in standard fields, treat as custom and use current formData
+      if (!categoryKey) {
+        // Find which category's docType matches this upload
+        Object.entries(DOCUMENT_CATEGORIES).forEach(([catKey, cat]) => {
+          if (formData[`${catKey}_docType`] && `${formData[`${catKey}_docType`]}_file_url` === fileFieldName) {
+            categoryKey = catKey;
+          }
+        });
+        if (categoryKey) {
+          customDocCategories[fileFieldName] = categoryKey;
+        }
+      }
+
+      // Send custom_doc_categories if needed
+      await docUpload({ [fileFieldName]: file, ...(Object.keys(customDocCategories).length > 0 ? { custom_doc_categories: customDocCategories } : {}) });
 
       // Wait a bit then refresh the profile data
       setTimeout(() => {
@@ -156,16 +178,8 @@ const Docs = ({ docUpload }) => {
     try {
       const response = await api.deleteDocument(field);
       if (response.success) {
-        // Update userData by removing the deleted document field
-        setUserData((prev) => ({ ...prev, [field]: null }));
-        setFormData((prev) => ({ ...prev, [field]: null }));
-
-        // Also update localStorage
-        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        if (currentUser) {
-          currentUser[field] = null;
-          localStorage.setItem("currentUser", JSON.stringify(currentUser));
-        }
+        // Refresh profile to update allDocuments and UI
+        await getProfile();
 
         // Show success message
         const messageElement = document.createElement("div");
@@ -181,13 +195,23 @@ const Docs = ({ docUpload }) => {
     }
   };
 
-  const uploadedCount = Object.entries(DOCUMENT_FIELDS).filter(
-    ([field]) => userData?.[field]
-  ).length;
+  // Helper to prettify field names
+  const prettifyFieldName = (field) => {
+    // Remove _file_url and replace underscores with spaces, capitalize
+    return field.replace(/_file_url$/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  };
 
-  const getUploadedCountByCategory = (category) => {
-    return Object.entries(DOCUMENT_CATEGORIES[category].fields).filter(
-      ([field]) => userData?.[field]
+  // Instead of only using DOCUMENT_FIELDS, use all_documents from userData
+  const allDocuments = userData?.all_documents || {};
+
+  // Count all uploaded docs (including custom)
+  const uploadedCount = Object.keys(allDocuments).length;
+
+  // Count uploaded docs by category (including custom docs mapped to this category)
+  const getUploadedCountByCategory = (category, categoryKey) => {
+    const customDocCategories = userData?.custom_doc_categories || {};
+    return Object.keys(allDocuments).filter(field =>
+      category.fields[field] || Object.entries(customDocCategories).some(([customField, catKey]) => customField === field && catKey === categoryKey)
     ).length;
   };
 
@@ -201,6 +225,8 @@ const Docs = ({ docUpload }) => {
       </div>
     );
   }
+
+  console.log("allDocuments from backend:", allDocuments);
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
@@ -217,8 +243,7 @@ const Docs = ({ docUpload }) => {
             Upload your important documents to <span className="font-semibold text-dark">Manage</span>, <span className="font-semibold text-dark">access</span> them anytime, and easily <span className="font-semibold text-dark">share</span> or <span className="font-semibold text-dark">fill complex forms</span>.
           </p>
           <p className="text-sm text-gray-500 max-w-2xl mx-auto">
-            OCR technology extracts data from your documents to automatically
-            fill forms and the Documents gets resized, cropped, compressed and change file format according to the requirements.
+            Documents gets resized, cropped, compressed and change file format according to the requirements.
           </p>
         </div>
 
@@ -237,7 +262,7 @@ const Docs = ({ docUpload }) => {
                   <p className="text-sm text-gray-600">{category.description}</p>
                 </div>
                 <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                  {getUploadedCountByCategory(categoryKey)} uploaded
+                  {getUploadedCountByCategory(category, categoryKey)} uploaded
                 </span>
               </div>
 
@@ -252,9 +277,7 @@ const Docs = ({ docUpload }) => {
                 >
                   <option value="">Select document type</option>
                   {Object.entries(category.fields).map(([key, label]) => (
-                    <option key={key} value={key.replace("_file_url", "")}>
-                      {label}
-                    </option>
+                    <option key={key} value={key.replace("_file_url", "")}>{label}</option>
                   ))}
                 </select>
 
@@ -319,11 +342,17 @@ const Docs = ({ docUpload }) => {
                 </div>
               </div>
 
-              {/* Uploaded Documents Grid for this category */}
-              {getUploadedCountByCategory(categoryKey) > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-                  {Object.entries(category.fields).map(([field, label]) =>
-                    userData[field] ? (
+              {/* Uploaded Documents Grid for this category (including custom docs) */}
+              {(() => {
+                const customDocCategories = userData?.custom_doc_categories || {};
+                // Get all doc keys for this category: standard + custom
+                const categoryDocKeys = Object.keys(allDocuments).filter(field =>
+                  category.fields[field] || Object.entries(customDocCategories).some(([customField, catKey]) => customField === field && catKey === categoryKey)
+                );
+                if (categoryDocKeys.length === 0) return null;
+                return (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    {categoryDocKeys.map(field => (
                       <div
                         key={field}
                         className="rounded-xl border border-blue-200 p-4 hover:shadow-lg hover:scale-105 transition-all duration-300 group"
@@ -336,14 +365,12 @@ const Docs = ({ docUpload }) => {
                             <CheckCircle className="w-3 h-3 text-white" />
                           </div>
                         </div>
-
                         <h4 className="font-semibold text-gray-900 text-sm mb-3 line-clamp-2 leading-tight">
-                          {label}
+                          {category.fields[field] || prettifyFieldName(field)}
                         </h4>
-
                         <div className="flex gap-2">
                           <a
-                            href={userData[field]}
+                            href={allDocuments[field]}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex-1 text-center px-3 py-2 bg-gradient-to-r from-blue-300 to-blue-400 text-dark text-xs rounded-lg hover:from-blue-400 hover:to-blue-500 transition-all duration-200 font-medium"
@@ -351,7 +378,7 @@ const Docs = ({ docUpload }) => {
                             View
                           </a>
                           <a
-                            href={getDropboxDownloadLink(userData[field])}
+                            href={getDropboxDownloadLink(allDocuments[field])}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-2 text-gray-600 hover:text-blue-600 hover:bg-white rounded-lg transition-all duration-200"
@@ -368,10 +395,10 @@ const Docs = ({ docUpload }) => {
                           </button>
                         </div>
                       </div>
-                    ) : null
-                  )}
-                </div>
-              )}
+                    ))}
+                  </div>
+                );
+              })()}
             </div>
           ))}
 

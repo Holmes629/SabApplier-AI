@@ -205,6 +205,9 @@ export const api = {
       if (userData.confirmPassword) {
         payload.confirmPassword = userData.confirmPassword;
       }
+      if (userData.referred_by) {
+        payload.referred_by = userData.referred_by;
+      }
       const response = await axiosInstance.post(
         `/users/register/`,
         payload

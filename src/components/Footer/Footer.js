@@ -32,16 +32,16 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Connect With Us</h3>
             <div className="space-y-2">
-              <a 
-                href="mailto:sabapplierai100m@gmail.com" 
+              <Link
+                to="/contact"
                 className="text-gray-400 hover:text-white transition-colors duration-200 flex items-center"
               >
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                  <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 10.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 11-3.8-11.4" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M22 4L12 14.01l-3-3" />
                 </svg>
-                sabapplierai100m@gmail.com
-              </a>
+                Contact Us
+              </Link>
             </div>
           </div>
         </div>

@@ -4,8 +4,11 @@ import SearchBar from '../../components/SearchBar/SearchBar';
 import JobCard from '../../components/JobCard/JobCard';
 import Footer from '../../components/Footer/Footer';
 import { LoadingProgressBar } from '../../components/ProgressBar';
+import { useAuth } from '../../hooks/useAuth';
+import { api } from '../../services/api';
 
 const Home = ({ applications, /* onToggleCart, */ loadingExams }) => {
+  const { user, updateUser } = useAuth();
   const [filteredApplications, setFilteredApplications] = useState(applications);
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -220,15 +223,6 @@ const Home = ({ applications, /* onToggleCart, */ loadingExams }) => {
           )}
         </div>
         
-        {/* Privacy Policy Link */}
-        <div className="text-center py-8 border-t border-gray-200">
-          <Link 
-            to="/privacy-policy" 
-            className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
-          >
-            Our Privacy Policy
-          </Link>
-        </div>
       </main>
       <Footer />
     </div>

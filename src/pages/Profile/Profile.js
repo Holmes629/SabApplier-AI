@@ -251,31 +251,100 @@ function Profile() {
           </div>
         </div>
 
-        {/* Actions Section */}
-        {/* <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100 shadow-xl p-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Account Actions
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"> */}
-            {/* Share Profile Button */}
-            {/* <button
-              onClick={handleShareProfile}
-              className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-colors duration-200"
-            >
-              <Share2 className="w-5 h-5 mr-2" />
-              Share Profile
-            </button> */}
-
-            {/* Manage Shared Links Button */}
-            {/* <button
-              onClick={handleManageSharedLinks}
-              className="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700 transition-colors duration-200"
-            >
-              <Settings className="w-5 h-5 mr-2" />
-              Manage Shared Links
-            </button>
+        {/* Referral Program Section (migrated from Referral.js) */}
+        {userData.referral_code && (
+          <div className="bg-blue-50/80 backdrop-blur-sm rounded-3xl border border-blue-100 shadow-lg p-8 w-full max-w-xl flex flex-col items-center mx-auto mb-12">
+            <h2 className="text-2xl font-bold text-blue-900 mb-4">Referral Program</h2>
+            <p className="text-blue-700 mb-6 text-center max-w-lg">
+              Invite friends to unlock advanced features! Share your referral code below. Each friend who signs up with your code counts as a successful referral.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-4">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-blue-800">Your Referral Code:</span>
+                <span className="bg-white border border-blue-200 rounded px-3 py-1 font-mono text-blue-900 select-all">{userData.referral_code}</span>
+                <button
+                  className="ml-2 px-2 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 text-xs"
+                  onClick={() => navigator.clipboard.writeText(userData.referral_code)}
+                  disabled={!userData.referral_code}
+                  title="Copy referral code"
+                >
+                  Copy
+                </button>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-blue-800">Successful Referrals:</span>
+                <span className="bg-white border border-blue-200 rounded px-3 py-1 font-mono text-blue-900">{userData.successful_referrals ?? 0}</span>
+                <button
+                  className="ml-2 px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-xs flex items-center"
+                  onClick={async () => {
+                    setIsLoading(true);
+                    try {
+                      const response = await api.getProfile();
+                      setUserData(response.user_data);
+                    } catch (e) {
+                      setError('Failed to refresh referral count.');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
+                  disabled={isLoading}
+                  title="Refresh referral count"
+                >
+                  {isLoading ? (
+                    <svg className="animate-spin h-4 w-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="4" className="opacity-25"/><path d="M4 12a8 8 0 018-8" strokeWidth="4" className="opacity-75"/></svg>
+                  ) : (
+                    <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582M20 20v-5h-.581M5.635 19A9 9 0 1021 12.35"/></svg>
+                  )}
+                  Refresh
+                </button>
+              </div>
+            </div>
+            {/* Share Buttons */}
+            <div className="flex flex-wrap gap-4 mt-6 mb-2 justify-center">
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(`Join me on SabApplier AI and unlock advanced features!\n\nMY REFERRAL CODE: *** ${userData.referral_code.toUpperCase()} ***\n\nSign up here: https://sabapplier.com/signup`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 bg-green-500 text-white rounded-lg font-semibold hover:bg-green-600 transition-colors"
+              >
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20.52 3.48A12 12 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.63A11.97 11.97 0 0 0 12 24c6.63 0 12-5.37 12-13.986 0-.213-.005-.425-.014-.636A9.936 9.936 0 0 0 24 4.557zM12 22c-1.7 0-3.37-.34-4.93-1.01l-.35-.15-3.69.97.99-3.59-.18-.37A9.94 9.94 0 0 1 2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm5.2-7.8c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.28-.7.9-.86 1.08-.16.18-.32.2-.6.07-.28-.14-1.18-.44-2.25-1.4-.83-.74-1.39-1.65-1.55-1.93-.16-.28-.02-.43.12-.57.12-.12.28-.32.42-.48.14-.16.18-.28.28-.46.09-.18.05-.34-.02-.48-.07-.14-.61-1.47-.84-2.01-.22-.53-.45-.46-.61-.47-.16-.01-.34-.01-.52-.01-.18 0-.48.07-.73.34-.25.27-.97.95-.97 2.3 0 1.34.99 2.63 1.13 2.81.14.18 1.95 2.98 4.74 4.06.66.28 1.18.45 1.58.58.66.21 1.26.18 1.73.11.53-.08 1.65-.67 1.88-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.18-.53-.32z"/></svg>
+                Share on WhatsApp
+              </a>
+              <a
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(`Join me on SabApplier AI and unlock advanced features!\n\nMY REFERRAL CODE: *** ${userData.referral_code.toUpperCase()} ***\n\nSign up here: https://sabapplier.com/signup`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center px-4 py-2 bg-blue-400 text-white rounded-lg font-semibold hover:bg-blue-500 transition-colors"
+              >
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557a9.93 9.93 0 0 1-2.828.775 4.932 4.932 0 0 0 2.165-2.724c-.951.564-2.005.974-3.127 1.195A4.92 4.92 0 0 0 16.616 3c-2.73 0-4.942 2.21-4.942 4.932 0 .386.045.762.127 1.124C7.728 8.807 4.1 6.884 1.671 3.965c-.423.722-.666 1.561-.666 2.475 0 1.708.87 3.216 2.188 4.099a4.904 4.904 0 0 1-2.237-.616c-.054 2.281 1.581 4.415 3.949 4.89-.386.104-.793.16-1.213.16-.297 0-.583-.028-.862-.08.584 1.822 2.28 3.15 4.29 3.187A9.867 9.867 0 0 1 0 21.543a13.94 13.94 0 0 0 7.548 2.209c9.057 0 14.009-7.496 14.009-13.986 0-.213-.005-.425-.014-.636A9.936 9.936 0 0 0 24 4.557z"/></svg>
+                Share on Twitter
+              </a>
+              <button
+                className="inline-flex items-center px-4 py-2 bg-pink-500 text-white rounded-lg font-semibold hover:bg-pink-600 transition-colors"
+                onClick={() => navigator.clipboard.writeText(`Join me on SabApplier AI and unlock advanced features!\n\nMY REFERRAL CODE: *** ${userData.referral_code.toUpperCase()} ***\n\nSign up here: https://sabapplier.com/signup`)}
+              >
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.371 0 0 5.371 0 12c0 6.629 5.371 12 12 12s12-5.371 12-12c0-6.629-5.371-12-12-12zm0 22c-5.514 0-10-4.486-10-10S6.486 2 12 2s10 4.486 10 10-4.486 10-10 10zm1-17h-2v6H7v2h4v6h2v-6h4v-2h-4z"/></svg>
+                Copy Message (Instagram/Other)
+              </button>
+            </div>
+            <div className="mt-4 w-full flex flex-col items-center">
+              {userData.successful_referrals >= 2 ? (
+                <div className="inline-flex items-center px-4 py-2 bg-green-100 text-green-800 rounded-xl text-sm font-medium">
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                  Advanced features unlocked! Thank you for inviting friends.
+                </div>
+              ) : (
+                <div className="inline-flex items-center px-4 py-2 bg-yellow-100 text-yellow-800 rounded-xl text-sm font-medium">
+                  <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                  {`Invite ${2 - (userData.successful_referrals ?? 0)} more friend${(2 - (userData.successful_referrals ?? 0)) === 1 ? '' : 's'} to unlock advanced features!`}
+                </div>
+              )}
+            </div>
           </div>
-        </div> */}
+        )}
+        {/* End Referral Program Section */}
+
+        {/* Footer */}
       </main>
       
       <Footer />

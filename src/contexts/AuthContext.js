@@ -332,6 +332,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (userData) => {
+    if (!userData || !userData.email || !userData.fullName) {
+      console.warn('updateUser: Incomplete user data, not updating context.', userData);
+      return;
+    }
     const updatedUser = { ...user, ...userData };
     setUser(updatedUser);
     localStorage.setItem('currentUser', JSON.stringify(updatedUser));

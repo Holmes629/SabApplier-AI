@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import Footer from '../../components/Footer/Footer';
 import { api } from '../../services/api';
 import { Share2, Send, Inbox, Clock, CheckCircle2, AlertCircle, FileText, ChevronDown, Download } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 // Document fields mapping from Docs.js
 const DOCUMENT_FIELDS = {
@@ -19,7 +20,17 @@ const DOCUMENT_FIELDS = {
   domicile_certificate_file_url: "Domicile Certificate",
 };
 
+// Helper to get Dropbox direct download link
+const getDropboxDownloadLink = (url) => {
+  if (!url) return '';
+  return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('&dl=0', '&dl=1');
+};
+
 function DataSharing() {
+  const { user, updateUser } = useAuth();
+  const [freshUser, setFreshUser] = useState(user);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const advancedUnlocked = freshUser?.successful_referrals >= 2;
   const navigate = useNavigate();
   const [friendEmail, setFriendEmail] = useState('');
   const [selectedDocuments, setSelectedDocuments] = useState([]);
@@ -37,6 +48,27 @@ function DataSharing() {
   const [sharingType, setSharingType] = useState('documents_only'); // 'documents_only' or 'documents_with_details'
   const [openDropdownId, setOpenDropdownId] = useState(null);
   const [actionLoadingId, setActionLoadingId] = useState(null);
+
+  // Always fetch the latest user profile on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoadingUser(true);
+      try {
+        const response = await api.getProfile();
+        if (response && response.user_data) {
+          setFreshUser(response.user_data);
+          // updateUser removed here to prevent reload loop
+        }
+      } catch (e) {
+        // fallback to context user
+        setFreshUser(user);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+    fetchUser();
+    // eslint-disable-next-line
+  }, []);
 
   // Load data on component mount
   useEffect(() => {
@@ -60,26 +92,33 @@ function DataSharing() {
     }
   }, [errorMessage]);
 
+  const prettifyFieldName = (field) => {
+    return field.replace(/_file_url$/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  };
+
   const loadUserDocuments = async () => {
     try {
       setLoadingDocuments(true);
       const response = await api.getProfile();
-      // Extract documents using the same structure as Docs.js
       const documents = [];
-      
       if (response.user_data) {
-        // Check each document field from DOCUMENT_FIELDS
-        Object.entries(DOCUMENT_FIELDS).forEach(([field, label]) => {
-          if (response.user_data[field]) {
-            documents.push({ 
-              name: label, 
-              type: field, 
-              url: response.user_data[field] 
+        // Use all_documents for all uploaded docs
+        const allDocs = response.user_data.all_documents || {};
+        const customDocCategories = response.user_data.custom_doc_categories || {};
+        Object.entries(allDocs).forEach(([field, url]) => {
+          if (url) {
+            // Try to get label from DOCUMENT_FIELDS, else prettify
+            let name = DOCUMENT_FIELDS[field] || prettifyFieldName(field);
+            // Optionally, append category info for custom docs
+            documents.push({
+              name,
+              type: field,
+              url,
+              category: customDocCategories[field] || null
             });
           }
         });
       }
-      
       setUserDocuments(documents);
     } catch (error) {
       console.error('Error loading user documents:', error);
@@ -153,6 +192,11 @@ function DataSharing() {
       setSelectedDocuments([]);
       // Reload the shares data to show the new request
       await loadSharesData();
+      // Re-fetch user profile to update successful_referrals
+      const response = await api.getProfile();
+      if (response && response.user_data) {
+        updateUser && updateUser(response.user_data);
+      }
     } catch (error) {
       console.error('Error sharing data:', error);
       setErrorMessage('Failed to send sharing request: ' + error.message);
@@ -169,6 +213,11 @@ function DataSharing() {
       // Reload the shares data to reflect the change
       await loadSharesData();
       await loadNotifications();
+      // Re-fetch user profile to update successful_referrals
+      const response = await api.getProfile();
+      if (response && response.user_data) {
+        updateUser && updateUser(response.user_data);
+      }
     } catch (error) {
       console.error(`Error ${action}ing request:`, error);
       setErrorMessage(`Failed to ${action} request: ` + error.message);
@@ -183,6 +232,11 @@ function DataSharing() {
       await api.stopDataSharing(receiverEmail);
       setSuccessMessage(`Stopped sharing with ${receiverEmail}`);
       await loadSharesData();
+      // Re-fetch user profile to update successful_referrals
+      const response = await api.getProfile();
+      if (response && response.user_data) {
+        updateUser && updateUser(response.user_data);
+      }
     } catch (error) {
       console.error('Error stopping share:', error);
       setErrorMessage('Failed to stop sharing: ' + error.message);
@@ -220,6 +274,31 @@ function DataSharing() {
   };
   const sortedReceivedShares = sortRequests(sharesData.received_shares || []);
   const sortedSentShares = sortRequests(sharesData.sent_shares || []);
+
+  if (loadingUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Checking access...</p>
+      </div>
+    );
+  }
+
+  if (!advancedUnlocked) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 py-12">
+        <div className="bg-blue-50/80 backdrop-blur-sm rounded-3xl border border-blue-100 shadow-lg p-8 w-full max-w-xl flex flex-col items-center">
+          <div className="text-5xl mb-4">��</div>
+          <h2 className="text-2xl font-bold text-blue-900 mb-2">Advanced Feature Locked</h2>
+          <p className="text-blue-700 mb-4 text-center max-w-lg">
+            Data Sharing and other advanced features are locked.<br />
+            Invite 2 friends to unlock these features!
+          </p>
+          <a href="/profile" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors">Go to Profile to Unlock</a>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
@@ -320,7 +399,7 @@ function DataSharing() {
                     checked={sharingType === 'documents_with_details'}
                     onChange={() => setSharingType('documents_with_details')}
                   />
-                  Share documents with details
+                  Share documents with details to fill forms
                 </label>
               </div>
             </div>
@@ -495,13 +574,13 @@ function DataSharing() {
                             <div className="flex justify-between items-center">
                               <span className="text-xs font-semibold text-gray-900 truncate max-w-[120px]">{request.sender_email}</span>
                               <span className={`px-2 py-0.5 rounded-full text-xs font-bold min-w-[70px] text-center ${
-                                request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                request.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                                'bg-red-100 text-red-800'
-                              }`}>
-                                {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
-                              </span>
-                            </div>
+                              request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              request.status === 'accepted' ? 'bg-green-100 text-green-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                            </span>
+                          </div>
                             {/* Show shared documents if present */}
                             {hasDocuments && request.status === 'accepted' && (
                               <div className="mt-1">
@@ -521,15 +600,13 @@ function DataSharing() {
                                         {Object.entries(documentUrls).map(([docType, url]) => (
                                           <li key={docType} className="flex items-center px-2 py-1 hover:bg-blue-50 text-xs">
                                             <a
-                                              href={url}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="flex-1 text-blue-700 hover:underline truncate"
+                                              href={getDropboxDownloadLink(url)}
                                               download
+                                              className="flex-1 text-blue-700 hover:underline truncate"
                                             >
                                               {DOCUMENT_FIELDS[docType] || docType}
                                             </a>
-                                            <a href={url} download className="ml-1 text-blue-600 hover:text-blue-800" title="Download">
+                                            <a href={getDropboxDownloadLink(url)} download className="ml-1 text-blue-600 hover:text-blue-800" title="Download">
                                               <Download className="w-3 h-3" />
                                             </a>
                                           </li>
@@ -540,32 +617,32 @@ function DataSharing() {
                                 </div>
                               </div>
                             )}
-                            {/* Action buttons for pending requests */}
-                            {request.status === 'pending' && (
+                          {/* Action buttons for pending requests */}
+                          {request.status === 'pending' && (
                               <div className="flex gap-1 mt-1">
-                                <button
-                                  onClick={() => handleRequestAction(request.id, 'accept')}
+                              <button
+                                onClick={() => handleRequestAction(request.id, 'accept')}
                                   className="flex-1 px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors font-semibold flex items-center justify-center min-w-[60px]"
                                   disabled={actionLoadingId === `${request.id}-accept` || actionLoadingId === `${request.id}-decline`}
-                                >
+                              >
                                   {actionLoadingId === `${request.id}-accept` ? (
                                     <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></span>
                                   ) : <CheckCircle2 className="w-3 h-3 mr-1" />}
-                                  Accept
-                                </button>
-                                <button
-                                  onClick={() => handleRequestAction(request.id, 'decline')}
+                                Accept
+                              </button>
+                              <button
+                                onClick={() => handleRequestAction(request.id, 'decline')}
                                   className="flex-1 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors font-semibold flex items-center justify-center min-w-[60px]"
                                   disabled={actionLoadingId === `${request.id}-accept` || actionLoadingId === `${request.id}-decline`}
-                                >
+                              >
                                   {actionLoadingId === `${request.id}-decline` ? (
                                     <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></span>
                                   ) : <AlertCircle className="w-3 h-3 mr-1" />}
-                                  Decline
-                                </button>
-                              </div>
-                            )}
-                          </div>
+                                Decline
+                              </button>
+                            </div>
+                          )}
+                        </div>
                         );
                       })
                     ) : (

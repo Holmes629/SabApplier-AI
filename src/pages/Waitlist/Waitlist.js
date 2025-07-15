@@ -155,9 +155,17 @@ const Waitlist = () => {
             <div className="mb-8">
               <div className="bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-6 max-w-md mx-auto lg:mx-0 shadow-xl hover:shadow-2xl transition-all duration-300">
                 <div className="flex items-center mb-6">
-                  <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4 shadow-lg">
-                    {user?.email?.charAt(0)?.toUpperCase() || '7'}
-                  </div>
+                  {user?.google_profile_picture ? (
+                    <img
+                      src={user.google_profile_picture}
+                      alt={user?.fullName || user?.email || 'User'}
+                      className="w-14 h-14 rounded-full object-cover mr-4 shadow-lg border border-gray-200"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xl mr-4 shadow-lg">
+                      {user?.email?.charAt(0)?.toUpperCase() || '7'}
+                    </div>
+                  )}
                   <div className="flex-1">
                     <h3 className="font-bold text-gray-900 text-lg leading-tight">{user?.fullName || 'Ritesh Kumar'}</h3>
                     <p className="text-sm text-gray-500 mt-1">{user?.email || '7976ritesh@gmail.com'}</p>
@@ -289,11 +297,7 @@ const Waitlist = () => {
                     {/* Header */}
                     <div className="text-center mb-5">
                       <div className="w-12 h-12 flex items-center justify-center mx-auto mb-3">
-                        {user?.photoURL ? (
-                          <img src={user.photoURL} alt={user.displayName || 'User'} className="w-12 h-12 rounded-xl object-cover" />
-                        ) : (
-                          <img src="/logo.jpeg" alt="SabApplier" className="w-12 h-12 rounded-xl object-cover" />
-                        )}
+                        <img src="/logo.jpeg" alt="SabApplier" className="w-12 h-12 rounded-xl object-cover" />
                       </div>
                       <h3 className="text-base font-bold text-gray-800 mb-1">SabApplier AI</h3>
                       <p className="text-xs text-gray-600">Auto-Fill Assistant</p>

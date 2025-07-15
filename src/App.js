@@ -21,6 +21,10 @@ import Waitlist from './pages/Waitlist/Waitlist';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 import { tokenManager } from './utils/tokenManager';
+import Contact from './pages/Contact/Contact';
+import FloatingFeedbackButton from './components/Feedback/FloatingFeedbackButton';
+import FeedbackPopup from './components/Feedback/FeedbackPopup';
+// import Referral from './pages/Referral';
 
 // Create a wrapper component that uses useLocation and useAuth
 function AppContent() {
@@ -134,7 +138,12 @@ function AppContent() {
       
       // Add files to form data
       Object.entries(fileData).forEach(([fieldName, file]) => {
-        formData.append(fieldName, file);
+        if (fieldName === 'custom_doc_categories') {
+          // Append as JSON string
+          formData.append('custom_doc_categories', JSON.stringify(file));
+        } else {
+          formData.append(fieldName, file);
+        }
       });
 
       const response = await api.updateProfile(formData);
@@ -286,8 +295,14 @@ function AppContent() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/contact" 
+          element={<Contact />} 
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <FloatingFeedbackButton />
+      <FeedbackPopup />
     </div>
   );
 }
