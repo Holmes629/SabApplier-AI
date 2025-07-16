@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../../components/Footer/Footer';
 import { api } from '../../services/api';
-import { User, Mail, Phone, MapPin, Calendar, X } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, X, Share2 } from 'lucide-react';
 
 function Profile() {
   const navigate = useNavigate();
@@ -326,6 +326,10 @@ function Profile() {
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.371 0 0 5.371 0 12c0 6.629 5.371 12 12 12s12-5.371 12-12c0-6.629-5.371-12-12-12zm0 22c-5.514 0-10-4.486-10-10S6.486 2 12 2s10 4.486 10 10-4.486 10-10 10zm1-17h-2v6H7v2h4v6h2v-6h4v-2h-4z"/></svg>
                 Copy Message (Instagram/Other)
               </button>
+            </div>
+            <div className="flex items-center justify-center mb-2 text-green-700 text-sm gap-2 opacity-90">
+              <Share2 className="w-4 h-4" />
+              <span>💡Most students unlock full features in 2 mins by sharing on WhatsApp.</span>
             </div>
             <div className="mt-4 w-full flex flex-col items-center">
               {userData.successful_referrals >= 2 ? (

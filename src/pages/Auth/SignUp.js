@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Users } from 'lucide-react';
 import logo from '../../logo.jpeg';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../services/api';
@@ -368,6 +368,10 @@ const SignUp = () => {
                     </div>
                   )}
                 </button>
+                <div className="flex items-center justify-center mt-2 text-blue-500 text-sm gap-2 opacity-80">
+                  <Users className="w-4 h-4" />
+                  <span>Join thousands who trust SabApplier AI for secure, one-click form filling.</span>
+                </div>
               </form>
             </div>
 
@@ -439,7 +443,6 @@ const SignUp = () => {
         </div>
       </div>
       
-
     </div>
   );
 };

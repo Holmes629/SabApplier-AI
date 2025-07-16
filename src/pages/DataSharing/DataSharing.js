@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../../components/Footer/Footer';
 import { api } from '../../services/api';
-import { Share2, Send, Inbox, Clock, CheckCircle2, AlertCircle, FileText, ChevronDown, Download } from 'lucide-react';
+import { Share2, Send, Inbox, Clock, CheckCircle2, AlertCircle, FileText, ChevronDown, Download, Lock, Eye } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 
 // Document fields mapping from Docs.js
@@ -288,9 +288,13 @@ function DataSharing() {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 py-12">
         <div className="bg-blue-50/80 backdrop-blur-sm rounded-3xl border border-blue-100 shadow-lg p-8 w-full max-w-xl flex flex-col items-center">
-          <div className="text-5xl mb-4">��</div>
-          <h2 className="text-2xl font-bold text-blue-900 mb-2">Advanced Feature Locked</h2>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Lock className="w-6 h-6 text-yellow-500" />
+            <Eye className="w-5 h-5 text-blue-400" />
+            <span className="text-blue-900 font-bold text-lg">Advanced Feature Locked</span>
+          </div>
           <p className="text-blue-700 mb-4 text-center max-w-lg">
+            
             Data Sharing and other advanced features are locked.<br />
             Invite 2 friends to unlock these features!
           </p>
