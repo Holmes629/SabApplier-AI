@@ -743,6 +743,19 @@ export const api = {
     }
   },
 
+  contactUs: async (formData) => {
+    try {
+      const response = await axiosInstance.post(
+        `/users/contact-us/`,
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Contact us error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to send contact message");
+    }
+  },
+
   markNotificationAsRead: async (notificationId) => {
     try {
       const response = await axios.post(

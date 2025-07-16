@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { api } from '../../services/api';
 
 const initialForm = { name: '', email: '', subject: '', message: '' };
 
@@ -12,20 +13,28 @@ export default function Contact() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setSuccess('');
     setError('');
-    setTimeout(() => {
-      if (form.name && form.email && form.subject && form.message) {
+
+    try {
+      // Call the backend API
+      const response = await api.contactUs(form);
+      
+      if (response.success) {
         setSuccess('Thank you for contacting us! We will get back to you soon.');
         setForm(initialForm);
       } else {
-        setError('Please fill in all fields.');
+        setError(response.error || 'Failed to send message. Please try again.');
       }
+    } catch (err) {
+      console.error('Contact form error:', err);
+      setError('Failed to send message. Please try again.');
+    } finally {
       setLoading(false);
-    }, 1200);
+    }
   };
 
   return (
