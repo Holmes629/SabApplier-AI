@@ -39,7 +39,7 @@ export default function Contact() {
           <p className="text-sm text-gray-500 mt-2">
             <span className="font-semibold">For bug reports, feature requests, or general feedback, please use our </span>
             <a href="https://forms.gle/LF873a6PqVE9sNmQ9" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-semibold">Feedback Form</a>.
-          </p>
+        </p>
         </div>
         <div className="grid md:grid-cols-2 gap-6 flex-1">
           {/* Contact Form */}
