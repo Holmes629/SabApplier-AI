@@ -17,7 +17,9 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState(null);
-  const [hasWebsiteAccess, setHasWebsiteAccess] = useState(false);
+
+  // Derive website access from user data
+  const hasWebsiteAccess = user?.has_website_access || false;
 
   // Initialize authentication state on app load
   useEffect(() => {
@@ -52,10 +54,26 @@ export const AuthProvider = ({ children }) => {
         if (!isTokenExpired(storedToken)) {
           console.log('✅ Restoring authentication state');
           
-          // Set all states together
+          // Set token and basic auth state first
           setToken(storedToken);
-          setUser(parsedUser);
           setIsAuthenticated(true);
+          
+          // Fetch latest user profile from backend to get current has_website_access status
+          try {
+            const response = await api.getProfile();
+            if (response && response.user_data) {
+              console.log('✅ Fetched latest user profile from backend');
+              setUser(response.user_data);
+              // Update localStorage with fresh data
+              localStorage.setItem('currentUser', JSON.stringify(response.user_data));
+            } else {
+              console.warn('⚠️ Failed to fetch latest profile, using stored data');
+              setUser(parsedUser);
+            }
+          } catch (profileError) {
+            console.warn('⚠️ Failed to fetch latest profile, using stored data:', profileError);
+            setUser(parsedUser);
+          }
           
           console.log('✅ Authentication state restored:', {
             user: parsedUser.email,
@@ -308,7 +326,6 @@ export const AuthProvider = ({ children }) => {
       setToken(null);
       setUser(null);
       setIsAuthenticated(false);
-      setHasWebsiteAccess(false);
     }
   };
 
@@ -350,18 +367,6 @@ export const AuthProvider = ({ children }) => {
     initializeAuth();
   };
 
-  const checkWebsiteAccess = async (email) => {
-    try {
-      const accessResult = await api.checkAccessStatus(email);
-      setHasWebsiteAccess(accessResult.is_enabled);
-      return accessResult;
-    } catch (error) {
-      console.error('Website access check error:', error);
-      setHasWebsiteAccess(false);
-      throw error;
-    }
-  };
-
   const value = {
     user,
     token,
@@ -375,8 +380,7 @@ export const AuthProvider = ({ children }) => {
     refreshToken,
     updateUser,
     isProfileComplete,
-    refreshAuthState,
-    checkWebsiteAccess
+    refreshAuthState
   };
 
   return (

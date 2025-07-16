@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Gift } from 'lucide-react';
 import logo from '../../logo.jpeg';
 import { api } from '../../services/api';
 import NotificationBell from '../NotificationBell/NotificationBell';
@@ -286,6 +286,13 @@ const Navbar = ({
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                       My Details
+                    </Link>
+                    <Link 
+                      to="/refer" 
+                      className="flex items-center px-6 py-3 text-white/90 hover:bg-white/10 hover:text-blue-300 transition-all duration-200 font-medium"
+                      onClick={closeMenus}>
+                      <Gift className="w-5 h-5 mr-3 text-yellow-400" />
+                      Refer & Earn
                     </Link>
                     {/* <Link 
                       to="/privacy-policy" 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Footer from '../../components/Footer/Footer';
 import { api } from '../../services/api';
 import { Share2, Send, Inbox, Clock, CheckCircle2, AlertCircle, FileText, ChevronDown, Download, Lock, Eye } from 'lucide-react';
@@ -30,7 +30,7 @@ function DataSharing() {
   const { user, updateUser } = useAuth();
   const [freshUser, setFreshUser] = useState(user);
   const [loadingUser, setLoadingUser] = useState(true);
-  const advancedUnlocked = freshUser?.successful_referrals >= 2;
+  const advancedUnlocked = freshUser?.effective_successful_referrals >= 2;
   const navigate = useNavigate();
   const [friendEmail, setFriendEmail] = useState('');
   const [selectedDocuments, setSelectedDocuments] = useState([]);
@@ -298,7 +298,7 @@ function DataSharing() {
             Data Sharing and other advanced features are locked.<br />
             Invite 2 friends to unlock these features!
           </p>
-          <a href="/profile" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors">Go to Profile to Unlock</a>
+          <Link to="/refer" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors">Go to Refer & Earn to Unlock</Link>
         </div>
       </div>
     );
@@ -508,7 +508,7 @@ function DataSharing() {
                     You need to upload documents to your profile before you can share them with others.
                   </p>
                   <button
-                    onClick={() => navigate('/profile')}
+                    onClick={() => navigate('/refer')}
                     className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium"
                   >
                     <FileText className="w-4 h-4 mr-2" />

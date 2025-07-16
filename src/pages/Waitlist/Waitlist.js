@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, GraduationCap, Shield, Star, CheckCircle } from 'lucide-react';
 
 const Waitlist = () => {
-  const { user, logout, checkWebsiteAccess, hasWebsiteAccess } = useAuth();
+  const { user, logout, hasWebsiteAccess } = useAuth();
   const navigate = useNavigate();
   const [signupCount, setSignupCount] = useState(487); // Dynamic count
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -25,24 +25,6 @@ const Waitlist = () => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
-
-  // Periodic access check
-  useEffect(() => {
-    const checkAccessPeriodically = async () => {
-      if (user?.email) {
-        try {
-          await checkWebsiteAccess(user.email);
-        } catch (error) {
-          console.error('Periodic access check failed:', error);
-        }
-      }
-    };
-
-    // Check access every 30 seconds
-    const accessInterval = setInterval(checkAccessPeriodically, 30000);
-
-    return () => clearInterval(accessInterval);
-  }, [user?.email, checkWebsiteAccess]);
 
   // Handle logout and redirect to intro
   const handleLogout = async () => {

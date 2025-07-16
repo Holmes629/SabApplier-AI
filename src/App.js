@@ -25,41 +25,21 @@ import Contact from './pages/Contact/Contact';
 import FloatingFeedbackButton from './components/Feedback/FloatingFeedbackButton';
 import FeedbackPopup from './components/Feedback/FeedbackPopup';
 // import Referral from './pages/Referral';
+import Refer from './pages/Refer/Refer';
 
 // Create a wrapper component that uses useLocation and useAuth
 function AppContent() {
   const location = useLocation();
-  const { user, isAuthenticated, logout, isProfileComplete, isLoading, hasWebsiteAccess, checkWebsiteAccess } = useAuth();
+  const { user, isAuthenticated, logout, isProfileComplete, isLoading, hasWebsiteAccess } = useAuth();
   const [applications, setApplications] = useState([]);
   const [loadingExams, setLoadingExams] = useState(true);
-  const [accessCheckLoading, setAccessCheckLoading] = useState(true);
 
   // Check if user is fully authenticated (has completed profile)
   const isFullyAuthenticated = isAuthenticated && isProfileComplete();
 
-  // Check website access on authentication
-  useEffect(() => {
-    const checkAccess = async () => {
-      if (isAuthenticated && user?.email) {
-        try {
-          setAccessCheckLoading(true);
-          await checkWebsiteAccess(user.email);
-        } catch (error) {
-          console.error('Access check failed:', error);
-        } finally {
-          setAccessCheckLoading(false);
-        }
-      } else {
-        setAccessCheckLoading(false);
-      }
-    };
-
-    checkAccess();
-  }, [isAuthenticated, user?.email, checkWebsiteAccess]);
-
   const ProtectedRoute = ({ children }) => {
-    // Show loading spinner while checking authentication or access
-    if (isLoading || accessCheckLoading) {
+    // Show loading spinner while checking authentication
+    if (isLoading) {
       return (
         <div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -298,6 +278,14 @@ function AppContent() {
         <Route 
           path="/contact" 
           element={<Contact />} 
+        />
+        <Route 
+          path="/refer" 
+          element={
+            <ProtectedRoute>
+              <Refer />
+            </ProtectedRoute>
+          } 
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
