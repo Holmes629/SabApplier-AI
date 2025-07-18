@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from '../../components/Navbar/Navbar';
 import Hero from '../../components/Hero/Hero';
 import Features from '../../components/Features/Features';
@@ -7,7 +7,8 @@ import HowItWorks from '../../components/HowItWorks/HowItWorks';
 import Testimonials from '../../components/Testimonials/Testimonials';
 import CTA from '../../components/CTA/CTA';
 import Footer from '../../components/Footer/Footer';
-import { Sparkles } from 'lucide-react';
+import FloatingVideoDemo from '../../components/FloatingVideoDemo';
+import { Sparkles, X } from 'lucide-react';
 
 const Intro = () => {
   return (
@@ -16,6 +17,8 @@ const Intro = () => {
       <section id="hero" className='-mb-10'>
         <Hero />
       </section>
+      {/* Floating Video Demo (Portal) */}
+      <FloatingVideoDemo />
       <section id="how-it-works" className="pt-0">
         <HowItWorks />
       </section>
