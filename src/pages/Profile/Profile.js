@@ -251,31 +251,7 @@ function Profile() {
           </div>
         </div>
 
-        {/* Actions Section */}
-        {/* <div className="bg-white/80 backdrop-blur-sm rounded-3xl border border-gray-100 shadow-xl p-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
-            Account Actions
-          </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4"> */}
-            {/* Share Profile Button */}
-            {/* <button
-              onClick={handleShareProfile}
-              className="flex items-center justify-center px-4 py-3 bg-blue-600 text-white rounded-xl shadow-md hover:bg-blue-700 transition-colors duration-200"
-            >
-              <Share2 className="w-5 h-5 mr-2" />
-              Share Profile
-            </button> */}
-
-            {/* Manage Shared Links Button */}
-            {/* <button
-              onClick={handleManageSharedLinks}
-              className="flex items-center justify-center px-4 py-3 bg-green-600 text-white rounded-xl shadow-md hover:bg-green-700 transition-colors duration-200"
-            >
-              <Settings className="w-5 h-5 mr-2" />
-              Manage Shared Links
-            </button>
-          </div>
-        </div> */}
+        {/* Footer */}
       </main>
       
       <Footer />

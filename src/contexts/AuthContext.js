@@ -18,6 +18,9 @@ export const AuthProvider = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [token, setToken] = useState(null);
 
+  // Derive website access from user data
+  const hasWebsiteAccess = user?.has_website_access || false;
+
   // Initialize authentication state on app load
   useEffect(() => {
     initializeAuth();
@@ -51,10 +54,26 @@ export const AuthProvider = ({ children }) => {
         if (!isTokenExpired(storedToken)) {
           console.log('✅ Restoring authentication state');
           
-          // Set all states together
+          // Set token and basic auth state first
           setToken(storedToken);
-          setUser(parsedUser);
           setIsAuthenticated(true);
+          
+          // Fetch latest user profile from backend to get current has_website_access status
+          try {
+            const response = await api.getProfile();
+            if (response && response.user_data) {
+              console.log('✅ Fetched latest user profile from backend');
+              setUser(response.user_data);
+              // Update localStorage with fresh data
+              localStorage.setItem('currentUser', JSON.stringify(response.user_data));
+            } else {
+              console.warn('⚠️ Failed to fetch latest profile, using stored data');
+              setUser(parsedUser);
+            }
+          } catch (profileError) {
+            console.warn('⚠️ Failed to fetch latest profile, using stored data:', profileError);
+            setUser(parsedUser);
+          }
           
           console.log('✅ Authentication state restored:', {
             user: parsedUser.email,
@@ -330,6 +349,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (userData) => {
+    if (!userData || !userData.email || !userData.fullName) {
+      console.warn('updateUser: Incomplete user data, not updating context.', userData);
+      return;
+    }
     const updatedUser = { ...user, ...userData };
     setUser(updatedUser);
     localStorage.setItem('currentUser', JSON.stringify(updatedUser));
@@ -349,6 +372,7 @@ export const AuthProvider = ({ children }) => {
     token,
     isAuthenticated,
     isLoading,
+    hasWebsiteAccess,
     login,
     signup,
     completeProfile,

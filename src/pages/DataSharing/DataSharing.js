@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import Footer from '../../components/Footer/Footer';
 import { api } from '../../services/api';
-import { Share2, Send, Inbox, Clock, CheckCircle2, AlertCircle, FileText } from 'lucide-react';
+import { Share2, Send, Inbox, Clock, CheckCircle2, AlertCircle, FileText, ChevronDown, Download, Lock, Eye } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
 
 // Document fields mapping from Docs.js
 const DOCUMENT_FIELDS = {
@@ -19,7 +20,17 @@ const DOCUMENT_FIELDS = {
   domicile_certificate_file_url: "Domicile Certificate",
 };
 
+// Helper to get Dropbox direct download link
+const getDropboxDownloadLink = (url) => {
+  if (!url) return '';
+  return url.replace('www.dropbox.com', 'dl.dropboxusercontent.com').replace('&dl=0', '&dl=1');
+};
+
 function DataSharing() {
+  const { user, updateUser } = useAuth();
+  const [freshUser, setFreshUser] = useState(user);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const advancedUnlocked = freshUser?.effective_successful_referrals >= 2;
   const navigate = useNavigate();
   const [friendEmail, setFriendEmail] = useState('');
   const [selectedDocuments, setSelectedDocuments] = useState([]);
@@ -34,6 +45,30 @@ function DataSharing() {
   const [loadingDocuments, setLoadingDocuments] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [sharingType, setSharingType] = useState('documents_only'); // 'documents_only' or 'documents_with_details'
+  const [openDropdownId, setOpenDropdownId] = useState(null);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+
+  // Always fetch the latest user profile on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      setLoadingUser(true);
+      try {
+        const response = await api.getProfile();
+        if (response && response.user_data) {
+          setFreshUser(response.user_data);
+          // updateUser removed here to prevent reload loop
+        }
+      } catch (e) {
+        // fallback to context user
+        setFreshUser(user);
+      } finally {
+        setLoadingUser(false);
+      }
+    };
+    fetchUser();
+    // eslint-disable-next-line
+  }, []);
 
   // Load data on component mount
   useEffect(() => {
@@ -57,26 +92,33 @@ function DataSharing() {
     }
   }, [errorMessage]);
 
+  const prettifyFieldName = (field) => {
+    return field.replace(/_file_url$/, '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  };
+
   const loadUserDocuments = async () => {
     try {
       setLoadingDocuments(true);
       const response = await api.getProfile();
-      // Extract documents using the same structure as Docs.js
       const documents = [];
-      
       if (response.user_data) {
-        // Check each document field from DOCUMENT_FIELDS
-        Object.entries(DOCUMENT_FIELDS).forEach(([field, label]) => {
-          if (response.user_data[field]) {
-            documents.push({ 
-              name: label, 
-              type: field, 
-              url: response.user_data[field] 
+        // Use all_documents for all uploaded docs
+        const allDocs = response.user_data.all_documents || {};
+        const customDocCategories = response.user_data.custom_doc_categories || {};
+        Object.entries(allDocs).forEach(([field, url]) => {
+          if (url) {
+            // Try to get label from DOCUMENT_FIELDS, else prettify
+            let name = DOCUMENT_FIELDS[field] || prettifyFieldName(field);
+            // Optionally, append category info for custom docs
+            documents.push({
+              name,
+              type: field,
+              url,
+              category: customDocCategories[field] || null
             });
           }
         });
       }
-      
       setUserDocuments(documents);
     } catch (error) {
       console.error('Error loading user documents:', error);
@@ -133,7 +175,7 @@ function DataSharing() {
     setIsLoading(true);
     setErrorMessage('');
     try {
-      await api.shareDataWithFriend(friendEmail, selectedDocuments);
+      await api.shareDataWithFriend(friendEmail, selectedDocuments, sharingType);
       
       let successMsg = `Sharing request sent to ${friendEmail} successfully!`;
       if (selectedDocuments.length > 0) {
@@ -150,6 +192,11 @@ function DataSharing() {
       setSelectedDocuments([]);
       // Reload the shares data to show the new request
       await loadSharesData();
+      // Re-fetch user profile to update successful_referrals
+      const response = await api.getProfile();
+      if (response && response.user_data) {
+        updateUser && updateUser(response.user_data);
+      }
     } catch (error) {
       console.error('Error sharing data:', error);
       setErrorMessage('Failed to send sharing request: ' + error.message);
@@ -159,26 +206,42 @@ function DataSharing() {
   };
 
   const handleRequestAction = async (shareId, action) => {
+    setActionLoadingId(`${shareId}-${action}`);
     try {
       await api.respondToShareRequest(shareId, action);
       setSuccessMessage(`Request ${action}ed successfully!`);
       // Reload the shares data to reflect the change
       await loadSharesData();
       await loadNotifications();
+      // Re-fetch user profile to update successful_referrals
+      const response = await api.getProfile();
+      if (response && response.user_data) {
+        updateUser && updateUser(response.user_data);
+      }
     } catch (error) {
       console.error(`Error ${action}ing request:`, error);
       setErrorMessage(`Failed to ${action} request: ` + error.message);
+    } finally {
+      setActionLoadingId(null);
     }
   };
 
-  const handleStopSharing = async (receiverEmail) => {
+  const handleStopSharing = async (receiverEmail, shareId) => {
+    setActionLoadingId(`stop-${shareId}`);
     try {
       await api.stopDataSharing(receiverEmail);
       setSuccessMessage(`Stopped sharing with ${receiverEmail}`);
       await loadSharesData();
+      // Re-fetch user profile to update successful_referrals
+      const response = await api.getProfile();
+      if (response && response.user_data) {
+        updateUser && updateUser(response.user_data);
+      }
     } catch (error) {
       console.error('Error stopping share:', error);
       setErrorMessage('Failed to stop sharing: ' + error.message);
+    } finally {
+      setActionLoadingId(null);
     }
   };
 
@@ -191,6 +254,55 @@ function DataSharing() {
       day: 'numeric'
     });
   };
+
+  // Add handler for marking notification as read
+  const handleMarkAsRead = async (notificationId) => {
+    console.log('[DEBUG] handleMarkAsRead called with notificationId:', notificationId);
+    try {
+      console.log('[DEBUG] Calling api.markNotificationAsRead with:', notificationId);
+      await api.markNotificationAsRead(notificationId);
+      setNotifications((prev) => prev.map((n) => n.id === notificationId ? { ...n, is_read: true } : n));
+    } catch (error) {
+      setErrorMessage(error.message);
+    }
+  };
+
+  // Before rendering, sort received_shares and sent_shares by status:
+  const sortRequests = (requests) => {
+    const statusOrder = { accepted: 0, pending: 1, stopped: 2, declined: 3 };
+    return [...requests].sort((a, b) => (statusOrder[a.status] ?? 99) - (statusOrder[b.status] ?? 99));
+  };
+  const sortedReceivedShares = sortRequests(sharesData.received_shares || []);
+  const sortedSentShares = sortRequests(sharesData.sent_shares || []);
+
+  if (loadingUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">Checking access...</p>
+      </div>
+    );
+  }
+
+  if (!advancedUnlocked) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center px-4 py-12">
+        <div className="bg-blue-50/80 backdrop-blur-sm rounded-3xl border border-blue-100 shadow-lg p-8 w-full max-w-xl flex flex-col items-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Lock className="w-6 h-6 text-yellow-500" />
+            <Eye className="w-5 h-5 text-blue-400" />
+            <span className="text-blue-900 font-bold text-lg">Advanced Feature Locked</span>
+          </div>
+          <p className="text-blue-700 mb-4 text-center max-w-lg">
+            
+            Data Sharing and other advanced features are locked.<br />
+            Invite 2 friends to unlock these features!
+          </p>
+          <Link to="/refer" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold transition-colors">Go to Refer & Earn to Unlock</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
@@ -265,6 +377,35 @@ function DataSharing() {
                 onChange={(e) => setFriendEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
               />
+            </div>
+
+            {/* Sharing Type Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                What do you want to share?
+              </label>
+              <div className="flex gap-6">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="sharingType"
+                    value="documents_only"
+                    checked={sharingType === 'documents_only'}
+                    onChange={() => setSharingType('documents_only')}
+                  />
+                  Only share documents
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="sharingType"
+                    value="documents_with_details"
+                    checked={sharingType === 'documents_with_details'}
+                    onChange={() => setSharingType('documents_with_details')}
+                  />
+                  Share documents with details to fill forms
+                </label>
+              </div>
             </div>
 
             {/* Document Selection */}
@@ -367,7 +508,7 @@ function DataSharing() {
                     You need to upload documents to your profile before you can share them with others.
                   </p>
                   <button
-                    onClick={() => navigate('/profile')}
+                    onClick={() => navigate('/refer')}
                     className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium"
                   >
                     <FileText className="w-4 h-4 mr-2" />
@@ -415,29 +556,28 @@ function DataSharing() {
               {/* Requests Section */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
                 {/* Received Requests */}
-                <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                  <div className="flex items-center mb-4">
-                    <div className="w-8 h-8 bg-gradient-to-r from-green-200 to-green-300 rounded-lg flex items-center justify-center mr-2">
+                <div className="bg-white border border-blue-200 rounded-xl p-4 shadow-sm">
+                  <div className="flex items-center mb-3">
+                    <div className="w-7 h-7 bg-gradient-to-r from-green-200 to-green-300 rounded-lg flex items-center justify-center mr-2">
                       <Inbox className="w-4 h-4 text-dark" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 flex-1">Received Data</h3>
-                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                    <h3 className="text-base font-bold text-gray-900 flex-1">Received Data</h3>
+                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">
                       {sharesData.received_shares?.length || 0}
                     </span>
                   </div>
-                  <div className="space-y-3">
-                    {sharesData.received_shares && sharesData.received_shares.length > 0 ? (
-                      sharesData.received_shares.map((request) => (
-                        <div key={request.id} className="border border-gray-100 rounded-lg p-3 hover:shadow-md hover:border-green-200 transition-all duration-200">
-                          <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <span className="text-sm font-semibold text-gray-900 block">{request.sender_email}</span>
-                              <span className="text-xs text-gray-500 flex items-center mt-1">
-                                <Clock className="w-3 h-3 mr-1" />
-                                {formatDate(request.created_at)}
-                              </span>
-                            </div>
-                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                  <div className="space-y-2">
+                    {sortedReceivedShares && sortedReceivedShares.length > 0 ? (
+                      sortedReceivedShares.map((request) => {
+                        const sharedData = request.shared_data || {};
+                        const documentsObj = sharedData.documents || {};
+                        const documentUrls = documentsObj.document_urls || {};
+                        const hasDocuments = Object.keys(documentUrls).length > 0;
+                        return (
+                          <div key={request.id} className="border border-gray-100 rounded-md p-2 hover:shadow-sm hover:border-green-200 transition-all duration-200 flex flex-col gap-1">
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-semibold text-gray-900 truncate max-w-[120px]">{request.sender_email}</span>
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-bold min-w-[70px] text-center ${
                               request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                               request.status === 'accepted' ? 'bg-green-100 text-green-800' :
                               'bg-red-100 text-red-800'
@@ -445,64 +585,97 @@ function DataSharing() {
                               {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                             </span>
                           </div>
-                          
+                            {/* Show shared documents if present */}
+                            {hasDocuments && request.status === 'accepted' && (
+                              <div className="mt-1">
+                                <div className="font-semibold text-xs text-gray-700 mb-0.5">Docs:</div>
+                                <div className="relative inline-block w-full max-w-xs">
+                                  <button
+                                    type="button"
+                                    className="w-full flex justify-between items-center px-2 py-1 bg-blue-50 border border-blue-200 rounded text-blue-700 font-medium focus:outline-none text-xs"
+                                    onClick={() => setOpenDropdownId(openDropdownId === request.id ? null : request.id)}
+                                  >
+                                    View
+                                    <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${openDropdownId === request.id ? 'rotate-180' : ''}`} />
+                                  </button>
+                                  {openDropdownId === request.id && (
+                                    <div className="absolute left-0 right-0 mt-1 bg-white border border-blue-200 rounded shadow z-10">
+                                      <ul className="py-1 max-h-40 overflow-y-auto">
+                                        {Object.entries(documentUrls).map(([docType, url]) => (
+                                          <li key={docType} className="flex items-center px-2 py-1 hover:bg-blue-50 text-xs">
+                                            <a
+                                              href={getDropboxDownloadLink(url)}
+                                              download
+                                              className="flex-1 text-blue-700 hover:underline truncate"
+                                            >
+                                              {DOCUMENT_FIELDS[docType] || docType}
+                                            </a>
+                                            <a href={getDropboxDownloadLink(url)} download className="ml-1 text-blue-600 hover:text-blue-800" title="Download">
+                                              <Download className="w-3 h-3" />
+                                            </a>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
                           {/* Action buttons for pending requests */}
                           {request.status === 'pending' && (
-                            <div className="flex gap-2">
+                              <div className="flex gap-1 mt-1">
                               <button
                                 onClick={() => handleRequestAction(request.id, 'accept')}
-                                className="flex-1 px-3 py-2 bg-green-600 text-white text-xs rounded-lg hover:bg-green-700 transition-colors font-semibold flex items-center justify-center"
+                                  className="flex-1 px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition-colors font-semibold flex items-center justify-center min-w-[60px]"
+                                  disabled={actionLoadingId === `${request.id}-accept` || actionLoadingId === `${request.id}-decline`}
                               >
-                                <CheckCircle2 className="w-3 h-3 mr-1" />
+                                  {actionLoadingId === `${request.id}-accept` ? (
+                                    <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></span>
+                                  ) : <CheckCircle2 className="w-3 h-3 mr-1" />}
                                 Accept
                               </button>
                               <button
                                 onClick={() => handleRequestAction(request.id, 'decline')}
-                                className="flex-1 px-3 py-2 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 transition-colors font-semibold flex items-center justify-center"
+                                  className="flex-1 px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors font-semibold flex items-center justify-center min-w-[60px]"
+                                  disabled={actionLoadingId === `${request.id}-accept` || actionLoadingId === `${request.id}-decline`}
                               >
-                                <AlertCircle className="w-3 h-3 mr-1" />
+                                  {actionLoadingId === `${request.id}-decline` ? (
+                                    <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></span>
+                                  ) : <AlertCircle className="w-3 h-3 mr-1" />}
                                 Decline
                               </button>
                             </div>
                           )}
                         </div>
-                      ))
+                        );
+                      })
                     ) : (
-                      <div className="text-center py-6 text-gray-500">
-                        <div className="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                          <Inbox className="w-6 h-6 text-gray-400" />
-                        </div>
-                        <p className="text-sm font-medium text-gray-600">No received Data</p>
-                        <p className="text-xs text-gray-500">You'll see sharing requests from others here</p>
+                      <div className="text-center py-3 text-gray-500 text-xs">
+                        <Inbox className="w-5 h-5 mx-auto mb-1 text-gray-400" />
+                        <p>No received Data</p>
                       </div>
                     )}
                   </div>
                 </div>
 
                 {/* Sent Requests */}
-                <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
-                  <div className="flex items-center mb-4">
-                    <div className="w-8 h-8 bg-gradient-to-r from-blue-200 to-blue-300 rounded-lg flex items-center justify-center mr-2">
+                <div className="bg-white border border-blue-200 rounded-xl p-4 shadow-sm">
+                  <div className="flex items-center mb-3">
+                    <div className="w-7 h-7 bg-gradient-to-r from-blue-200 to-blue-300 rounded-lg flex items-center justify-center mr-2">
                       <Send className="w-4 h-4 text-dark" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-900 flex-1">Sent Data</h3>
-                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
+                    <h3 className="text-base font-bold text-gray-900 flex-1">Sent Data</h3>
+                    <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-0.5 rounded-full">
                       {sharesData.sent_shares?.length || 0}
                     </span>
                   </div>
-                  <div className="space-y-3">
-                    {sharesData.sent_shares && sharesData.sent_shares.length > 0 ? (
-                      sharesData.sent_shares.map((request) => (
-                        <div key={request.id} className="border border-gray-100 rounded-lg p-3 hover:shadow-md hover:border-blue-200 transition-all duration-200">
-                          <div className="flex justify-between items-start mb-3">
-                            <div>
-                              <span className="text-sm font-semibold text-gray-900 block">{request.receiver_email}</span>
-                              <span className="text-xs text-gray-500 flex items-center mt-1">
-                                <Clock className="w-3 h-3 mr-1" />
-                                {formatDate(request.created_at)}
-                              </span>
-                            </div>
-                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                  <div className="space-y-2">
+                    {sortedSentShares && sortedSentShares.length > 0 ? (
+                      sortedSentShares.map((request) => (
+                        <div key={request.id} className="border border-gray-100 rounded-md p-2 hover:shadow-sm hover:border-blue-200 transition-all duration-200 flex flex-col gap-1">
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-semibold text-gray-900 truncate max-w-[120px]">{request.receiver_email}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-bold min-w-[70px] text-center ${
                               request.status === 'accepted' ? 'bg-green-100 text-green-800' :
                               request.status === 'declined' ? 'bg-red-100 text-red-800' : 
                               'bg-yellow-100 text-yellow-800'
@@ -512,22 +685,22 @@ function DataSharing() {
                           </div>
                           {request.status === 'accepted' && (
                             <button 
-                              onClick={() => handleStopSharing(request.receiver_email)}
-                              className="w-full px-3 py-2 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700 transition-colors font-semibold flex items-center justify-center"
+                              onClick={() => handleStopSharing(request.receiver_email, request.id)}
+                              className="w-full px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 transition-colors font-semibold flex items-center justify-center min-w-[60px] mt-1"
+                              disabled={actionLoadingId === `stop-${request.id}`}
                             >
-                              <AlertCircle className="w-3 h-3 mr-1" />
+                              {actionLoadingId === `stop-${request.id}` ? (
+                                <span className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mr-1"></span>
+                              ) : <AlertCircle className="w-3 h-3 mr-1" />}
                               Stop Sharing
                             </button>
                           )}
                         </div>
                       ))
                     ) : (
-                      <div className="text-center py-6 text-gray-500">
-                        <div className="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                          <Send className="w-6 h-6 text-gray-400" />
-                        </div>
-                        <p className="text-sm font-medium text-gray-600">No sent Data</p>
-                        <p className="text-xs text-gray-500">Share documents with others to see data here</p>
+                      <div className="text-center py-3 text-gray-500 text-xs">
+                        <Send className="w-5 h-5 mx-auto mb-1 text-gray-400" />
+                        <p>No sent Data</p>
                       </div>
                     )}
                   </div>
@@ -535,39 +708,50 @@ function DataSharing() {
               </div>
 
               {/* Recent Activities */}
-              <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+              <div className="bg-white border border-blue-200 rounded-xl p-4 shadow-sm">
                 <div className="flex items-center mb-4">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg flex items-center justify-center mr-2">
-                    <Clock className="w-4 h-4 text-dark" />
+                  <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-2">
+                    <Clock className="w-4 h-4 text-blue-700" />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 flex-1">Recent Activities</h3>
-                  <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">
+                  <h3 className="text-lg font-bold text-black flex-1">Recent Activities</h3>
+                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
                     {notifications.length}
                   </span>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {notifications && notifications.length > 0 ? (
                     notifications.slice(0, 5).map((activity) => (
-                      <div key={activity.id} className="flex justify-between items-start py-3 px-3 border border-gray-100 rounded-lg hover:shadow-md hover:border-purple-200 transition-all duration-200">
-                        <div className="flex items-start flex-1">
-                          <div className="w-6 h-6 bg-gradient-to-r from-purple-200 to-purple-300 rounded-lg flex items-center justify-center mr-2 mt-0.5">
-                            <FileText className="w-3 h-3 text-dark" />
-                          </div>
-                          <span className="text-xs text-gray-700 font-medium">{activity.message}</span>
+                      <div
+                        key={activity.id}
+                        className={`flex items-center justify-between px-2 py-1 border border-gray-100 rounded hover:bg-purple-50 transition-all duration-150 ${activity.is_read ? 'opacity-60' : 'bg-white'}`}
+                        style={{ fontSize: '12px', minHeight: '32px' }}
+                      >
+                        <div className="flex items-center flex-1 gap-2">
+                          <FileText className="w-3 h-3 text-purple-400 flex-shrink-0" />
+                          <span className="truncate flex-1">{activity.message}</span>
                         </div>
-                        <span className="text-xs text-gray-500 ml-2 flex items-center whitespace-nowrap">
+                        <span className="text-xs text-gray-400 ml-2 flex items-center whitespace-nowrap">
                           <Clock className="w-3 h-3 mr-1" />
                           {formatDate(activity.created_at)}
                         </span>
+                        {!activity.is_read && (
+                          <button
+                            onClick={() => handleMarkAsRead(activity.id)}
+                            className="ml-2 px-2 py-0.5 text-xs text-purple-700 border border-purple-200 rounded hover:bg-purple-100 transition-all"
+                            style={{ fontSize: '11px' }}
+                          >
+                            Mark as Read
+                          </button>
+                        )}
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <div className="w-12 h-12 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                        <Clock className="w-6 h-6 text-gray-400" />
+                    <div className="text-center py-4 text-gray-500 text-xs">
+                      <div className="w-8 h-8 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-2">
+                        <Clock className="w-4 h-4 text-gray-400" />
                       </div>
-                      <p className="text-sm font-medium text-gray-600">No recent activities</p>
-                      <p className="text-xs text-gray-500">Your sharing activities will appear here</p>
+                      <p className="font-medium">No recent activities</p>
+                      <p>Your sharing activities will appear here</p>
                     </div>
                   )}
                 </div>

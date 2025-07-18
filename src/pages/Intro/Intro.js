@@ -7,6 +7,7 @@ import HowItWorks from '../../components/HowItWorks/HowItWorks';
 import Testimonials from '../../components/Testimonials/Testimonials';
 import CTA from '../../components/CTA/CTA';
 import Footer from '../../components/Footer/Footer';
+import { Sparkles } from 'lucide-react';
 
 const Intro = () => {
   return (

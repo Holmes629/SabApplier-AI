@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Eye, EyeOff, Users } from 'lucide-react';
 import logo from '../../logo.jpeg';
 import { useAuth } from '../../hooks/useAuth';
 import { api } from '../../services/api';
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signup } = useAuth();
 
   const [formData, setFormData] = useState({
@@ -14,6 +15,7 @@ const SignUp = () => {
     otp: '',
     password: '',
     confirmPassword: '',
+    referred_by: '', // Added referred_by to formData
   });
 
   const [loading, setLoading] = useState(false);
@@ -110,7 +112,8 @@ const SignUp = () => {
       const result = await signup({
         email: formData.email,
         password: formData.password,
-        confirmPassword: formData.confirmPassword
+        confirmPassword: formData.confirmPassword,
+        referred_by: formData.referred_by,
       });
       
       if (result.success) {
@@ -365,6 +368,10 @@ const SignUp = () => {
                     </div>
                   )}
                 </button>
+                <div className="flex items-center justify-center mt-2 text-blue-500 text-sm gap-2 opacity-80">
+                  <Users className="w-4 h-4" />
+                  <span>Join thousands who trust SabApplier AI for secure, one-click form filling.</span>
+                </div>
               </form>
             </div>
 
@@ -436,7 +443,6 @@ const SignUp = () => {
         </div>
       </div>
       
-
     </div>
   );
 };

@@ -567,7 +567,8 @@ const AutoFillDataForm = () => {
         nationality: formData.nationality,
         maritalStatus: formData.maritalStatus,
         religion: formData.religion,
-        disability: formData.disability
+        disability: formData.disability,
+        highest_education: formData.highest_education
       };
 
       // Get user authentication info
@@ -707,6 +708,74 @@ const AutoFillDataForm = () => {
                   className={getFieldClassName('mothersName')}
                   placeholder="Enter mother's name"
                 />
+              </div>
+              
+              {/* New: Have you changed name? */}
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Have you changed name?
+                </label>
+                <select
+                  name="hasChangedName"
+                  onChange={handleChange}
+                  value={formData.hasChangedName || ''}
+                  className={getFieldClassName('hasChangedName')}
+                >
+                  <option value="">Select option</option>
+                  <option value="No">No</option>
+                  <option value="Yes">Yes</option>
+                </select>
+              </div>
+
+              {/* New: If yes changed name_ */}
+              {formData.hasChangedName === 'Yes' && (
+                <div className="space-y-1">
+                  <label className="block text-sm font-medium text-gray-700">
+                    If yes, changed name
+                  </label>
+                  <input
+                    name="changedNameDetail"
+                    onChange={handleChange}
+                    value={formData.changedNameDetail || ''}
+                    className={getFieldClassName('changedNameDetail')}
+                    placeholder="Enter new name or details"
+                  />
+                </div>
+              )}
+
+              {/* New: Mother tongue */}
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Mother tongue
+                </label>
+                <input
+                  name="motherTongue"
+                  onChange={handleChange}
+                  value={formData.motherTongue || ''}
+                  className={getFieldClassName('motherTongue')}
+                  placeholder="Enter your mother tongue"
+                />
+              </div>
+              
+              {/* New: Highest Level of Education Qualification */}
+              <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700">
+                  Highest Level of Education Qualification
+                </label>
+                <select
+                  name="highest_education"
+                  onChange={handleChange}
+                  value={formData.highest_education || ''}
+                  className={getFieldClassName('highest_education')}
+                >
+                  <option value="">Select</option>
+                  <option value="Matriculation (10th)">Matriculation (10th)</option>
+                  <option value="Higher Secondary (10+2)">Higher Secondary (10+2)</option>
+                  <option value="Diploma">Diploma</option>
+                  <option value="Graduation">Graduation</option>
+                  <option value="Post Graduation">Post Graduation</option>
+                  <option value="Ph.D">Ph.D</option>
+                </select>
               </div>
               
               <div className="space-y-1">

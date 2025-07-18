@@ -205,6 +205,9 @@ export const api = {
       if (userData.confirmPassword) {
         payload.confirmPassword = userData.confirmPassword;
       }
+      if (userData.referred_by) {
+        payload.referred_by = userData.referred_by;
+      }
       const response = await axiosInstance.post(
         `/users/register/`,
         payload
@@ -528,7 +531,7 @@ export const api = {
   },
 
   // Data Sharing APIs
-  shareDataWithFriend: async (receiverEmail, selectedDocuments = []) => {
+  shareDataWithFriend: async (receiverEmail, selectedDocuments = [], sharingType = 'documents_only') => {
     try {
       const currentUser = JSON.parse(localStorage.getItem("currentUser"));
       if (!currentUser || !currentUser.email) {
@@ -540,7 +543,8 @@ export const api = {
         {
           sender_email: currentUser.email,
           receiver_email: receiverEmail,
-          selected_documents: selectedDocuments
+          selected_documents: selectedDocuments,
+          sharing_type: sharingType
         },
         {
           headers: getHeaders(),
@@ -724,5 +728,45 @@ export const api = {
 
   switchToOwnData: () => {
     localStorage.removeItem('activeAutofillData');
+  },
+
+  checkAccessStatus: async (email) => {
+    try {
+      const response = await axiosInstance.post(
+        `/users/check-access/`,
+        { email }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Access check error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to check access status");
+    }
+  },
+
+  contactUs: async (formData) => {
+    try {
+      const response = await axiosInstance.post(
+        `/users/contact-us/`,
+        formData
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Contact us error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to send contact message");
+    }
+  },
+
+  markNotificationAsRead: async (notificationId) => {
+    try {
+      const response = await axios.post(
+        `${API_BASE_URL}/users/notifications/mark-as-read/`,
+        { notification_id: notificationId },
+        { headers: getHeaders() }
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Mark notification as read error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.error || "Failed to mark notification as read");
+    }
   },
 };

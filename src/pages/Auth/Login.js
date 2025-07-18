@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Users } from "lucide-react";
 import { GoogleLogin } from "@react-oauth/google";
 import logo from "../../logo.jpeg";
 import { useAuth } from "../../hooks/useAuth";
@@ -13,6 +13,15 @@ const Login = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    // Check for referral code in URL and store in localStorage
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      localStorage.setItem('referred_by', ref);
+    }
+  }, []);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
@@ -76,10 +85,12 @@ const Login = () => {
 
     try {
       console.log("Google credential response:", credentialResponse);
-      
+      // Get referred_by from localStorage if present
+      const referredBy = localStorage.getItem('referred_by') || '';
       const result = await login({
         isGoogleLogin: true,
-        credential: credentialResponse.credential
+        credential: credentialResponse.credential,
+        referred_by: referredBy,
       });
 
       if (result.success) {
@@ -325,6 +336,7 @@ const Login = () => {
           </div>
         </div>
       </div>
+      
       
 
     </div>

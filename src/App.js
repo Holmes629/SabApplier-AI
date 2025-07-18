@@ -17,14 +17,20 @@ import Docs from './pages/Profile/Docs';
 import AutoFillData from './pages/AutoFillData/AutoFillData';
 import SignUpStep2 from './pages/Auth/SignUpStep2';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
+import Waitlist from './pages/Waitlist/Waitlist';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 import { tokenManager } from './utils/tokenManager';
+import Contact from './pages/Contact/Contact';
+import FloatingFeedbackButton from './components/Feedback/FloatingFeedbackButton';
+import FeedbackPopup from './components/Feedback/FeedbackPopup';
+// import Referral from './pages/Referral';
+import Refer from './pages/Refer/Refer';
 
 // Create a wrapper component that uses useLocation and useAuth
 function AppContent() {
   const location = useLocation();
-  const { user, isAuthenticated, logout, isProfileComplete, isLoading } = useAuth();
+  const { user, isAuthenticated, logout, isProfileComplete, isLoading, hasWebsiteAccess } = useAuth();
   const [applications, setApplications] = useState([]);
   const [loadingExams, setLoadingExams] = useState(true);
 
@@ -51,7 +57,12 @@ function AppContent() {
       return <Navigate to="/signup-page2" replace />;
     }
 
-    // If fully authenticated, render the protected component
+    // If authenticated and profile complete but no website access, redirect to waitlist
+    if (isAuthenticated && isProfileComplete() && !hasWebsiteAccess) {
+      return <Navigate to="/waitlist" replace />;
+    }
+
+    // If fully authenticated and has access, render the protected component
     return children;
   };
 
@@ -107,7 +118,12 @@ function AppContent() {
       
       // Add files to form data
       Object.entries(fileData).forEach(([fieldName, file]) => {
-        formData.append(fieldName, file);
+        if (fieldName === 'custom_doc_categories') {
+          // Append as JSON string
+          formData.append('custom_doc_categories', JSON.stringify(file));
+        } else {
+          formData.append(fieldName, file);
+        }
       });
 
       const response = await api.updateProfile(formData);
@@ -140,7 +156,7 @@ function AppContent() {
 
   return (
     <div className="app">
-      {isFullyAuthenticated && location.pathname !== '/manage-docs' && (
+      {isFullyAuthenticated && hasWebsiteAccess && location.pathname !== '/manage-docs' && (
         <Navbar 
           isAuthenticated={true}
           // cartCount={cartCount} 
@@ -154,20 +170,48 @@ function AppContent() {
           element={<PrivacyPolicy/>} 
         />
         <Route 
+          path="/waitlist" 
+          element={<Waitlist />} 
+        />
+        <Route 
           path="/intro" 
-          element={isFullyAuthenticated ? <Navigate to="/" replace /> : <Intro />} 
+          element={
+            isFullyAuthenticated && hasWebsiteAccess ? 
+              <Navigate to="/" replace /> : 
+              isFullyAuthenticated && !hasWebsiteAccess ?
+                <Navigate to="/waitlist" replace /> :
+                <Intro />
+          } 
         />
         <Route 
           path="/login" 
-          element={isFullyAuthenticated ? <Navigate to="/" replace /> : <Login />} 
+          element={
+            isFullyAuthenticated && hasWebsiteAccess ? 
+              <Navigate to="/" replace /> : 
+              isFullyAuthenticated && !hasWebsiteAccess ?
+                <Navigate to="/waitlist" replace /> :
+                <Login />
+          } 
         />
         <Route 
           path="/signup" 
-          element={isFullyAuthenticated ? <Navigate to="/signup-page2" replace /> : <SignUp />} 
+          element={
+            isFullyAuthenticated && hasWebsiteAccess ? 
+              <Navigate to="/" replace /> : 
+              isFullyAuthenticated && !hasWebsiteAccess ?
+                <Navigate to="/waitlist" replace /> :
+                <SignUp />
+          } 
         />
         <Route 
           path="/signup-page2" 
-          element={isFullyAuthenticated ? <Navigate to="/" replace /> : <SignUpStep2 />} 
+          element={
+            isFullyAuthenticated && hasWebsiteAccess ? 
+              <Navigate to="/" replace /> : 
+              isFullyAuthenticated && !hasWebsiteAccess ?
+                <Navigate to="/waitlist" replace /> :
+                <SignUpStep2 />
+          } 
         />
         <Route 
           path="/forgot-password" 
@@ -231,8 +275,22 @@ function AppContent() {
             </ProtectedRoute>
           } 
         />
+        <Route 
+          path="/contact" 
+          element={<Contact />} 
+        />
+        <Route 
+          path="/refer" 
+          element={
+            <ProtectedRoute>
+              <Refer />
+            </ProtectedRoute>
+          } 
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      <FloatingFeedbackButton />
+      <FeedbackPopup />
     </div>
   );
 }

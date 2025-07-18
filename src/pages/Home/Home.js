@@ -4,8 +4,12 @@ import SearchBar from '../../components/SearchBar/SearchBar';
 import JobCard from '../../components/JobCard/JobCard';
 import Footer from '../../components/Footer/Footer';
 import { LoadingProgressBar } from '../../components/ProgressBar';
+import { useAuth } from '../../hooks/useAuth';
+import { api } from '../../services/api';
+import { Gift } from 'lucide-react';
 
 const Home = ({ applications, /* onToggleCart, */ loadingExams }) => {
+  const { user, updateUser } = useAuth();
   const [filteredApplications, setFilteredApplications] = useState(applications);
   const [searchTerm, setSearchTerm] = useState('');
   const [loadingProgress, setLoadingProgress] = useState(0);
@@ -152,6 +156,10 @@ const Home = ({ applications, /* onToggleCart, */ loadingExams }) => {
         <SearchBar onSearch={handleSearch} />
         
         {/* Exam Section Header */}
+        <div className="mb-6 flex items-center justify-center bg-blue-50 border border-blue-200 rounded-xl py-2 px-4 text-blue-700 font-semibold text-base gap-2 shadow-sm">
+          <Gift className="w-5 h-5 text-yellow-500" />
+          <span>You’re 1 invite away from unlocking Premium! <span className="font-bold">Unlock all features before exam season rush!</span></span>
+        </div>
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="flex-1">
@@ -220,15 +228,6 @@ const Home = ({ applications, /* onToggleCart, */ loadingExams }) => {
           )}
         </div>
         
-        {/* Privacy Policy Link */}
-        <div className="text-center py-8 border-t border-gray-200">
-          <Link 
-            to="/privacy-policy" 
-            className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
-          >
-            Our Privacy Policy
-          </Link>
-        </div>
       </main>
       <Footer />
     </div>
