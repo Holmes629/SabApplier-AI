@@ -84,6 +84,12 @@ const Docs = ({ docUpload }) => {
     }
   };
 
+  const getDropboxViewLink = (url) => {
+    if (!url) return "";
+    return url
+      .replace("www.dropbox.com", "dl.dropboxusercontent.com");
+  };
+
   const getDropboxDownloadLink = (url) => {
     if (!url) return "";
     return url
@@ -370,7 +376,7 @@ const Docs = ({ docUpload }) => {
                         </h4>
                         <div className="flex gap-2">
                           <a
-                            href={allDocuments[field]}
+                            href={getDropboxViewLink(allDocuments[field])}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex-1 text-center px-3 py-2 bg-gradient-to-r from-blue-300 to-blue-400 text-dark text-xs rounded-lg hover:from-blue-400 hover:to-blue-500 transition-all duration-200 font-medium"
