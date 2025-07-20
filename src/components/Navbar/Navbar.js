@@ -212,7 +212,7 @@ const Navbar = ({
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 transition-all duration-300 group-hover:w-full"></span>
                 </button>
                  <Link 
-                  to="/privacy_policy"
+                  to="/privacy-policy"
                   className="text-white/90 hover:text-blue-300 font-medium transition-all duration-300 hover:scale-105 relative group"
                 >
                   Privacy

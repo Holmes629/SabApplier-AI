@@ -9,6 +9,15 @@ const PrivacyPolicy = () => {
     <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-12">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Link 
+            to="/"
+            className="inline-flex items-center justify-center px-6 py-3 bg-white/10 hover:bg-white/20 rounded-lg transition-colors duration-200 border border-white/20"
+          >
+            <FiArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Link>
+        </div>
         {/* Introduction */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border border-gray-100">
           <h1 className="text-3xl font-bold text-slate-800 mb-4">Privacy Policy for Sabapplier AI</h1>
@@ -323,7 +332,7 @@ const PrivacyPolicy = () => {
               </div>
               <div className="flex items-center text-gray-700">
                 <FiGlobe className="w-5 h-5 mr-3 text-blue-600" />
-                <span>Website: [https://sabapplier.com]</span>
+                <span>Website: <a href='https://sabapplier.com' style={{ color: 'blue', textDecoration: 'underline' }}>https://sabapplier.com</a></span>
               </div>
             </div>
           </div>

@@ -192,9 +192,9 @@ const SignUpStep2 = () => {
   };
 
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
+    <div className="bg-white flex flex-col">
       {/* Main Content */}
-      <div className="flex-1 flex items-center justify-center p-2 sm:p-3 relative z-10">
+      <div className="flex-1 flex items-center justify-center p-2 sm:p-3 relative z-10 overflox-hidden">
         <div className="w-full max-w-lg">
           {/* Profile Completion Card */}
           <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">

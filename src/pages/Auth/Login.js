@@ -122,7 +122,7 @@ const Login = () => {
   };
 
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
+    <div className="bg-white flex flex-col">
       {/* Main Content */}
       <div className="flex-1 flex items-center justify-center p-3 sm:p-4 relative z-10">
         <div className="w-full max-w-md">

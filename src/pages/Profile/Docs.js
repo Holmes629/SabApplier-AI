@@ -86,6 +86,11 @@ const Docs = ({ docUpload }) => {
 
   const getDropboxViewLink = (url) => {
     if (!url) return "";
+    if (url.includes(".pdf")) {
+      // Ensure it's using www.dropbox.com and has raw=1
+      return url
+        .replace("dl=0", "raw=1");
+    }
     return url
       .replace("www.dropbox.com", "dl.dropboxusercontent.com");
   };
