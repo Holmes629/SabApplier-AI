@@ -228,15 +228,13 @@ export const storage = {
  */
 export const syncTokenWithExtension = (token, userData = null) => {
   if (!token) return;
-  
   try {
-    console.log('🔄 Attempting to sync JWT token with SabApplier Extension...');
-    
+    console.log('[SYNC] syncTokenWithExtension called:', { token: token.substring(0, 20) + '...', userData });
     // Method 1: Store with extension-specific keys
     localStorage.setItem('sabapplier_extension_jwt', token);
     localStorage.setItem('sabapplier_extension_user', JSON.stringify(userData || {}));
     localStorage.setItem('sabapplier_extension_sync_timestamp', Date.now().toString());
-    
+    console.log('[SYNC] localStorage updated for extension');
     // Method 2: Dispatch custom event for the extension content script
     window.dispatchEvent(new CustomEvent('sabapplier_jwt_login', {
       detail: {
@@ -244,7 +242,7 @@ export const syncTokenWithExtension = (token, userData = null) => {
         userData: userData
       }
     }));
-    
+    console.log('[SYNC] Custom event sabapplier_jwt_login dispatched');
     // Method 3: Try storage event (cross-tab communication)
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'sabapplier_extension_jwt',
@@ -252,7 +250,7 @@ export const syncTokenWithExtension = (token, userData = null) => {
       oldValue: null,
       storageArea: localStorage
     }));
-    
+    console.log('[SYNC] StorageEvent dispatched');
     // Method 4: Set window flags for extension detection
     window.sabApplierJWTToken = token;
     window.sabApplierUserData = userData;
@@ -261,7 +259,7 @@ export const syncTokenWithExtension = (token, userData = null) => {
       userData: userData,
       timestamp: Date.now()
     };
-    
+    console.log('[SYNC] window flags set');
     // Method 5: Post message to window (for content script detection)
     window.postMessage({
       type: 'SABAPPLIER_JWT_TOKEN',
@@ -269,31 +267,29 @@ export const syncTokenWithExtension = (token, userData = null) => {
       userData: userData,
       timestamp: Date.now()
     }, window.location.origin);
-    
+    console.log('[SYNC] window.postMessage SABAPPLIER_JWT_TOKEN sent');
     // Method 6: Try to communicate with extension via injected script
     const script = document.createElement('script');
     script.textContent = `
       try {
         if (window.chrome && window.chrome.runtime) {
-          console.log('🔄 Trying direct extension communication...');
-          // This will be picked up by extension if content script is working
+          console.log('[SYNC] Trying direct extension communication...');
           window.dispatchEvent(new CustomEvent('sabapplier_extension_sync', {
             detail: { token: '${token}', userData: ${JSON.stringify(userData)} }
           }));
         }
       } catch (e) {
-        console.log('🔄 Extension communication attempt:', e.message);
+        console.log('[SYNC] Extension communication attempt:', e.message);
       }
     `;
     document.head.appendChild(script);
     document.head.removeChild(script);
-    
-    console.log('🔄 JWT token synced with SabApplier Extension (multiple methods)');
-    console.log('🔄 Token preview:', token.substring(0, 30) + '...');
-    console.log('🔄 User data:', userData);
-    
+    console.log('[SYNC] injected script for extension communication');
+    console.log('[SYNC] JWT token synced with SabApplier Extension (multiple methods)');
+    console.log('[SYNC] Token preview:', token.substring(0, 30) + '...');
+    console.log('[SYNC] User data:', userData);
   } catch (error) {
-    console.error('Error syncing token with extension:', error);
+    console.error('[SYNC] Error syncing token with extension:', error);
   }
 };
 

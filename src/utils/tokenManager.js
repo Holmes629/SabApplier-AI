@@ -1,4 +1,5 @@
 import { api } from '../services/api';
+import { syncTokenWithExtension } from './authUtils';
 
 class TokenManager {
   constructor() {
@@ -54,6 +55,11 @@ class TokenManager {
     this.refreshPromise = api.refreshToken()
       .then((result) => {
         console.log('Token refreshed successfully');
+        // Sync with extension after refresh
+        const userData = JSON.parse(localStorage.getItem('currentUser'));
+        if (result.token) {
+          syncTokenWithExtension(result.token, userData);
+        }
         return result;
       })
       .catch((error) => {

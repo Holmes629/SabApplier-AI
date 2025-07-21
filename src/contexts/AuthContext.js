@@ -337,6 +337,9 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('token', result.token);
         localStorage.setItem('jwt_token', result.token); // Add for extension sync
         setToken(result.token);
+        // Sync with extension after refresh
+        const userData = user || JSON.parse(localStorage.getItem('currentUser'));
+        syncTokenWithExtension(result.token, userData);
         return result.token;
       }
       
