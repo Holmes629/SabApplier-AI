@@ -517,7 +517,7 @@ function DataSharing() {
                     You need to upload documents to your profile before you can share them with others.
                   </p>
                   <button
-                    onClick={() => navigate('/refer')}
+                    onClick={() => navigate('/docs')}
                     className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium"
                   >
                     <FileText className="w-4 h-4 mr-2" />
