@@ -17,7 +17,7 @@ import Docs from './pages/Profile/Docs';
 import AutoFillData from './pages/AutoFillData/AutoFillData';
 import SignUpStep2 from './pages/Auth/SignUpStep2';
 import PrivacyPolicy from './pages/PrivacyPolicy/PrivacyPolicy';
-import Waitlist from './pages/Waitlist/Waitlist';
+// import Waitlist from './pages/Waitlist/Waitlist';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 import { tokenManager } from './utils/tokenManager';
@@ -58,9 +58,9 @@ function AppContent() {
     }
 
     // If authenticated and profile complete but no website access, redirect to waitlist
-    if (isAuthenticated && isProfileComplete() && !hasWebsiteAccess) {
-      return <Navigate to="/waitlist" replace />;
-    }
+    // if (isAuthenticated && isProfileComplete() && !hasWebsiteAccess) {
+    //   return <Navigate to="/waitlist" replace />;
+    // }
 
     // If fully authenticated and has access, render the protected component
     return children;
@@ -156,7 +156,7 @@ function AppContent() {
 
   return (
     <div className="app">
-      {isFullyAuthenticated && hasWebsiteAccess && location.pathname !== '/manage-docs' && (
+      {isFullyAuthenticated && location.pathname !== '/manage-docs' && (
         <Navbar 
           isAuthenticated={true}
           // cartCount={cartCount} 
@@ -170,16 +170,16 @@ function AppContent() {
           element={<PrivacyPolicy/>} 
         />
         <Route 
-          path="/waitlist" 
-          element={<Waitlist />} 
+          // path="/waitlist" 
+          // element={<Waitlist />} 
         />
         <Route 
           path="/intro" 
           element={
             isFullyAuthenticated && hasWebsiteAccess ? 
               <Navigate to="/" replace /> : 
-              isFullyAuthenticated && !hasWebsiteAccess ?
-                <Navigate to="/waitlist" replace /> :
+              // isFullyAuthenticated && !hasWebsiteAccess ?
+              //   <Navigate to="/waitlist" replace /> :
                 <Intro />
           } 
         />
@@ -188,8 +188,8 @@ function AppContent() {
           element={
             isFullyAuthenticated && hasWebsiteAccess ? 
               <Navigate to="/" replace /> : 
-              isFullyAuthenticated && !hasWebsiteAccess ?
-                <Navigate to="/waitlist" replace /> :
+              // isFullyAuthenticated && !hasWebsiteAccess ?
+              //   <Navigate to="/waitlist" replace /> :
                 <Login />
           } 
         />
@@ -198,8 +198,8 @@ function AppContent() {
           element={
             isFullyAuthenticated && hasWebsiteAccess ? 
               <Navigate to="/" replace /> : 
-              isFullyAuthenticated && !hasWebsiteAccess ?
-                <Navigate to="/waitlist" replace /> :
+              // isFullyAuthenticated && !hasWebsiteAccess ?
+              //   <Navigate to="/waitlist" replace /> :
                 <SignUp />
           } 
         />
@@ -208,8 +208,8 @@ function AppContent() {
           element={
             isFullyAuthenticated && hasWebsiteAccess ? 
               <Navigate to="/" replace /> : 
-              isFullyAuthenticated && !hasWebsiteAccess ?
-                <Navigate to="/waitlist" replace /> :
+              // isFullyAuthenticated && !hasWebsiteAccess ?
+              //   <Navigate to="/waitlist" replace /> :
                 <SignUpStep2 />
           } 
         />
