@@ -270,7 +270,10 @@ const Navbar = ({
                     )}
                   </div>
                   <span className="hidden sm:block">
-                    {userData?.fullName || userData?.fullname || googleProfileData?.name || currentUser?.email?.split('@')[0] || 'Profile'}
+                    {(userData?.first_name || '') +
+                     (userData?.middle_name ? ' ' + userData.middle_name : '') +
+                     (userData?.last_name ? ' ' + userData.last_name : '') ||
+                     userData?.fullName || userData?.fullname || googleProfileData?.name || currentUser?.email?.split('@')[0] || 'Profile'}
                   </span>
                   <svg className="w-4 h-4 transition-transform duration-200" style={{ transform: showProfileMenu ? 'rotate(180deg)' : 'rotate(0deg)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -385,7 +388,10 @@ const Navbar = ({
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-white font-semibold truncate">
-                      {userData?.fullName || userData?.fullname || googleProfileData?.name || 'User'}
+                      {(userData?.first_name || '') +
+                       (userData?.middle_name ? ' ' + userData.middle_name : '') +
+                       (userData?.last_name ? ' ' + userData.last_name : '') ||
+                       userData?.fullName || userData?.fullname || googleProfileData?.name || 'User'}
                     </h3>
                     <p className="text-white/60 text-sm truncate">
                       {userData?.email || currentUser?.email}

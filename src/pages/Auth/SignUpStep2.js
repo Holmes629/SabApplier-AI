@@ -7,7 +7,9 @@ const SignUpStep2 = () => {
   const navigate = useNavigate();
   const { completeProfile, user } = useAuth();
   const [formData, setFormData] = useState({
-    fullname: "",
+    first_name: "",
+    middle_name: "",
+    last_name: "",
     dateofbirth: "",
     address: "",
     phone_number: "",
@@ -24,7 +26,9 @@ const SignUpStep2 = () => {
     
     // Start with empty form data
     let newFormData = {
-      fullname: "",
+      first_name: "",
+      middle_name: "",
+      last_name: "",
       dateofbirth: "",
       address: "",
       phone_number: "",
@@ -39,10 +43,18 @@ const SignUpStep2 = () => {
         console.log('Found Google data:', gData);
         
         // Map Google data to form fields
-        if (gData.name) {
-          newFormData.fullname = gData.name;
-          filledFields.push('fullname');
-          console.log('Auto-filled fullname from Google:', gData.name);
+        if (gData.given_name) {
+          newFormData.first_name = gData.given_name;
+          filledFields.push('first_name');
+          console.log('Auto-filled first_name from Google:', gData.given_name);
+        }
+        if (gData.middle_name) {
+          newFormData.middle_name = gData.middle_name;
+          filledFields.push('middle_name');
+        }
+        if (gData.family_name) {
+          newFormData.last_name = gData.family_name;
+          filledFields.push('last_name');
         }
         
         // You could potentially extract more info from Google in the future
@@ -60,10 +72,22 @@ const SignUpStep2 = () => {
         console.log('Found saved user data:', user);
         
         // Apply user data, keeping existing values if they're already set
-        if (user.fullName || user.fullname) {
-          newFormData.fullname = user.fullName || user.fullname || newFormData.fullname;
-          if (!filledFields.includes('fullname')) {
-            filledFields.push('fullname');
+        if (user.first_name) {
+          newFormData.first_name = user.first_name || newFormData.first_name;
+          if (!filledFields.includes('first_name')) {
+            filledFields.push('first_name');
+          }
+        }
+        if (user.middle_name) {
+          newFormData.middle_name = user.middle_name || newFormData.middle_name;
+          if (!filledFields.includes('middle_name')) {
+            filledFields.push('middle_name');
+          }
+        }
+        if (user.last_name) {
+          newFormData.last_name = user.last_name || newFormData.last_name;
+          if (!filledFields.includes('last_name')) {
+            filledFields.push('last_name');
           }
         }
         if (user.dateofbirth) {
@@ -115,12 +139,13 @@ const SignUpStep2 = () => {
 
   const validateForm = () => {
     if (
-      !formData.fullname ||
+      !formData.first_name ||
+      !formData.last_name ||
       !formData.dateofbirth ||
       !formData.address ||
       !formData.phone_number
     ) {
-      setError("All fields are required");
+      setError("First name, last name, date of birth, address, and phone number are required");
       return false;
     }
     return true;
@@ -266,11 +291,11 @@ const SignUpStep2 = () => {
 
               <form onSubmit={handleSubmit} className="space-y-2">
                 
-                {/* Full Name Field */}
+                {/* First Name Field */}
                 <div className="space-y-1">
-                  <label htmlFor="fullname" className="block text-xs font-semibold text-gray-700">
-                    Full Name
-                    {autoFilledFields.includes('fullname') && (
+                  <label htmlFor="first_name" className="block text-xs font-semibold text-gray-700">
+                    First Name
+                    {autoFilledFields.includes('first_name') && (
                       <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
                         <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -282,20 +307,103 @@ const SignUpStep2 = () => {
                   <div className="relative">
                     <input
                       type="text"
-                      id="fullname"
-                      name="fullname"
-                      value={formData.fullname}
+                      id="first_name"
+                      name="first_name"
+                      value={formData.first_name}
                       onChange={handleChange}
                       required
-                      placeholder="Enter your full name"
+                      placeholder="Enter your first name"
                       className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 text-sm ${
-                        autoFilledFields.includes('fullname') 
+                        autoFilledFields.includes('first_name') 
                           ? 'bg-blue-50 border-blue-200' 
                           : 'bg-gray-50 border-gray-200'
                       }`}
                     />
                     <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
-                      {autoFilledFields.includes('fullname') ? (
+                      {autoFilledFields.includes('first_name') ? (
+                        <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Middle Name Field */}
+                <div className="space-y-1">
+                  <label htmlFor="middle_name" className="block text-xs font-semibold text-gray-700">
+                    Middle Name
+                    {autoFilledFields.includes('middle_name') && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Auto-filled
+                      </span>
+                    )}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="middle_name"
+                      name="middle_name"
+                      value={formData.middle_name}
+                      onChange={handleChange}
+                      placeholder="Enter your middle name (optional)"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 text-sm ${
+                        autoFilledFields.includes('middle_name') 
+                          ? 'bg-blue-50 border-blue-200' 
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                      {autoFilledFields.includes('middle_name') ? (
+                        <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      ) : (
+                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                        </svg>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Last Name Field */}
+                <div className="space-y-1">
+                  <label htmlFor="last_name" className="block text-xs font-semibold text-gray-700">
+                    Last Name
+                    {autoFilledFields.includes('last_name') && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Auto-filled
+                      </span>
+                    )}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      id="last_name"
+                      name="last_name"
+                      value={formData.last_name}
+                      onChange={handleChange}
+                      required
+                      placeholder="Enter your last name"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 text-sm ${
+                        autoFilledFields.includes('last_name') 
+                          ? 'bg-blue-50 border-blue-200' 
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
+                    />
+                    <div className="absolute inset-y-0 right-0 pr-2 flex items-center pointer-events-none">
+                      {autoFilledFields.includes('last_name') ? (
                         <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>

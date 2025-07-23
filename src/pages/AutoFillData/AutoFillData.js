@@ -35,9 +35,17 @@ const AutoFillDataForm = () => {
           const gData = JSON.parse(googleData);
           console.log('Auto-filling from Google data:', gData);
           
-          if (gData.name && !updatedFormData.fullName) {
-            updatedFormData.fullName = gData.name;
-            filledFields.push('fullName');
+          if (gData.given_name && !updatedFormData.first_name) {
+            updatedFormData.first_name = gData.given_name;
+            filledFields.push('first_name');
+          }
+          if (gData.middle_name && !updatedFormData.middle_name) {
+            updatedFormData.middle_name = gData.middle_name;
+            filledFields.push('middle_name');
+          }
+          if (gData.family_name && !updatedFormData.last_name) {
+            updatedFormData.last_name = gData.family_name;
+            filledFields.push('last_name');
           }
           if (gData.email && !updatedFormData.email) {
             updatedFormData.email = gData.email;
@@ -64,16 +72,17 @@ const AutoFillDataForm = () => {
           
           // Map user data to form fields with comprehensive field mapping
           const fieldMappings = [
-            { userField: 'fullName', formField: 'fullName' },
-            { userField: 'email', formField: 'email' },
+            { userField: 'first_name', formField: 'first_name' },
+            { userField: 'middle_name', formField: 'middle_name' },
+            { userField: 'last_name', formField: 'last_name' },
+            { userField: 'fathersName', formField: 'fathersName' },
+            { userField: 'mothersName', formField: 'mothersName' },
             { userField: 'dateofbirth', formField: 'dob' },
             { userField: 'phone_number', formField: 'mobile' },
             { userField: 'correspondenceAddress', formField: 'correspondenceAddress' },
             { userField: 'permanentAddress', formField: 'permanentAddress' },
             { userField: 'gender', formField: 'gender' },
             { userField: 'category', formField: 'category' },
-            { userField: 'fathersName', formField: 'fathersName' },
-            { userField: 'mothersName', formField: 'mothersName' },
             { userField: 'nationality', formField: 'nationality' },
             { userField: 'domicileState', formField: 'domicile' },
             { userField: 'domicile', formField: 'domicile' }, // Alternative mapping
@@ -189,6 +198,43 @@ const AutoFillDataForm = () => {
   useEffect(() => {
     localStorage.setItem('autoFillData', JSON.stringify(formData));
   }, [formData]);
+
+  useEffect(() => {
+    async function fetchAndSetProfile() {
+      try {
+        const response = await api.getProfile();
+        if (response && response.user_data) {
+          setFormData(prev => ({
+            ...prev,
+            first_name: response.user_data.first_name || "",
+            middle_name: response.user_data.middle_name || "",
+            last_name: response.user_data.last_name || "",
+            fathersName: response.user_data.fathersName || "",
+            mothersName: response.user_data.mothersName || "",
+            dob: response.user_data.dateofbirth || "",
+            mobile: response.user_data.phone_number || "",
+            altMobile: response.user_data.alt_phone_number || "",
+            correspondenceAddress: response.user_data.correspondenceAddress || "",
+            permanentAddress: response.user_data.permanentAddress || "",
+            gender: response.user_data.gender || "",
+            category: response.user_data.category || "",
+            nationality: response.user_data.nationality || "",
+            domicile: response.user_data.domicileState || response.user_data.domicile || "",
+            district: response.user_data.district || "",
+            mandal: response.user_data.mandal || "",
+            pincode: response.user_data.pincode || "",
+            maritalStatus: response.user_data.maritalStatus || "",
+            religion: response.user_data.religion || "",
+            disability: response.user_data.disability || "",
+            highest_education: response.user_data.highest_education || "",
+          }));
+        }
+      } catch (e) {
+        // Optionally handle error
+      }
+    }
+    fetchAndSetProfile();
+  }, []);
 
   const handleNext = async () => {
     // Auto-save before moving to next step
@@ -363,7 +409,7 @@ const AutoFillDataForm = () => {
       
       // Check if step is completed
       const stepFields = {
-        0: ['fullName', 'fathersName', 'mothersName', 'gender', 'dob', 'category', 
+        0: ['first_name', 'last_name', 'fathersName', 'mothersName', 'gender', 'dob', 'category', 
             'disability', 'nationality', 'domicile', 'district', 'mandal', 'pincode', 'maritalStatus', 'religion'],
         1: ['permanentAddress', 'correspondenceAddress', 'email', 'mobile', 'altMobile']
       };
@@ -418,7 +464,7 @@ const AutoFillDataForm = () => {
     // Define all form fields organized by step (as they appear in the actual form)
     const allFormFields = {
       0: [ // Personal Details step
-        'fullName', 'fathersName', 'mothersName', 'gender', 'dob', 'category',
+        'first_name', 'last_name', 'fathersName', 'mothersName', 'gender', 'dob', 'category',
         'disability', 'nationality', 'domicile', 'district', 'mandal', 'pincode', 'maritalStatus', 'religion'
       ],
       1: [ // Contact Information step
@@ -550,7 +596,9 @@ const AutoFillDataForm = () => {
       // Map frontend field names to backend field names for consistency
       const backendData = {
         ...formData,
-        fullName: formData.fullName,
+        first_name: formData.first_name,
+        middle_name: formData.middle_name,
+        last_name: formData.last_name,
         fathersName: formData.fathersName,
         mothersName: formData.mothersName,
         dateofbirth: formData.dob,
@@ -668,45 +716,45 @@ const AutoFillDataForm = () => {
         return (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* First Name Field */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
-                  Full Name (As per Aadhaar) *
+                  First Name (As per Aadhaar) *
                 </label>
                 <input 
-                  name="fullName" 
+                  name="first_name" 
                   onChange={handleChange} 
-                  value={formData.fullName || ''} 
+                  value={formData.first_name || ''} 
                   required 
-                  className={getFieldClassName('fullName')}
-                  placeholder="Enter your full name"
+                  className={getFieldClassName('first_name')}
+                  placeholder="Enter your first name"
                 />
               </div>
-              
+              {/* Middle Name Field */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
-                  Father's Name (As per Aadhaar) *
+                  Middle Name (As per Aadhaar)
                 </label>
                 <input 
-                  name="fathersName" 
+                  name="middle_name" 
                   onChange={handleChange} 
-                  value={formData.fathersName || ''} 
-                  required 
-                  className={getFieldClassName('fathersName')}
-                  placeholder="Enter father's name"
+                  value={formData.middle_name || ''} 
+                  className={getFieldClassName('middle_name')}
+                  placeholder="Enter your middle name (optional)"
                 />
               </div>
-              
+              {/* Last Name Field */}
               <div className="space-y-1">
                 <label className="block text-sm font-medium text-gray-700">
-                  Mother's Name (As per Aadhaar) *
+                  Last Name (As per Aadhaar) *
                 </label>
                 <input 
-                  name="mothersName" 
+                  name="last_name" 
                   onChange={handleChange} 
-                  value={formData.mothersName || ''} 
+                  value={formData.last_name || ''} 
                   required 
-                  className={getFieldClassName('mothersName')}
-                  placeholder="Enter mother's name"
+                  className={getFieldClassName('last_name')}
+                  placeholder="Enter your last name"
                 />
               </div>
               
