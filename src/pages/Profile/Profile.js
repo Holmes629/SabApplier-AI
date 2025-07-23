@@ -178,7 +178,10 @@ function Profile() {
             
             <div className="flex-1 text-center md:text-left">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {userData.fullName || userData.fullname || googleProfileData?.name || 'User Name'}
+                {(userData.first_name || '') +
+                 (userData.middle_name ? ' ' + userData.middle_name : '') +
+                 (userData.last_name ? ' ' + userData.last_name : '') ||
+                 userData.fullName || userData.fullname || googleProfileData?.name || 'User Name'}
               </h2>
               <p className="text-gray-600 mb-2">{userData.email}</p>
               {(userData?.google_profile_picture || googleProfileData) && (
@@ -198,10 +201,13 @@ function Profile() {
             <div className="space-y-2">
               <label className="flex items-center text-sm font-semibold text-gray-700">
                 <User className="w-4 h-4 mr-2 text-blue-600" />
-                Full Name
+                Name
               </label>
               <div className="px-4 py-3 bg-gray-50 rounded-xl text-gray-900">
-                {userData.fullName || userData.fullname || 'Not provided'}
+                {(userData.first_name || '') +
+                 (userData.middle_name ? ' ' + userData.middle_name : '') +
+                 (userData.last_name ? ' ' + userData.last_name : '') ||
+                 userData.fullName || userData.fullname || 'Not provided'}
               </div>
             </div>
 
