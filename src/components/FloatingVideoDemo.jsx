@@ -107,7 +107,7 @@ const FloatingVideoDemo = () => {
       <iframe
         width="340"
         height="202"
-        src="https://www.youtube.com/embed/ekW1cQOJHPw?autoplay=1&mute=1"
+        src="https://www.youtube.com/embed/ekW1cQOJHPw?mute=1"
         title="Product Demo Video"
         frameBorder="0"
         allow="autoplay; encrypted-media; picture-in-picture"
