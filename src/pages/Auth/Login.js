@@ -103,9 +103,16 @@ const Login = () => {
         document.body.appendChild(messageElement);
         setTimeout(() => document.body.removeChild(messageElement), 1000);
 
-        // For existing users logging in (including Google), always go to home page
-        // SignUpStep2 is only for new users during signup flow
-        navigate("/");
+        // Check if user needs profile completion
+        if (result.needsProfileCompletion) {
+          // New user needs to complete profile
+          console.log('🔵 Google signup successful, new user - redirecting to SignUpStep2');
+          navigate("/signup-page2");
+        } else {
+          // Existing user, go to home page
+          console.log('🔵 Google login successful, existing user - going to home page');
+          navigate("/");
+        }
       } else {
         setError(result.message || "Google login failed. Please try again.");
       }
