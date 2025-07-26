@@ -68,6 +68,8 @@ const Login = () => {
         document.body.appendChild(messageElement);
         setTimeout(() => document.body.removeChild(messageElement), 1000);
 
+        // For existing users logging in, always go to home page
+        // SignUpStep2 is only for new users during signup flow
         navigate("/");
       } else {
         setError(result.message || "Login failed. Please try again.");
@@ -101,11 +103,9 @@ const Login = () => {
         document.body.appendChild(messageElement);
         setTimeout(() => document.body.removeChild(messageElement), 1000);
 
-        if (result.needsProfileCompletion) {
-          navigate("/signup-page2");
-        } else {
-          navigate("/");
-        }
+        // For existing users logging in (including Google), always go to home page
+        // SignUpStep2 is only for new users during signup flow
+        navigate("/");
       } else {
         setError(result.message || "Google login failed. Please try again.");
       }

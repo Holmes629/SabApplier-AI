@@ -66,13 +66,46 @@ export const AuthProvider = ({ children }) => {
               setUser(response.user_data);
               // Update localStorage with fresh data
               localStorage.setItem('currentUser', JSON.stringify(response.user_data));
+              
+              // Check if profile is complete based on backend data
+              const profileComplete = !!(
+                response.user_data.fullName &&
+                response.user_data.dateofbirth &&
+                response.user_data.correspondenceAddress &&
+                response.user_data.phone_number
+              );
+              
+              localStorage.setItem('isSignUp2', profileComplete ? 'true' : 'false');
+              console.log('✅ Profile completion status updated:', profileComplete);
             } else {
               console.warn('⚠️ Failed to fetch latest profile, using stored data');
               setUser(parsedUser);
+              
+              // Check if profile is complete based on stored data
+              const profileComplete = !!(
+                parsedUser.fullName &&
+                parsedUser.dateofbirth &&
+                parsedUser.correspondenceAddress &&
+                parsedUser.phone_number
+              );
+              
+              localStorage.setItem('isSignUp2', profileComplete ? 'true' : 'false');
+              console.log('✅ Profile completion status from stored data:', profileComplete);
             }
           } catch (profileError) {
             console.warn('⚠️ Failed to fetch latest profile, using stored data:', profileError);
             setUser(parsedUser);
+            
+            // Check if profile is complete based on stored data
+            const profileComplete = !!(
+              parsedUser.fullName &&
+              parsedUser.dateofbirth &&
+              parsedUser.correspondenceAddress &&
+              parsedUser.phone_number
+            );
+            
+            localStorage.setItem('isSignUp2', profileComplete ? 'true' : 'false');
+            console.log('✅ Profile completion status from stored data (fallback):', profileComplete);
           }
           
           console.log('✅ Authentication state restored:', {
@@ -122,76 +155,37 @@ export const AuthProvider = ({ children }) => {
           needsProfile: result.needsProfileCompletion
         });
         
-        // Handle Google login response - be more flexible with success conditions
-        if (result.success || result.user || result.email) {
-          const userToken = result.token || result.access_token;
-          const userData = result.user || { 
-            email: result.email,
-            name: result.name || result.user?.name
-          };
-          
-          console.log('🔵 Google auth data received:', {
-            hasToken: !!userToken,
-            tokenPreview: userToken ? userToken.substring(0, 20) + '...' : 'none',
-            userData: userData,
-            fullResult: result
-          });
-          
-          // CRITICAL: Always store user data first
-          localStorage.setItem('currentUser', JSON.stringify(userData));
-          localStorage.setItem('isAuthenticated', 'true');
-          setUser(userData);
-          setIsAuthenticated(true);
-          
-          // Handle token storage - with fallback for missing tokens
-          if (userToken) {
-            console.log('🔵 Storing Google token:', userToken.substring(0, 20) + '...');
-            localStorage.setItem('token', userToken);
-            localStorage.setItem('jwt_token', userToken); // Add for extension sync
-            setToken(userToken);
+        if (result.success) {
+          // Store JWT token and user data
+          if (result.token) {
+            localStorage.setItem('token', result.token);
+            localStorage.setItem('jwt_token', result.token); // Add for extension sync
+            setToken(result.token);
             
             // Sync with extension
-            syncTokenWithExtension(userToken, result);
-          } else {
-            console.warn('⚠️ No token received from Google login - creating JWT fallback');
-            
-            // Create a proper JWT token as fallback
-            const header = btoa(JSON.stringify({ typ: 'JWT', alg: 'HS256' }));
-            const payload = btoa(JSON.stringify({
-              user_id: userData.id || Date.now(),
-              email: userData.email,
-              name: userData.name || userData.fullname || 'Google User',
-              exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24 * 7), // 7 days
-              iat: Math.floor(Date.now() / 1000),
-              iss: 'google-fallback',
-              sub: userData.email
-            }));
-            const signature = btoa('google-fallback-signature');
-            const fallbackToken = `${header}.${payload}.${signature}`;
-            
-            localStorage.setItem('token', fallbackToken);
-            localStorage.setItem('tokenType', 'google-fallback');
-            localStorage.setItem('jwt_token', fallbackToken); // Add this for extension sync
-            setToken(fallbackToken);
-            
-            // Sync with extension
-            syncTokenWithExtension(fallbackToken, result);
-            
-            console.log('🔧 Created JWT fallback token:', fallbackToken.substring(0, 30) + '...');
+            syncTokenWithExtension(result.token, result.user);
           }
           
-          // Store user data for extension sync
-          localStorage.setItem('sabapplier_user_data', JSON.stringify(result));
+          localStorage.setItem('currentUser', JSON.stringify(result.user));
+          localStorage.setItem('sabapplier_user_data', JSON.stringify(result.user)); // Add for extension sync
+          localStorage.setItem('isAuthenticated', 'true');
           
-          // Check if user needs to complete profile
+          setUser(result.user);
+          setIsAuthenticated(true);
+          
+          // For existing users logging in (including Google), always set isSignUp2 to 'true'
+          // This ensures they go to home page, not SignUpStep2
+          // SignUpStep2 is only for new users during signup flow
           if (result.needsProfileCompletion) {
+            // This is a new user who needs to complete profile
             localStorage.setItem('isSignUp2', 'false');
-            console.log('🔵 Google login successful, needs profile completion');
+            console.log('🔵 Google login successful, new user - needs profile completion');
             return { success: true, needsProfileCompletion: true };
           } else {
+            // This is an existing user
             localStorage.setItem('isSignUp2', 'true');
-            console.log('🔵 Google login successful, profile complete');
-            return { success: true };
+            console.log('🔵 Google login successful, existing user - going to home page');
+            return { success: true, needsProfileCompletion: false };
           }
         }
         
@@ -208,7 +202,12 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('currentUser', JSON.stringify(result.user));
         localStorage.setItem('sabapplier_user_data', JSON.stringify(result.user)); // Add for extension sync
         localStorage.setItem('isAuthenticated', 'true');
+        
+        // For existing users logging in, always set isSignUp2 to 'true'
+        // This ensures they go to home page, not SignUpStep2
+        // SignUpStep2 is only for new users during signup flow
         localStorage.setItem('isSignUp2', 'true');
+        console.log('🔵 Regular login successful, existing user - going to home page');
         
         // Sync with extension
         syncTokenWithExtension(result.token, result.user);
@@ -218,18 +217,27 @@ export const AuthProvider = ({ children }) => {
         setIsAuthenticated(true);
         
         console.log('Login successful, token stored:', result.token.substring(0, 20) + '...');
-        return { success: true };
-      } else if (result.success && result.user) {
+        return { 
+          success: true, 
+          needsProfileCompletion: false // Existing users don't need profile completion for login
+        };
+      } else if (result.user) {
         // Handle case where login is successful but no token (shouldn't happen with JWT)
         console.warn('Login successful but no token received');
         const userData = result.user;
         localStorage.setItem('currentUser', JSON.stringify(userData));
         localStorage.setItem('isAuthenticated', 'true');
+        
+        // For existing users logging in, always set isSignUp2 to 'true'
         localStorage.setItem('isSignUp2', 'true');
+        console.log('🔵 Regular login successful (no token), existing user - going to home page');
         
         setUser(userData);
         setIsAuthenticated(true);
-        return { success: true };
+        return { 
+          success: true, 
+          needsProfileCompletion: false // Existing users don't need profile completion for login
+        };
       }
       
       throw new Error(result.message || 'Login failed');
