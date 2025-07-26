@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
-const ProtectedRoute = ({ children, requireProfileCompletion = true }) => {
+const ProtectedRoute = ({ children, requireProfileCompletion = false }) => {
   const { isAuthenticated, isLoading, isProfileComplete } = useAuth();
   const location = useLocation();
 
@@ -21,6 +21,8 @@ const ProtectedRoute = ({ children, requireProfileCompletion = true }) => {
   }
 
   // If authenticated but profile not complete and it's required, redirect to profile completion
+  // Note: Profile completion is not required by default for existing users
+  // SignUpStep2 is only for new users during signup flow
   if (requireProfileCompletion && !isProfileComplete()) {
     return <Navigate to="/signup-page2" replace />;
   }

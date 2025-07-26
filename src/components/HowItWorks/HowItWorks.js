@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaFileAlt, FaLink, FaMicrophone, FaCheck } from 'react-icons/fa';
+import { FaFileAlt, FaLink, FaMicrophone, FaCheck, FaRobot } from 'react-icons/fa';
 
 const HowItWorksStep = ({ stepNumber, icon, title, description }) => (
   <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 p-8 border border-gray-100 hover:border-blue-200 group relative overflow-hidden h-96 flex flex-col">{/* Fixed height h-96 for uniform taller cards */}
@@ -60,7 +60,7 @@ const HowItWorks = () => {
             },
             {
               stepNumber: 3,
-              icon: <FaMicrophone />,
+              icon: <FaRobot />,
               title: "Auto-Fill Forms Instantly",
               description: "Click the SabApplier extension when you encounter a form. It reads and fills your data automatically."
             },

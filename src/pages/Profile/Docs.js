@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { api } from "../../services/api";
 import Footer from "../../components/Footer/Footer";
 import { Download, Trash2, Upload, FileText, CheckCircle } from "lucide-react";
+import { FaFileAlt, FaIdCard, FaInfoCircle } from "react-icons/fa";
 
 const DOCUMENT_CATEGORIES = {
   examRelated: {
     title: "Exam Related Documents",
-    icon: "📝",
+    icon: <FaFileAlt className="w-5 h-5 text-blue-600" />,
     description: "Documents required for exam applications and admissions",
     fields: {
       passport_size_photo_file_url: "Passport Size Photo",
@@ -24,7 +25,7 @@ const DOCUMENT_CATEGORIES = {
   },
   personal: {
     title: "Personal Identification Documents",
-    icon: "🆔",
+    icon: <FaIdCard className="w-5 h-5 text-blue-600" />,
     description: "Personal identification and government documents",
     fields: {
       passport_file_url: "Passport",
@@ -266,7 +267,7 @@ const Docs = ({ docUpload }) => {
               {/* Category Header */}
               <div className="flex items-center mb-4">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-200 to-blue-300 rounded-xl flex items-center justify-center mr-3">
-                  <span className="text-lg">{category.icon}</span>
+                  {category.icon}
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
@@ -417,7 +418,7 @@ const Docs = ({ docUpload }) => {
           {uploadedCount === 0 && (
             <div className="bg-white rounded-2xl p-12 border border-gray-100 shadow-sm text-center">
               <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl mx-auto mb-6 flex items-center justify-center">
-                <FileText className="w-8 h-8 text-blue-600" />
+                <FaFileAlt className="w-8 h-8 text-blue-600" />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">
                 No documents uploaded yet
@@ -426,17 +427,7 @@ const Docs = ({ docUpload }) => {
                 Start by uploading your first document using the form above
               </p>
               <div className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium">
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                    clipRule="evenodd"
-                  />
-                </svg>
+                <FaInfoCircle className="w-4 h-4 mr-2" />
                 Secure & Encrypted Storage
               </div>
             </div>
