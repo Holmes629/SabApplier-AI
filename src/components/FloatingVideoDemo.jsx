@@ -4,20 +4,21 @@ import { X } from 'lucide-react';
 
 const defaultPosition = {
   bottom: 24,
-  right: 24,
+  left: 24,
 };
 
 const floatingBaseStyle = {
   position: 'fixed',
   zIndex: 1000,
   background: 'transparent', // changed from #fff to transparent
-  borderRadius: 20,
-  boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+
+  borderTopLeftRadius: '8px',
+  borderTopRightRadius: '8px',
   padding: '8px 8px 4px 8px',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'flex-end',
-  minWidth: 340,
+  minWidth: 240,
   maxWidth: '95vw',
   transition: 'box-shadow 0.2s',
   cursor: 'grab',
@@ -28,8 +29,8 @@ const closeBtnStyle = {
   border: 'none',
   borderRadius: 9999,
   cursor: 'pointer',
-  padding: 4,
-  marginBottom: 4,
+  padding: 1,
+  marginBottom: 0,
   alignSelf: 'flex-end',
   transition: 'background 0.2s',
   display: 'flex',
@@ -72,7 +73,7 @@ const FloatingVideoDemo = () => {
     // Calculate new position relative to viewport
     const newLeft = e.clientX - dragOffset.current.x;
     const newTop = e.clientY - dragOffset.current.y;
-    setPosition({ top: Math.max(0, newTop), left: Math.max(0, newLeft) });
+    setPosition({ top: Math.max(8, newTop), left: Math.max(0, newLeft) }); // Limit top to at least 8px
   };
 
   const handleMouseUp = () => {
@@ -102,11 +103,11 @@ const FloatingVideoDemo = () => {
       title="Drag to move"
     >
       <button style={closeBtnStyle} onClick={() => setShow(false)} title="Close video demo">
-        <X size={22} />
+        <X size={12} />
       </button>
       <iframe
-        width="340"
-        height="202"
+        width="240"
+        height="140"
         src="https://www.youtube.com/embed/ekW1cQOJHPw?mute=1"
         title="Product Demo Video"
         frameBorder="0"
