@@ -2,39 +2,61 @@ import React, { useState, useEffect } from "react";
 import { api } from "../../services/api";
 import Footer from "../../components/Footer/Footer";
 import { Download, Trash2, Upload, FileText, CheckCircle } from "lucide-react";
+import { FaFileAlt, FaIdCard, FaInfoCircle } from "react-icons/fa";
 
-// 1. Replace DOCUMENT_CATEGORIES and DOCUMENT_FIELDS with only the required fields
-const MAIN_DOC_FIELDS = {
-  passport_size_photo_file_url: "Passport Size Photo",
-  signature_file_url: "Signature",
-  aadhaar_card_file_url: "Aadhaar Card",
-  category_certificate_file_url: "Caste Certificate",
-  _10th_certificate_file_url: "10th Certificate",
-  _12th_certificate_file_url: "12th Certificate",
-  graduation_certificate_file_url: "Graduation Certificate",
-  left_thumb_file_url: "Left Thumb Impression"
+const DOCUMENT_CATEGORIES = {
+  examRelated: {
+    title: "Exam Related Documents",
+    icon: <FaFileAlt className="w-5 h-5 text-blue-600" />,
+    description: "Documents required for exam applications and admissions",
+    fields: {
+      passport_size_photo_file_url: "Passport Size Photo",
+      signature_file_url: "Signature",
+      aadhaar_card_file_url: "Aadhaar Card / National ID / Social Security Card",
+      name_change_certificate_file_url: "Name Change Certificate",
+      _10th_certificate_file_url: "10th Certificate / Marksheet",
+      _12th_certificate_file_url: "12th Certificate / Marksheet",
+      pwd_certificate_file_url: "PWD Certificate",
+      graduation_certificate_file_url: "Graduation Certificate / Degree",
+      post_graduation_certificate_file_url: "Post Graduation Certificate / Degree",
+      left_thumb_file_url: "Left Thumb Impression",
+      category_certificate_file_url: "Category Certificate (SC/ST/OBC)",
+    }
+  },
+  personal: {
+    title: "Personal Identification Documents",
+    icon: <FaIdCard className="w-5 h-5 text-blue-600" />,
+    description: "Personal identification and government documents",
+    fields: {
+      passport_file_url: "Passport",
+      drivers_license_file_url: "Driver's License",
+      birth_certificate_file_url: "Birth Certificate",
+      voter_id_file_url: "Voter ID",
+      pan_card_file_url: "PAN Card",
+      residence_card_file_url: "Residence/Green Card",
+      marriage_certificate_file_url: "Marriage Certificate",
+      divorce_decree_file_url: "Divorce Decree",
+      caste_certificate_file_url: "Caste Certificate",
+      domicile_certificate_file_url: "Domicile Certificate",
+      income_certificate_file_url: "Income Certificate",
+      character_certificate_file_url: "Character Certificate",
+    }
+  }
 };
-const MAIN_DROPDOWN_FIELDS = [
-  { key: "category_certificate_file_url", label: "Caste Certificate" },
-  { key: "_10th_certificate_file_url", label: "10th Certificate" },
-  { key: "aadhaar_card_file_url", label: "Aadhaar Card" },
-  { key: "left_thumb_file_url", label: "Left Thumb" },
-  { key: "_12th_certificate_file_url", label: "12th Certificate" },
-  { key: "graduation_certificate_file_url", label: "Graduation Certificate" }
-];
+
+// Flattened version for backward compatibility
+const DOCUMENT_FIELDS = {
+  ...DOCUMENT_CATEGORIES.examRelated.fields,
+  ...DOCUMENT_CATEGORIES.personal.fields,
+};
 
 const Docs = ({ docUpload }) => {
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({});
   const [uploading, setUploading] = useState(false);
-  const [uploadingField, setUploadingField] = useState(null); // NEW: track which field is uploading
   const [isProfileFetched, setIsProfileFetched] = useState(
     localStorage.getItem("isProfileFetched") === "true"
   );
-  const [imgError, setImgError] = useState({});
-  const [showCustomTooltip, setShowCustomTooltip] = useState(false);
-  const [showSelectTooltip, setShowSelectTooltip] = useState(false);
-  const [showMainDocTooltip, setShowMainDocTooltip] = useState({});
 
   useEffect(() => {
     if (!isProfileFetched) {
@@ -83,7 +105,6 @@ const Docs = ({ docUpload }) => {
 
   const handleFileUpload = async (fileFieldName, file) => {
     setUploading(true);
-    setUploadingField(fileFieldName); // NEW: set uploading field
 
     try {
       console.log("Uploading file:", fileFieldName, file.name);
@@ -111,15 +132,15 @@ const Docs = ({ docUpload }) => {
       // Determine if this is a custom doc (not in DOCUMENT_FIELDS)
       let customDocCategories = {};
       let categoryKey = null;
-      Object.entries(MAIN_DOC_FIELDS).forEach(([catKey, cat]) => {
-        if (catKey === fileFieldName) {
+      Object.entries(DOCUMENT_CATEGORIES).forEach(([catKey, cat]) => {
+        if (cat.fields[fileFieldName]) {
           categoryKey = catKey;
         }
       });
       // If not found in standard fields, treat as custom and use current formData
       if (!categoryKey) {
         // Find which category's docType matches this upload
-        Object.entries(MAIN_DOC_FIELDS).forEach(([catKey, cat]) => {
+        Object.entries(DOCUMENT_CATEGORIES).forEach(([catKey, cat]) => {
           if (formData[`${catKey}_docType`] && `${formData[`${catKey}_docType`]}_file_url` === fileFieldName) {
             categoryKey = catKey;
           }
@@ -136,12 +157,12 @@ const Docs = ({ docUpload }) => {
       setTimeout(() => {
         getProfile();
         setUploading(false);
-        setUploadingField(null); // NEW: reset uploading field
 
         // Clear the form after successful upload - clear all category form fields
         setFormData((prev) => ({
           ...prev,
-          docType: "",
+          examRelated_docType: "",
+          personal_docType: "",
           examRelated_customDocType: "",
           personal_customDocType: ""
         }));
@@ -149,7 +170,6 @@ const Docs = ({ docUpload }) => {
     } catch (error) {
       console.error("Upload error:", error);
       setUploading(false);
-      setUploadingField(null); // NEW: reset uploading field
 
       // Show error message
       const messageElement = document.createElement("div");
@@ -222,17 +242,12 @@ const Docs = ({ docUpload }) => {
 
   return (
     <div className="min-h-screen bg-white relative overflow-hidden">
+      {/* Subtle Background Pattern */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-50 rounded-full opacity-30"></div>
         <div className="absolute bottom-20 left-20 w-32 h-32 bg-blue-100 rounded-full opacity-20"></div>
       </div>
-      {/* Security Message */}
-      <div className="w-full flex justify-center mt-6 mb-2 z-20 relative">
-        <div className="flex items-center gap-3 bg-green-50 border border-green-200 rounded-2xl px-6 py-3 shadow-sm">
-          <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 11c0-1.657-1.343-3-3-3s-3 1.343-3 3c0 1.306.835 2.417 2 2.83V17a1 1 0 001 1h2a1 1 0 001-1v-3.17c1.165-.413 2-1.524 2-2.83z" /></svg>
-          <span className="text-green-700 font-semibold text-lg">Your data is secured, safe, and always in your control.</span>
-        </div>
-      </div>
+
       <main className="relative z-10 max-w-6xl mx-auto px-4 py-8">
         {/* Header Section - Matching Complete Your Profile Design */}
         <div className="mb-12 text-center">
@@ -240,266 +255,180 @@ const Docs = ({ docUpload }) => {
             Upload your important documents to <span className="font-semibold text-dark">Manage</span>, <span className="font-semibold text-dark">access</span> them anytime, and easily <span className="font-semibold text-dark">share</span> or <span className="font-semibold text-dark">fill complex forms</span>.
           </p>
           <p className="text-sm text-gray-500 max-w-2xl mx-auto">
-            Documents get resized, cropped, compressed and change file format according to the from requirements.
+            Documents gets resized, cropped, compressed and change file format according to the requirements.
           </p>
         </div>
-        {/* Single merged card for all uploads, keep card/grid style */}
+
+        {/* Documents Grid - Enhanced with AutoFill Theme */}
         <div className="space-y-6">
-          {/* 1. Add heading above upload card */}
-          
-          <div className="rounded-xl border border-gray-100 p-6  mb-6">
-
-          <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-200 to-blue-300 rounded-xl flex items-center justify-center mr-3">
-                <span className="text-lg">📝</span>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900">Common Exam Application Documents</h3>
-                <p className="text-sm text-gray-600">We recommend uploading these documents for a smooth application process.</p>
-              </div>
-              
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {[
-                "passport_size_photo_file_url",
-                "signature_file_url"
-              ].map((field) => {
-                const url = allDocuments[field];
-                const isImage = url && !imgError[field];
-                const isPDF = url && url.endsWith(".pdf");
-                const isUploadingThis = uploadingField === field; // NEW
-                return (
-                  <div key={field} className="rounded-xl border border-blue-200 p-4 flex flex-col items-center hover:shadow-lg transition-all duration-300 group bg-blue-50/30">
-                    <div className="mb-2 text-center font-semibold text-gray-800 flex items-center gap-2">
-                      {MAIN_DOC_FIELDS[field]}
-                      <div className="relative inline-block">
-                        <span
-                          className="text-xs text-gray-400 cursor-help"
-                          onMouseEnter={() => setShowMainDocTooltip(prev => ({ ...prev, [field]: true }))}
-                          onMouseLeave={() => setShowMainDocTooltip(prev => ({ ...prev, [field]: false }))}
-                          onFocus={() => setShowMainDocTooltip(prev => ({ ...prev, [field]: true }))}
-                          onBlur={() => setShowMainDocTooltip(prev => ({ ...prev, [field]: false }))}
-                          tabIndex={0}
-                          aria-describedby={`main-doc-tooltip-${field}`}
-                        >
-                          ⓘ
-                        </span>
-                        {showMainDocTooltip[field] && (
-                          <div
-                            id={`main-doc-tooltip-${field}`}
-                            className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap"
-                            role="tooltip"
-                          >
-                            Accepted: JPG, PNG, PDF.
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    {isUploadingThis ? (
-                      <div className="w-24 h-24 flex items-center justify-center">
-                        <div className="animate-spin rounded-full h-10 w-10 border-4 border-blue-300 border-t-transparent"></div>
-                      </div>
-                    ) : url ? (
-                      <div className="w-full flex flex-col items-center">
-                        <div className="w-24 h-24 mb-2 flex items-center justify-center border border-green-300 rounded-xl overflow-hidden bg-green-50">
-                          {isImage && !isPDF ? (
-                            <a href={getDropboxViewLink(url)} target="_blank" rel="noopener noreferrer" className="w-full h-full flex items-center justify-center">
-                              <img
-                                src={getDropboxViewLink(url)}
-                                alt={MAIN_DOC_FIELDS[field]}
-                                className="object-contain w-full h-full cursor-pointer hover:scale-105 transition-transform duration-200"
-                                onError={() => setImgError(prev => ({ ...prev, [field]: true }))}
-                              />
-                            </a>
-                          ) : isPDF ? (
-                            <a href={getDropboxViewLink(url)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center w-full h-full">
-                              <FileText className="w-10 h-10 text-green-400 mb-1" />
-                              <span className="text-xs text-green-700">View PDF</span>
-                            </a>
-                          ) : (
-                            <a href={getDropboxViewLink(url)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center w-full h-full">
-                              <FileText className="w-10 h-10 text-green-400 mb-1" />
-                              <span className="text-xs text-green-700">View File</span>
-                            </a>
-                          )}
-                        </div>
-                        <div className="flex gap-2 mb-2">
-                          <a href={getDropboxViewLink(url)} target="_blank" rel="noopener noreferrer" className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium hover:bg-emerald-200">View</a>
-                          <a href={getDropboxDownloadLink(url)} target="_blank" rel="noopener noreferrer" className="p-2 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-50 rounded-lg transition-all duration-200" title="Download"><Download className="w-4 h-4" /></a>
-                          <button className="p-2 text-emerald-700 hover:text-red-600 hover:bg-emerald-50 rounded-lg transition-all duration-200" onClick={() => handleDeleteDoc(field)} title="Delete"><Trash2 className="w-4 h-4" /></button>
-                        </div>
-                      </div>
-                    ) : (
-                      <label className="w-full flex flex-col items-center justify-center border-2 border-dashed border-emerald-300 rounded-xl p-6 cursor-pointer hover:bg-emerald-50 transition-all duration-200">
-                        <Upload className="w-8 h-8 text-emerald-400 mb-2" />
-                        <span className="text-emerald-700 text-sm mb-2">Upload {MAIN_DOC_FIELDS[field]}</span>
-                        <input type="file" accept=".pdf,image/*" className="hidden" onChange={e => { const file = e.target.files[0]; if (file) handleFileUpload(field, file); }} disabled={uploading} />
-                      </label>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-            {/* Category Header */}
-            <div className="flex items-center mb-4">
-              <div className="w-10 h-10 bg-gradient-to-r from-blue-200 to-blue-300 rounded-xl flex items-center justify-center mr-3">
-                <span className="text-lg">📝</span>
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-gray-900">Exam Related Documents (Optional)</h3>
-                <p className="text-sm text-gray-600">Upload and manage your key documents. Only you control access.</p>
-              </div>
-              <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-                {uploadedCount} uploaded
-              </span>
-            </div>
-
-            {/* Select Documents Section */}
-            <div className="mb-6">
-              <div className="font-semibold text-blue-700 mb-2 flex items-center gap-2">
-                Select Documents
-                <div className="relative inline-block">
-                  <span
-                    className="text-xs text-gray-400 cursor-help"
-                    onMouseEnter={() => setShowSelectTooltip(true)}
-                    onMouseLeave={() => setShowSelectTooltip(false)}
-                    onFocus={() => setShowSelectTooltip(true)}
-                    onBlur={() => setShowSelectTooltip(false)}
-                    tabIndex={0}
-                    aria-describedby="select-doc-tooltip"
-                  >
-                    ⓘ
-                  </span>
-                  {showSelectTooltip && (
-                    <div
-                      id="select-doc-tooltip"
-                      className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap"
-                      role="tooltip"
-                    >
-                      Choose a document type and upload a file.<br/>Accepted: JPG, PNG, PDF.
-                    </div>
-                  )}
+          {/* Upload Sections - Separate for each category */}
+          {Object.entries(DOCUMENT_CATEGORIES).map(([categoryKey, category]) => (
+            <div key={categoryKey} className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+              {/* Category Header */}
+              <div className="flex items-center mb-4">
+                <div className="w-10 h-10 bg-gradient-to-r from-blue-200 to-blue-300 rounded-xl flex items-center justify-center mr-3">
+                  {category.icon}
                 </div>
+                <div className="flex-1">
+                  <h3 className="text-xl font-bold text-gray-900">{category.title}</h3>
+                  <p className="text-sm text-gray-600">{category.description}</p>
+                </div>
+                <span className="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+                  {getUploadedCountByCategory(category, categoryKey)} uploaded
+                </span>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3 items-end">
-                <select className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white" value={formData.docType || ""} onChange={e => setFormData({ ...formData, docType: e.target.value })}>
+
+              {/* Upload Form for this category */}
+              <div className="flex flex-col sm:flex-row gap-3 items-end mb-6">
+                <select
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white"
+                  value={formData[`${categoryKey}_docType`] || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, [`${categoryKey}_docType`]: e.target.value })
+                  }
+                >
                   <option value="">Select document type</option>
-                  {MAIN_DROPDOWN_FIELDS.map(opt => <option key={opt.key} value={opt.key}>{opt.label}</option>)}
+                  {Object.entries(category.fields).map(([key, label]) => (
+                    <option key={key} value={key.replace("_file_url", "")}>{label}</option>
+                  ))}
                 </select>
-                <label className={`flex items-center justify-center px-6 py-3 rounded-xl cursor-pointer transition-all duration-300 whitespace-nowrap ${formData.docType ? "bg-gradient-to-r from-emerald-500 to-emerald-600 text-white hover:from-emerald-600 hover:to-emerald-700 shadow-lg" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}>
-                  {uploading ? (<><div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div><span className="font-medium">Uploading...</span></>) : (<><Upload className="w-4 h-4 mr-2" /><span className="font-medium">Upload File</span></>)}
-                  <input type="file" accept=".pdf,image/*" className="hidden" onChange={e => { const file = e.target.files[0]; if (file && formData.docType) handleFileUpload(formData.docType, file); }} disabled={!formData.docType || uploading} />
-                </label>
-              </div>
-              {/* Show preview of selected file before upload */}
-              {formData.selectedFile && (
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-xs text-gray-500">Selected:</span>
-                  <span className="text-xs font-medium text-blue-700">{formData.selectedFile.name}</span>
-                </div>
-              )}
-              {/* Uploaded docs grid for dropdown docs, keep original grid style */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-                {MAIN_DROPDOWN_FIELDS.map(opt => {
-                  const url = allDocuments[opt.key];
-                  if (!url) return null;
-                  const isImage = url && (url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png"));
-                  const isPDF = url && url.endsWith(".pdf");
-                  return (
-                    <div key={opt.key} className="rounded-xl border border-emerald-200 p-4 flex flex-col items-center hover:shadow-lg hover:scale-105 transition-all duration-300 group bg-emerald-50/30">
-                      <div className="w-16 h-16 mb-2 flex items-center justify-center border border-emerald-200 rounded-xl overflow-hidden bg-emerald-50">
-                        {isImage ? <img src={getDropboxViewLink(url)} alt={opt.label} className="object-contain w-full h-full" /> : isPDF ? <a href={getDropboxViewLink(url)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center w-full h-full"><FileText className="w-8 h-8 text-emerald-400 mb-1" /><span className="text-xs text-emerald-700">View PDF</span></a> : <FileText className="w-8 h-8 text-emerald-400" />}
-                      </div>
-                      <div className="font-semibold text-gray-900 text-sm mb-2 text-center">{opt.label}</div>
-                      <div className="flex gap-2">
-                        <a href={getDropboxViewLink(url)} target="_blank" rel="noopener noreferrer" className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-lg text-xs font-medium hover:bg-emerald-200">View</a>
-                        <a href={getDropboxDownloadLink(url)} target="_blank" rel="noopener noreferrer" className="p-2 text-emerald-700 hover:text-emerald-900 hover:bg-emerald-50 rounded-lg transition-all duration-200" title="Download"><Download className="w-4 h-4" /></a>
-                        <button className="p-2 text-emerald-700 hover:text-red-600 hover:bg-emerald-50 rounded-lg transition-all duration-200" onClick={() => handleDeleteDoc(opt.key)} title="Delete"><Trash2 className="w-4 h-4" /></button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            {/* Custom Documents Section */}
-            <div className="mt-8">
-              <div className="font-semibold text-blue-700 mb-2 flex items-center gap-2">
-                Add Custom Documents (optional)
-                <div className="relative inline-block">
-                  <span
-                    className="text-xs text-gray-400 cursor-help"
-                    onMouseEnter={() => setShowCustomTooltip(true)}
-                    onMouseLeave={() => setShowCustomTooltip(false)}
-                    onFocus={() => setShowCustomTooltip(true)}
-                    onBlur={() => setShowCustomTooltip(false)}
-                    tabIndex={0}
-                    aria-describedby="custom-doc-tooltip"
+
+                <input
+                  type="text"
+                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                  placeholder="Custom document name (optional)"
+                  value={formData[`${categoryKey}_customDocType`] || ""}
+                  onChange={(e) => setFormData({ ...formData, [`${categoryKey}_customDocType`]: e.target.value })}
+                  onBlur={() => {
+                    const customDocType = formData[`${categoryKey}_customDocType`];
+                    if (customDocType && customDocType.trim()) {
+                      const formattedKey =
+                        customDocType.toLowerCase().replace(/\s+/g, "_") +
+                        "_file_url";
+
+                      if (!DOCUMENT_FIELDS[formattedKey]) {
+                        setFormData({
+                          ...formData,
+                          [`${categoryKey}_docType`]: customDocType
+                            .toLowerCase()
+                            .replace(/\s+/g, "_"),
+                        });
+                      }
+                    }
+                  }}
+                />
+
+                <div>
+                  <label
+                    className={`flex items-center justify-center px-6 py-3 rounded-xl cursor-pointer transition-all duration-300 whitespace-nowrap ${
+                      formData[`${categoryKey}_docType`]
+                        ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 shadow-lg"
+                        : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                    }`}
                   >
-                    ⓘ
-                  </span>
-                  {showCustomTooltip && (
-                    <div
-                      id="custom-doc-tooltip"
-                      className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap"
-                      role="tooltip"
-                    >
-                      Give your document a custom name and upload.<br/>Accepted: JPG, PNG, PDF.
-                    </div>
-                  )}
+                    {uploading ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                        <span className="font-medium">Uploading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 mr-2" />
+                        <span className="font-medium">Upload File</span>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept=".pdf,image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        const docType = formData[`${categoryKey}_docType`];
+                        if (file && docType) {
+                          handleFileUpload(`${docType}_file_url`, file);
+                        }
+                      }}
+                      disabled={!formData[`${categoryKey}_docType`] || uploading}
+                    />
+                  </label>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3 items-end">
-                <input type="text" className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 bg-white" placeholder="Custom document name" value={formData.customDocName || ""} onChange={e => setFormData({ ...formData, customDocName: e.target.value })} />
-                <label className={`flex items-center justify-center px-6 py-3 rounded-xl cursor-pointer transition-all duration-300 whitespace-nowrap ${formData.customDocName ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700 shadow-lg" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`}>
-                  {uploading ? (<><div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div><span className="font-medium">Uploading...</span></>) : (<><Upload className="w-4 h-4 mr-2" /><span className="font-medium">Upload File</span></>)}
-                  <input type="file" accept=".pdf,image/*" className="hidden" onChange={e => { const file = e.target.files[0]; if (file && formData.customDocName) handleFileUpload(formData.customDocName.toLowerCase().replace(/\s+/g, "_") + "_file_url", file); }} disabled={!formData.customDocName || uploading} />
-                </label>
-              </div>
-              {/* Show preview of selected file before upload */}
-              {formData.selectedCustomFile && (
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-xs text-gray-500">Selected:</span>
-                  <span className="text-xs font-medium text-blue-700">{formData.selectedCustomFile.name}</span>
+
+              {/* Uploaded Documents Grid for this category (including custom docs) */}
+              {(() => {
+                const customDocCategories = userData?.custom_doc_categories || {};
+                // Get all doc keys for this category: standard + custom
+                const categoryDocKeys = Object.keys(allDocuments).filter(field =>
+                  category.fields[field] || Object.entries(customDocCategories).some(([customField, catKey]) => customField === field && catKey === categoryKey)
+                );
+                if (categoryDocKeys.length === 0) return null;
+                return (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+                    {categoryDocKeys.map(field => (
+                      <div
+                        key={field}
+                        className="rounded-xl border border-blue-200 p-4 hover:shadow-lg hover:scale-105 transition-all duration-300 group"
+                      >
+                        <div className="flex items-start justify-between mb-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-200 to-blue-300 rounded-xl flex items-center justify-center group-hover:from-blue-300 group-hover:to-blue-400 transition-all duration-300">
+                            <FileText className="w-5 h-5 text-dark" />
+                          </div>
+                          <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                            <CheckCircle className="w-3 h-3 text-white" />
+                          </div>
+                        </div>
+                        <h4 className="font-semibold text-gray-900 text-sm mb-3 line-clamp-2 leading-tight">
+                          {category.fields[field] || prettifyFieldName(field)}
+                        </h4>
+                        <div className="flex gap-2">
+                          <a
+                            href={getDropboxViewLink(allDocuments[field])}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex-1 text-center px-3 py-2 bg-gradient-to-r from-blue-300 to-blue-400 text-dark text-xs rounded-lg hover:from-blue-400 hover:to-blue-500 transition-all duration-200 font-medium"
+                          >
+                            View
+                          </a>
+                          <a
+                            href={getDropboxDownloadLink(allDocuments[field])}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="p-2 text-gray-600 hover:text-blue-600 hover:bg-white rounded-lg transition-all duration-200"
+                            title="Download"
+                          >
+                            <Download className="w-4 h-4" />
+                          </a>
+                          <button
+                            className="p-2 text-gray-600 hover:text-red-600 hover:bg-white rounded-lg transition-all duration-200"
+                            onClick={() => handleDeleteDoc(field)}
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                 </div>
-              )}
-              {/* Uploaded custom docs grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 mt-4">
-                {Object.keys(allDocuments).filter(key => !MAIN_DOC_FIELDS[key]).map(key => {
-                  const url = allDocuments[key];
-                  if (!url) return null;
-                  const isImage = url && (url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png"));
-                  const isPDF = url && url.endsWith(".pdf");
-                  return (
-                    <div key={key} className="rounded-xl border border-green-200 p-4 flex flex-col items-center hover:shadow-lg hover:scale-105 transition-all duration-300 group bg-green-50/30">
-                      <div className="w-16 h-16 mb-2 flex items-center justify-center border border-green-200 rounded-xl overflow-hidden bg-green-50">
-                        {isImage ? <img src={getDropboxViewLink(url)} alt={key} className="object-contain w-full h-full" /> : isPDF ? <a href={getDropboxViewLink(url)} target="_blank" rel="noopener noreferrer" className="flex flex-col items-center justify-center w-full h-full"><FileText className="w-8 h-8 text-green-400 mb-1" /><span className="text-xs text-green-700">View PDF</span></a> : <FileText className="w-8 h-8 text-green-400" />}
-                      </div>
-                      <div className="font-semibold text-gray-900 text-sm mb-2 text-center">{prettifyFieldName(key)}</div>
-                      <div className="flex gap-2">
-                        <a href={getDropboxViewLink(url)} target="_blank" rel="noopener noreferrer" className="px-3 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-medium hover:bg-green-200">View</a>
-                        <a href={getDropboxDownloadLink(url)} target="_blank" rel="noopener noreferrer" className="p-2 text-green-700 hover:text-green-900 hover:bg-green-50 rounded-lg transition-all duration-200" title="Download"><Download className="w-4 h-4" /></a>
-                        <button className="p-2 text-green-700 hover:text-red-600 hover:bg-green-50 rounded-lg transition-all duration-200" onClick={() => handleDeleteDoc(key)} title="Delete"><Trash2 className="w-4 h-4" /></button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                );
+              })()}
             </div>
-          </div>
+          ))}
+
           {/* Empty State - Enhanced */}
           {uploadedCount === 0 && (
             <div className="bg-white rounded-2xl p-12 border border-gray-100 shadow-sm text-center">
               <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-blue-200 rounded-2xl mx-auto mb-6 flex items-center justify-center">
-                <FileText className="w-8 h-8 text-blue-600" />
+                <FaFileAlt className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">No documents uploaded yet</h3>
-              <p className="text-gray-600 mb-6">Start by uploading your first document using the form above</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">
+                No documents uploaded yet
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Start by uploading your first document using the form above
+              </p>
               <div className="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 rounded-xl text-sm font-medium">
-                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
-                Secured & Encrypted Storage
+                <FaInfoCircle className="w-4 h-4 mr-2" />
+                Secure & Encrypted Storage
               </div>
             </div>
           )}

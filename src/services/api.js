@@ -530,6 +530,33 @@ export const api = {
     }
   },
 
+  deleteAccount: async () => {
+    try {
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      if (!currentUser || !currentUser.email) {
+        throw new Error("User not found. Please log in again.");
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/users/delete-account/`,
+        { 
+          email: currentUser.email
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken"),
+          },
+        }
+      );
+
+      return response.data;
+    } catch (error) {
+      console.error("Account deletion error:", error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || "Account deletion failed");
+    }
+  },
+
   // Data Sharing APIs
   shareDataWithFriend: async (receiverEmail, selectedDocuments = [], sharingType = 'documents_only') => {
     try {

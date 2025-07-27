@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Footer from '../../components/Footer/Footer';
 import { api } from '../../services/api';
-import { User, Mail, Phone, MapPin, Calendar, X } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, X, Trash2, AlertTriangle } from 'lucide-react';
 
 function Profile() {
   const navigate = useNavigate();
@@ -10,6 +10,8 @@ function Profile() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [googleProfileData, setGoogleProfileData] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -58,6 +60,53 @@ function Profile() {
 
     fetchProfile();
   }, [navigate]);
+
+  const handleDeleteAccount = async () => {
+    try {
+      setIsDeleting(true);
+      
+      // Call the delete account API
+      const result = await api.deleteAccount();
+      
+      if (result.success) {
+        // Show success message
+        const messageElement = document.createElement('div');
+        messageElement.textContent = 'Account deleted successfully. We\'re sorry to see you go!';
+        messageElement.style.cssText = 'position: fixed; top: 70px; left: 50%; transform: translateX(-50%); padding: 12px 20px; background: #10B981; color: white; border-radius: 8px; z-index: 1000; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+        document.body.appendChild(messageElement);
+        
+        // Clear all local storage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Close modal
+        setShowDeleteModal(false);
+        
+        // Redirect to intro page after a short delay
+        setTimeout(() => {
+          window.location.href = '/intro';
+        }, 2000);
+      } else {
+        throw new Error(result.message || 'Failed to delete account');
+      }
+    } catch (err) {
+      console.error('Delete account error:', err);
+      
+      // Show error message
+      const messageElement = document.createElement('div');
+      messageElement.textContent = `Error: ${err.message}`;
+      messageElement.style.cssText = 'position: fixed; top: 70px; left: 50%; transform: translateX(-50%); padding: 12px 20px; background: #EF4444; color: white; border-radius: 8px; z-index: 1000; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+      document.body.appendChild(messageElement);
+      
+      setTimeout(() => {
+        if (document.body.contains(messageElement)) {
+          document.body.removeChild(messageElement);
+        }
+      }, 4000);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -257,8 +306,82 @@ function Profile() {
           </div>
         </div>
 
+        {/* Danger Zone */}
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-6">
+          <div className="flex items-center mb-4">
+            <AlertTriangle className="w-5 h-5 text-red-600 mr-2" />
+            <h3 className="text-lg font-semibold text-red-800">Danger Zone</h3>
+          </div>
+          <p className="text-red-700 mb-4">
+            Once you delete your account, there is no going back. Please be certain.
+          </p>
+          <button
+            onClick={() => setShowDeleteModal(true)}
+            className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete Account
+          </button>
+        </div>
+
         {/* Footer */}
       </main>
+      
+      {/* Delete Account Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <AlertTriangle className="w-6 h-6 text-red-600" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Delete Account</h3>
+                <p className="text-gray-600">This action cannot be undone</p>
+              </div>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-700 mb-4">
+                Are you sure you want to delete your account? This will permanently remove:
+              </p>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• All your personal information</li>
+                <li>• Your profile data and documents</li>
+                <li>• Your application history</li>
+                <li>• All shared data connections</li>
+              </ul>
+            </div>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 font-medium disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteAccount}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium disabled:opacity-50 flex items-center justify-center"
+              >
+                {isDeleting ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Account
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <Footer />
     </div>
