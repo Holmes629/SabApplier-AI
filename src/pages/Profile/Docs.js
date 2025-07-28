@@ -3,7 +3,8 @@ import { api } from "../../services/api";
 import Footer from "../../components/Footer/Footer";
 import { Download, Trash2, Upload, FileText, CheckCircle } from "lucide-react";
 
-// 1. Replace DOCUMENT_CATEGORIES and DOCUMENT_FIELDS with only the required fields
+// 1. Replace DOCUMENT_CATEGORIES and DOCUMENT_FIELDS with only the required fields 
+
 const MAIN_DOC_FIELDS = {
   passport_size_photo_file_url: "Passport Size Photo",
   signature_file_url: "Signature",
