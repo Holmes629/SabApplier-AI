@@ -52,17 +52,9 @@ function AppContent() {
       return <Navigate to="/intro" replace />;
     }
 
-    // If authenticated but profile not complete, redirect to profile completion
-    if (isAuthenticated && !isProfileComplete()) {
-      return <Navigate to="/signup-page2" replace />;
-    }
-
-    // If authenticated and profile complete but no website access, redirect to waitlist
-    // if (isAuthenticated && isProfileComplete() && !hasWebsiteAccess) {
-    //   return <Navigate to="/waitlist" replace />;
-    // }
-
-    // If fully authenticated and has access, render the protected component
+    // If authenticated, render the protected component
+    // Note: Profile completion is not required for existing users to access protected routes
+    // SignUpStep2 is only for new users during signup flow
     return children;
   };
 
@@ -156,7 +148,7 @@ function AppContent() {
 
   return (
     <div className="app">
-      {isFullyAuthenticated && location.pathname !== '/manage-docs' && (
+      {isAuthenticated && location.pathname !== '/manage-docs' && (
         <Navbar 
           isAuthenticated={true}
           // cartCount={cartCount} 
